@@ -1,0 +1,54 @@
+/* =====================================================
+   ЭТАП 4 — ВОРКСПЕЙС: ЛЕЙАУТ
+   ===================================================== */
+#ws{display:none;height:100vh;flex-direction:column}
+/* Топ-бар */
+#topbar{height:58px;background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 18px;gap:14px;
+  box-shadow:var(--shadow);z-index:200;flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:9px}
+.tb-logo-ic{width:34px;height:34px;background:#003F8A;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.tb-logo-t{font-size:13px;font-weight:700;color:#003F8A;line-height:1.2}
+.tb-logo-s{font-size:10px;color:var(--muted)}
+.tb-sp{flex:1}
+.tb-clock{font-size:12px;color:var(--muted);font-family:'Courier New',monospace}
+.tb-item{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:7px;
+  cursor:pointer;transition:background .2s;font-size:12px;color:var(--text2);position:relative}
+.tb-item:hover{background:var(--bg)}
+.rbadge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.3px;color:#fff;white-space:nowrap}
+.rb-external{background:#2D7DD2}
+.rb-operator{background:#1E8449}
+.rb-territorial{background:#16A085}
+.rb-foiv{background:#D35400}
+.rb-sysadmin{background:#7D3C98}
+.rb-security{background:#C0392B}
+.notif-dot{position:absolute;top:2px;right:2px;width:15px;height:15px;background:#E74C3C;
+  color:#fff;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.uavatar{width:30px;height:30px;background:#003F8A;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+/* Main */
+#main{display:flex;flex:1;overflow:hidden}
+/* Sidebar */
+#sidebar{width:234px;background:var(--sidebar);display:flex;flex-direction:column;
+  flex-shrink:0;overflow-y:auto}
+.sb-sec{padding:18px 14px 6px;font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:1px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:10px 14px;
+  color:rgba(255,255,255,.68);cursor:pointer;transition:all .2s;
+  font-size:13px;border-left:3px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,.09);color:#fff}
+.sb-item.active{background:rgba(255,255,255,.14);color:#fff;
+  border-left-color:#7EE8A2;font-weight:600}
+.sb-item i{width:16px;text-align:center;font-size:13px}
+.sb-badge{margin-left:auto;background:#E74C3C;color:#fff;padding:2px 6px;
+  border-radius:9px;font-size:9px;font-weight:700}
+.sb-bot{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.1)}
+/* Content */
+#content{flex:1;overflow-y:auto;padding:22px;padding-bottom:210px}
+/* Scrollbars */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#b0b8c8}

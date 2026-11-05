@@ -1,0 +1,31 @@
+/* =====================================================
+   ЭТАП 2 — ЭКРАН ЗАГРУЗКИ
+   ===================================================== */
+#boot{position:fixed;inset:0;background:#003F8A;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:9999;color:#fff}
+.boot-logo{margin-bottom:28px;text-align:center}
+.boot-logo svg{display:block;margin:0 auto 14px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.75;transform:scale(.97)}}
+.boot-h{font-size:21px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.boot-sub{font-size:12px;opacity:.65;margin-top:4px;letter-spacing:.5px;max-width:480px;text-align:center;line-height:1.5}
+.boot-term{width:580px;max-width:92vw;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:16px;font-family:'Courier New',monospace;font-size:12px;
+  height:168px;overflow:hidden;margin:28px 0 18px}
+.boot-line{color:#7EE8A2;line-height:1.75;opacity:0;animation:la .3s ease forwards}
+@keyframes la{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.boot-bar{width:580px;max-width:92vw;height:4px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.boot-fill{height:100%;background:#7EE8A2;border-radius:2px;width:0%;transition:width .4s ease}
+
+.boot-logo{margin-bottom:28px;text-align:center}
+.boot-logo svg{display:block;margin:0 auto 14px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.75;transform:scale(.97)}}
+.boot-h{font-size:21px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.boot-sub{font-size:12px;opacity:.65;margin-top:4px;letter-spacing:.5px;max-width:480px;text-align:center;line-height:1.5}
+.boot-term{width:580px;max-width:92vw;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:16px;font-family:'Courier New',monospace;font-size:12px;
+  height:168px;overflow:hidden;margin:28px 0 18px}
+.boot-line{color:#7EE8A2;line-height:1.75;opacity:0;animation:la .3s ease forwards}
+@keyframes la{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.boot-bar{width:580px;max-width:92vw;height:4px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.boot-fill{height:100%;background:#7EE8A2;border-radius:2px;width:0%;transition:width .4s ease}
+.boot-logo{margin-bottom:28px;text-align:center}

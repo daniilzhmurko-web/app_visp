@@ -1,0 +1,114 @@
+/* =====================================================
+   ЭТАП 5 — КОМПОНЕНТЫ ВОРКСПЕЙСА
+   ===================================================== */
+.breadcrumb{font-size:11px;color:var(--muted);margin-bottom:14px;
+  display:flex;align-items:center;gap:5px}
+.breadcrumb .sep{color:var(--border)}
+.breadcrumb .cur{color:#003F8A;font-weight:600}
+.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-size:21px;font-weight:700;color:var(--text)}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.card{background:#fff;border-radius:12px;box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-hdr{padding:14px 18px;border-bottom:1px solid #EEF3F9;display:flex;align-items:center;gap:9px}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-body{padding:18px}
+/* Кнопки */
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;
+  font-weight:600;font-family:inherit;transition:all .2s;
+  display:inline-flex;align-items:center;gap:5px}
+.btn-sm{padding:6px 11px;font-size:11px}
+.btn-blue{background:#003F8A;color:#fff}
+.btn-blue:hover{background:#1A56A0;transform:translateY(-1px)}
+.btn-blue:disabled{background:#AAB4C5;cursor:not-allowed;transform:none}
+.btn-out{background:transparent;border:2px solid var(--border);color:var(--text2)}
+.btn-out:hover{border-color:#003F8A;color:#003F8A}
+.btn-out:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:#1E8449;color:#fff}
+.btn-green:hover{background:#1a7040}
+.btn-orange{background:#D35400;color:#fff}
+.btn-orange:hover{background:#b84a00}
+.btn-red{background:#C0392B;color:#fff}
+.btn-red:hover{background:#a93226}
+/* Формы */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.fg2{margin-bottom:12px}
+.fl2{display:block;font-size:11px;font-weight:700;color:var(--text2);
+  margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.fi2,.fs2{width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:7px;
+  font-size:13px;font-family:inherit;color:var(--text);background:#F8FAFC;
+  transition:border-color .2s,box-shadow .2s;outline:none}
+.fi2:focus,.fs2:focus{border-color:#003F8A;box-shadow:0 0 0 3px rgba(0,63,138,.1);background:#fff}
+/* Таблица */
+.dtbl{width:100%;border-collapse:collapse}
+.dtbl th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.4px;background:#F8FAFC;border-bottom:2px solid var(--border)}
+.dtbl td{padding:11px 13px;font-size:12px;border-bottom:1px solid #F0F4F8;color:var(--text)}
+.dtbl tr:hover td{background:#EEF3F9;cursor:pointer}
+.dtbl tr.sel td{background:#E8F0FE}
+/* Бейджи статусов */
+.badge{padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;display:inline-block}
+.b-active{background:var(--green-bg);color:var(--green)}
+.b-pending{background:var(--orange-bg);color:var(--orange)}
+.b-confirmed{background:var(--blue-bg);color:#1A5276}
+.b-rejected{background:var(--red-bg);color:var(--red)}
+.b-criminal{background:var(--red-bg);color:var(--red)}
+.b-civil{background:var(--blue-bg);color:#1A5276}
+.b-migration{background:var(--orange-bg);color:var(--orange)}
+/* Поле карточки */
+.dkf-row{margin-bottom:12px}
+.dkf-lbl{font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.dkf-val{font-size:13px;color:var(--text);padding:7px 11px;
+  background:#F8FAFC;border-radius:6px;border:1px solid var(--border)}
+/* Отпечатки */
+.fp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+.fp-slot{aspect-ratio:3/4;background:#F8FAFC;border:2px solid var(--border);border-radius:7px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:9px;color:var(--muted);overflow:hidden;position:relative}
+.fp-slot.ok{border-color:#003F8A;background:#EBF5FB}
+.fp-slot.ok::after{content:'';position:absolute;width:55%;height:65%;
+  background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,63,138,.12) 2px,rgba(0,63,138,.12) 4px);
+  border-radius:50% 50% 50% 50%/40% 40% 60% 60%}
+/* Статы */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow);
+  border-left:4px solid var(--accent)}
+.stat-v{font-size:26px;font-weight:700;color:var(--accent);line-height:1}
+.stat-l{font-size:11px;color:var(--muted);margin-top:3px;font-weight:700;text-transform:uppercase}
+.stat-d{font-size:11px;color:var(--green);margin-top:7px}
+/* Bar chart */
+.bar-wrap{display:flex;gap:10px;align-items:flex-end;height:150px;padding:0 6px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+  height:100%;justify-content:flex-end}
+.bar-fill{width:100%;border-radius:5px 5px 0 0;min-height:4px;transition:height .5s ease}
+.bar-lbl{font-size:10px;color:var(--muted);text-align:center}
+.bar-val{font-size:10px;font-weight:700;color:var(--accent)}
+/* Tabs */
+.tabs{display:flex;gap:2px;background:#EEF3F9;border-radius:8px;
+  padding:3px;margin-bottom:16px;width:fit-content}
+.tab{padding:7px 14px;border-radius:6px;cursor:pointer;font-size:11px;
+  font-weight:600;color:var(--muted);transition:all .2s}
+.tab.on{background:#fff;color:#003F8A;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+/* Лог */
+.log-row{display:flex;gap:10px;align-items:flex-start;padding:9px 16px;
+  border-bottom:1px solid #F0F4F8;font-size:12px}
+.log-t{color:var(--muted);font-family:'Courier New',monospace;flex-shrink:0;width:75px}
+.log-type{padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;
+  white-space:nowrap;flex-shrink:0;margin-top:1px}
+.log-a{flex:1;color:var(--text)}
+.log-u{font-weight:600;color:#003F8A}
+/* Activity */
+.act-item{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #F0F4F8;font-size:12px}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+/* Spinner */
+.spinner{width:28px;height:28px;border:3px solid var(--border);
+  border-top-color:#003F8A;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Empty state */
+.empty{text-align:center;padding:44px 20px;color:var(--muted)}
+.empty i{font-size:44px;margin-bottom:14px;opacity:.25;display:block}
+/* Dash grid */
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.sys-row{display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;padding:8px 0;border-bottom:1px solid #F0F4F8}
+.online{color:var(--green);font-weight:700;font-size:12px}

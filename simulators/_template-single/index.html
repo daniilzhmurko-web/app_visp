@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><title>Шаблон: симулятор в одном файле</title>
+<style>body{font:14px Arial;margin:24px;max-width:720px}button{padding:8px 16px}</style></head>
+<body>
+<a href="../../index.html" style="font:14px Arial;color:#1d6da8">← К порталу ВИСП</a>
+<h1>Симулятор в одном файле</h1>
+<p>Всё (HTML, CSS, JS) в одном index.html. Состояние хранится в localStorage.</p>
+<p>Запусков: <b id="n">0</b> <button onclick="inc()">+1</button> <button onclick="reset()">Сброс</button></p>
+<script>
+// КЛЮЧ localStorage обязательно с уникальным префиксом симулятора (по file:// хранилище может быть общим):
+var KEY = 'sim:template-single:counter';
+function load(){ try { return +localStorage.getItem(KEY) || 0; } catch(e){ return 0; } }
+function save(v){ try { localStorage.setItem(KEY, v); } catch(e){} }
+function show(){ document.getElementById('n').textContent = load(); }
+function inc(){ save(load()+1); show(); }
+function reset(){ save(0); show(); }
+show();
+</script></body></html>

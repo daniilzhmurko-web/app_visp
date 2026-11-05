@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ФИС ГМУ — Симулятор миграционного учёта МВД России</title>
+<link rel="stylesheet" href="app/ui/styles.css">
+</head>
+<body>
+
+
+<div id="toast-container"></div>
+
+<!-- ══════════ WELCOME SCREEN ══════════ -->
+<div id="screen-welcome">
+  <div class="welcome-inner">
+    <div class="welcome-emblem brand-logo" role="img" aria-label="Цифропол ИСОД — МВД России — сервисы миграционной службы"></div>
+    <div class="welcome-title">ФИС ГМУ (ИС ГМУ)</div>
+    <div class="welcome-subtitle">Сервисы миграционного учёта (ВНЖ, РВП, патенты) &nbsp;|&nbsp; <span>МВД России</span><br>Учебно-тренировочный симулятор</div>
+
+    <div class="section-title">Идентификация курсанта</div>
+    <div class="form-group" style="max-width:520px;margin:0 auto 12px">
+      <label class="form-label">Токен доступа (если выдан преподавателем)</label>
+      <textarea class="form-input" id="input-cadet-token" rows="2" placeholder="Вставьте токен целиком — если его не выдавали, оставьте поле пустым" style="font-family:Consolas,monospace;font-size:11px;resize:vertical"></textarea>
+      <div id="cadet-token-err" style="display:none;color:var(--danger);font-size:11px;margin-top:4px;"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg> Не удалось распознать токен — проверьте, что он скопирован полностью.</div>
+      <div id="cadet-token-ok" style="display:none;font-size:11px;margin-top:4px;"></div>
+    </div>
+    <div class="form-row" style="max-width:520px;margin:0 auto 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">ФИО курсанта *</label>
+        <input class="form-input" id="input-cadet-fio" placeholder="Иванов Иван Иванович" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Номер взвода *</label>
+        <input class="form-input" id="input-cadet-platoon" placeholder="напр. 214" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="section-title">Выберите учебный модуль</div>
+    <div class="module-cards">
+      <div class="module-card" onclick="selectModule('migration')" id="mc-migration">
+        <span class="module-card-tag basic">Базовый</span>
+        <div class="module-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg></div>
+        <div class="module-card-title">Миграционный учёт</div>
+        <div class="module-card-desc">Уведомления о прибытии/убытии. Постановка на учёт по месту пребывания. Правило 90/180.</div>
+      </div>
+      <div class="module-card" onclick="selectModule('patent')" id="mc-patent">
+        <span class="module-card-tag advanced">Продвинутый</span>
+        <div class="module-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-id-card"/></svg></div>
+        <div class="module-card-title">Патент / РВП / ВНЖ</div>
+        <div class="module-card-desc">Оформление разрешительных статусов. Дактилоскопия. Межведомственные проверки ИБД-Р/ФСБ.</div>
+      </div>
+      <div class="module-card" onclick="selectModule('instructor')" id="mc-instructor">
+        <span class="module-card-tag instructor">Преподаватель</span>
+        <div class="module-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-grad-cap"/></svg></div>
+        <div class="module-card-title">АРМ Преподавателя</div>
+        <div class="module-card-desc">Генератор кейсов. Мониторинг курсантов. Аналитика ошибок. Итоговые ведомости.</div>
+      </div>
+    </div>
+    
+    <div class="section-title">Выберите роль</div>
+    <div class="role-select">
+      <div class="role-btn selected" id="rb-inspector" onclick="selectRole('inspector', this)">
+        <div class="role-btn-icon"><svg class="ic" aria-hidden="true"><use href="#i-officer"/></svg></div>
+        <div class="role-btn-name">Инспектор ОВМ</div>
+      </div>
+      <div class="role-btn" id="rb-senior" onclick="selectRole('senior', this)">
+        <div class="role-btn-icon"><svg class="ic" aria-hidden="true"><use href="#i-chevrons-up"/></svg></div>
+        <div class="role-btn-name">Ст. инспектор</div>
+      </div>
+      <div class="role-btn" id="rb-chief" onclick="selectRole('chief', this)">
+        <div class="role-btn-icon"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></div>
+        <div class="role-btn-name">Начальник ОВМ</div>
+      </div>
+      <div class="role-btn" id="rb-control" onclick="selectRole('control', this)">
+        <div class="role-btn-icon"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></div>
+        <div class="role-btn-name">Контроль ИГ</div>
+      </div>
+      <div class="role-btn" id="rb-instructor" onclick="selectRole('instructor', this)">
+        <div class="role-btn-icon"><svg class="ic" aria-hidden="true"><use href="#i-grad-cap"/></svg></div>
+        <div class="role-btn-name">Преподаватель</div>
+      </div>
+    </div>
+    
+    <div style="text-align:center">
+      <button class="btn btn-primary btn-lg" onclick="startSimulator()"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>&nbsp; Войти в систему</button>
+      <div style="margin-top:10px;font-size:12px;color:var(--text3)">Учебная версия. Все данные вымышленные. Работает в браузере без сервера.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP SHELL ══════════ -->
+<div id="app-shell" class="hidden">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="logo" title="ФИС ГМУ — Симулятор МВД"><div class="brand-logo brand-logo-top" role="img" aria-label="Цифропол ИСОД — МВД России — сервисы миграционной службы"></div></div>
+    <div id="topbar-info">
+      <div id="topbar-clock">00:00:00</div>
+      <div id="topbar-user">
+        <span id="topbar-role-icon"><svg class="ic" aria-hidden="true"><use href="#i-officer"/></svg></span>
+        <div style="display:flex;flex-direction:column;line-height:1.25">
+          <span id="topbar-role-name">Инспектор ОВМ</span>
+          <span id="topbar-cadet-name" style="font-size:10px;font-weight:600;color:var(--text3)"></span>
+        </div>
+      </div>
+      <div id="topbar-score"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> Баллы: <span id="score-display">100</span></div>
+      <button class="btn btn-outline btn-sm" onclick="renderSessionReport()" title="Сформировать и скачать отчёт по сессии"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg> Отчёт</button>
+    </div>
+  </div>
+
+  <div id="main-area">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div id="sidebar-nav">
+        <div class="nav-section-label">Рабочее место</div>
+        <div class="nav-item active" onclick="showScreen('dashboard')" id="nav-dashboard">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></span><span>Дашборд</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('queue')" id="nav-queue">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg></span><span>Очередь дел</span>
+          <span class="nav-badge" id="queue-badge">0</span>
+        </div>
+        <div class="nav-section-label">Модули</div>
+        <div class="nav-item" onclick="showScreen('migration-module')" id="nav-migration">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg></span><span>Мигр. учёт</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('patent-module')" id="nav-patent">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-id-card"/></svg></span><span>Патент</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('rvp-module')" id="nav-rvp">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><span>РВП / ВНЖ</span>
+        </div>
+        <div class="nav-section-label">Аналитика</div>
+        <div class="nav-item" onclick="showScreen('dossier-list')" id="nav-dossier">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg></span><span>Картотека ИГ</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('violations')" id="nav-violations">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg></span><span>Нарушения</span>
+        </div>
+        <div class="nav-section-label">Управление</div>
+        <div class="nav-item" onclick="showScreen('instructor')" id="nav-instructor">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-grad-cap"/></svg></span><span>АРМ Препод.</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('reports')" id="nav-reports">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg></span><span>Отчёты</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('audit')" id="nav-audit">
+          <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span><span>Журнал аудита</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+      <div id="content-header">
+        <div>
+          <div id="content-title">Дашборд</div>
+          <div id="content-subtitle">Рабочее место инспектора ОВМ</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="showScreen('queue')"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg> Очередь</button>
+          <button class="btn btn-primary btn-sm" onclick="openNewCase()">＋ Новое дело</button>
+        </div>
+      </div>
+      <div id="content-body">
+        <!-- Dynamic content here -->
+      </div>
+    </div>
+
+    <!-- INSTRUCTION PANEL -->
+    <div id="instruction-panel">
+      <div class="instr-header">
+        <span class="instr-title"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg> Инструкции</span>
+        <button id="instr-toggle" onclick="toggleInstructions()" title="Свернуть инструкции">◀</button>
+      </div>
+      <div class="instr-body" id="instr-body">
+        <div class="instr-step-title">
+          <span class="instr-step-num">1</span> Добро пожаловать
+        </div>
+        <p>Это учебный симулятор ФИС ГМУ. Выберите дело из очереди или создайте новое для начала тренировки.</p>
+        <div class="instr-hint"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg> Совет: Каждая ошибка фиксируется в журнале аудита и влияет на итоговый балл.</div>
+        <ul class="instr-checklist">
+          <li class="pending"><span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-square"/></svg></span> Выберите учебный модуль</li>
+          <li class="pending"><span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-square"/></svg></span> Откройте дело из очереди</li>
+          <li class="pending"><span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-square"/></svg></span> Проверьте документы ИГ</li>
+          <li class="pending"><span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-square"/></svg></span> Выполните межвед. запросы</li>
+          <li class="pending"><span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-square"/></svg></span> Примите решение</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Новое дело -->
+<div id="modal-new-case" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg> Новое дело — Выбор типа услуги</span>
+      <button class="modal-close" onclick="closeModal('modal-new-case')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row form-row-2">
+        <div class="card" style="cursor:pointer;border:2px solid transparent" onclick="selectCaseType('migration_reg',this)">
+          <div class="card-body" style="text-align:center">
+            <div class="big-ic"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg></div>
+            <div class="font-bold">Миграционный учёт</div>
+            <div class="text-sm text-muted mt-1">Уведомление о прибытии/убытии. Постановка по месту пребывания.</div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid transparent" onclick="selectCaseType('patent',this)">
+          <div class="card-body" style="text-align:center">
+            <div class="big-ic"><svg class="ic" aria-hidden="true"><use href="#i-id-card"/></svg></div>
+            <div class="font-bold">Оформление патента</div>
+            <div class="text-sm text-muted mt-1">Трудовая деятельность иностранных граждан. НДФЛ-авансы.</div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid transparent" onclick="selectCaseType('rvp',this)">
+          <div class="card-body" style="text-align:center">
+            <div class="big-ic"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></div>
+            <div class="font-bold">РВП</div>
+            <div class="text-sm text-muted mt-1">Разрешение на временное проживание. Срок рассмотрения до 60 сут.</div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid transparent" onclick="selectCaseType('vnzh',this)">
+          <div class="card-body" style="text-align:center">
+            <div class="big-ic"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></div>
+            <div class="font-bold">ВНЖ</div>
+            <div class="text-sm text-muted mt-1">Вид на жительство. Расширенная проверка безопасности. До 4 мес.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-case')">Отмена</button>
+      <button class="btn btn-primary" id="btn-create-case" disabled onclick="createNewCase()">Создать дело</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dossier View Modal -->
+<div id="modal-dossier" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-dossier-title"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"/></svg> Электронное досье</span>
+      <button class="modal-close" onclick="closeModal('modal-dossier')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-dossier-body"></div>
+  </div>
+</div>
+
+<!-- Check Console Modal -->
+<div id="modal-checks" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg> Консоль межведомственных проверок</span>
+      <button class="modal-close" onclick="closeModal('modal-checks')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-checks-body"></div>
+  </div>
+</div>
+
+<!-- Alert Flood Modal -->
+<div id="modal-alert" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header" style="background:var(--danger);color:#fff">
+      <span class="modal-title"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg> КРИТИЧЕСКИЙ АЛЕРТ СИСТЕМЫ</span>
+      <button class="modal-close" style="color:#fff" onclick="closeModal('modal-alert')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-alert-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="handleAlertAction()"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> Принять к сведению и действовать</button>
+      <button class="btn btn-ghost" onclick="ignoreAlert()">Игнорировать</button>
+    </div>
+  </div>
+</div>
+
+<!-- Decision Modal -->
+<div id="modal-decision" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg> Принятие решения по делу</span>
+      <button class="modal-close" onclick="closeModal('modal-decision')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-decision-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-success" id="btn-decision-approve" onclick="makeDecision('approve')"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg> Одобрить / Зарегистрировать</button>
+      <button class="btn btn-danger" onclick="makeDecision('reject')"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"/></svg> Отказать</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-decision')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div id="modal-report" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg> Итоговый отчёт по сессии</span>
+      <button class="modal-close" onclick="closeModal('modal-report')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-report-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="downloadSessionReport()"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg> Скачать отчёт (JSON)</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-report')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОДУЛЬ ПРИЁМА ТОКЕНА ПОДЛИННОСТИ — единая форма входа.
+     Поле «Токен доступа» в той же карточке, что и ФИО/взвод. Если
+     токен указан (подставился по ссылке или вставлен курсантом) —
+     ФИО подтягивается из него и блокируется; если поле пустое —
+     форма работает как обычно.
+     Плюс: скрытые метки (renderSeq/syncTag), привязанные к токену
+     хешем, и метка браузера (uiInstance) для обнаружения подмены
+     исполнителя — под совместимость с universal_checker.html.
+     ══════════════════════════════════════════════════════════ -->
+
+
+
+<script>
+/* Загрузчик: данные (data/*.json) -> иконки -> скрипты по порядку -> запуск. */
+window._ready=[];window.onAppReady=f=>_ready.push(f);
+const _ov=document.createElement('div');_ov.id='boot-overlay';_ov.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#eef2f7;color:#1a56a0;font:600 16px sans-serif';_ov.textContent='Загрузка симулятора…';document.body.appendChild(_ov);
+(async()=>{
+ const JS=["core/token", "core/state", "core/datastore","core/amina","core/scenarios", "core/ui", "core/scoring", "core/audit", "core/session", "core/instructions", "panels/queue", "panels/migration", "panels/patent", "panels/rvp", "panels/registry", "panels/instructor", "panels/reports", "panels/decisions", "main"];
+ const bundle=()=>window.__BUNDLE;
+ const get=async p=>{if(bundle())return bundle()[p];const r=await fetch(location.protocol==='file:'?p:p+'?_='+Date.now());if(!r.ok)throw new Error(p);return p.endsWith('.svg')?r.text():r.json()};
+ const load=src=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=location.protocol==='file:'?src:src+'?_='+Date.now();e.onload=ok;e.onerror=()=>no(new Error('Не загрузился '+src));document.body.appendChild(e)});
+ try{
+  if(location.protocol==='file:')await load('dist/data_bundle/data.js');
+  window.CONFIG=await get('config.json');const man=await get(CONFIG.manifest);window.__DATA={};
+  for(const [k,v] of Object.entries(man.sets))__DATA[k]=await get(v.file);
+  for(const [k,p] of [['fingerprints','data/fingerprints/index.json'],['photos','data/photos/index.json']]) if(!__DATA[k]) try{__DATA[k]=await get(p)||[]}catch(e){__DATA[k]=[]}
+  document.body.insertAdjacentHTML('afterbegin',await get('app/ui/icons.svg'));
+  for(const f of JS)await load('app/'+f+'.js');
+  _ready.forEach(f=>f());
+  _ov.remove();
+ }catch(e){_ov.remove();document.body.insertAdjacentHTML('afterbegin','<div style="padding:16px;margin:16px;background:#fdeaea;border-left:4px solid #c0392b;color:#c0392b;font:14px sans-serif">Не удалось загрузить симулятор: '+e.message+'. Запустите start.bat / start.sh либо выполните tools/bundle_for_file.py для запуска двойным щелчком.</div>')}
+})();
+</script>
+</body>
+</html>

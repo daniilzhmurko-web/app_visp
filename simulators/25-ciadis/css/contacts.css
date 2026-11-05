@@ -1,0 +1,14 @@
+/* Блоки в стиле СЭД: заголовок с двухцветным подчёркиванием, контакты с иконками */
+.svc-h{font:700 13px/1.2 inherit;text-transform:uppercase;color:#1a2b49;margin:22px 0 14px;padding-bottom:7px;
+  border-bottom:2px solid #c8102e;border-image:linear-gradient(90deg,#c8102e 0,#c8102e 60px,#1565a8 60px,#1565a8 100%) 1;letter-spacing:.2px}
+.svc-person{display:flex;gap:14px;margin-bottom:16px}
+.svc-photo{width:64px;height:64px;flex:none;background:#c9daf0;display:flex;align-items:center;justify-content:center;color:#8fb0d8}
+.svc-photo .ic{width:26px;height:26px;stroke-width:1.6}
+.svc-fio{font-weight:700;font-size:13px;color:#1a2b49}
+.svc-post{font-size:11.5px;color:var(--muted);font-style:italic;line-height:1.45;margin:2px 0 8px}
+.svc-contacts{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px;color:var(--text2)}
+.svc-c{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none}
+a.svc-c:hover{color:#1565a8;text-decoration:underline}
+.ic-box{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid #6f9bd1;background:#eaf2fb;color:#1565a8;border-radius:2px}
+.ic-box .ic{width:13px;height:13px;stroke-width:2}

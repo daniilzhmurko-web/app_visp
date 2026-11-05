@@ -1,0 +1,51 @@
+{
+ "version": "1.0.0",
+ "synthetic": true,
+ "sets": {
+  "addresses": {
+   "file": "data/addresses/addresses.json",
+   "count": 5,
+   "sha256": "04c863fa8294654816d81abe431d628582c1641d86aeebf5b105c972b79c5351"
+  },
+  "fingerprints": {
+   "file": "data/fingerprints/index.json",
+   "count": 600,
+   "sha256": "2d95f32456242079be37ea8099de28ff7d094e9d6f2de4b95befb695a1707da8"
+  },
+  "hostParties": {
+   "file": "data/host_parties/host_parties.json",
+   "count": 4,
+   "sha256": "18645d6997c564b76126cbc379ecc95e75963c3ea9ca1e586b426303e7739524"
+  },
+  "foreignCitizens": {
+   "file": "data/persons/foreign_citizens.json",
+   "count": 600,
+   "sha256": "f8f80dcd4ae4d3b51f242c1d8d9fe268e819d9be57230616a0e0f931f8968a12"
+  },
+  "photos": {
+   "file": "data/photos/index.json",
+   "count": 0,
+   "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "presets": {
+   "file": "scenarios/presets/presets.json",
+   "count": 4,
+   "sha256": "74b220ec2d62fa6c138862b2aab047bb4e7da92d425e54bcc9a946fb3485841e"
+  },
+  "generatorSliders": {
+   "file": "scenarios/quests/generator_sliders.json",
+   "count": 5,
+   "sha256": "a313ba9e300bdeb95e5fb4b45c471992e7138f24ff1c224ed8d370e09d637817"
+  },
+  "cadets": {
+   "file": "scenarios/roster/cadets.json",
+   "count": 6,
+   "sha256": "b8a418b8375ad20cd6670026431a77424b507ee7f077e4a8db13b670ed2955af"
+  },
+  "traps": {
+   "file": "scenarios/traps/traps.json",
+   "count": 6,
+   "sha256": "ee8c63acfd745fffb1c8e8f9511c49e97f55f9abca8b2c55e11f1e896af778f2"
+  }
+ }
+}

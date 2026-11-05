@@ -1,0 +1,11 @@
+/* Шапка — цвет боковой панели (var(--sidebar)) */
+#topbar{background:var(--sidebar);border-bottom:1px solid rgba(255,255,255,.12);color:#fff}
+.tb-logo-ic{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35)}
+.tb-logo-t{color:#fff;letter-spacing:.3px}
+.tb-logo-s{color:rgba(255,255,255,.7)}
+.tb-clock{color:rgba(255,255,255,.75)}
+#topbar .tb-item{color:#fff}
+#topbar .tb-item:hover{background:rgba(255,255,255,.14)}
+#topbar #un-top{color:#fff!important}
+#topbar .uavatar{background:#fff;color:var(--sidebar)}
+#topbar .tb-item[onclick="doLogout()"]{color:#ffb4ab!important}

@@ -1,0 +1,5 @@
+/* --- деловые векторные иконки (замена эмодзи) --- */
+.ic{width:1.1em;height:1.1em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;flex:none}
+.t-icon .ic{width:18px;height:18px}
+.toast .t-icon{color:var(--green)} .toast.err .t-icon{color:var(--red)} .toast.warn .t-icon{color:var(--orange)} .toast.info .t-icon{color:var(--accent2)}
+.mc-icon .ic{width:56px;height:56px;stroke-width:1.5;color:var(--accent)}

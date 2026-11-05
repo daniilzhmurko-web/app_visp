@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВИСП МВД России — Информационно-справочный портал</title>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/services.css">
+</head>
+<body>
+<!-- ══ REMINDER TOAST ══ -->
+<div id="reminderCard">
+  <button class="rc-close" onclick="document.getElementById('reminderCard').classList.add('hidden')"><span class="icon" data-icon="close"></span></button>
+  <div class="ric"><img src="assets/img/img-cf78ada9.png" alt="Напоминание"></div>
+  <div>
+    <div class="ttl">НАПОМИНАЕМ</div>
+    <div class="msg">Не храните на личных устройствах (планшет, смартфон, флэшки) конфиденциальную информацию</div>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-left" onclick="goHome()" style="cursor:pointer;">
+    <img class="header-logo-combined" src="assets/img/img-b2a8b01f.png" alt="ЦИФРОПОЛ ИСОД — МВД России, Информационно-справочный портал">
+  </div>
+  <div class="header-right">
+    <button class="btn-appeal" onclick="openNewAppealPage()">
+      <span class="icon" data-icon="doc"></span><span class="at-label">Подать обращение<br>в ЕЦЭ</span>
+    </button>
+    <div class="user-badge" onclick="switchNav(null,'profile')">
+      <div class="user-avatar"><span class="icon" data-icon="person"></span></div>
+      <div class="user-name-box" id="headerUserName">Жмурко Д. Ю.</div>
+    </div>
+    <div class="header-divider"></div>
+    <div class="logout-icon" onclick="showToast('Выход из системы')"><span class="icon" data-icon="logout"></span></div>
+  </div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-inner" id="navInner">
+    <div class="nav-items-wrap">
+      <div class="nav-item" data-section="directory" onclick="switchNav(this,'directory')">
+        <img class="nav-icon-img" src="assets/img/img-fa1a51c5.png" alt="">
+        <span class="nav-label">Адресно-телефонный<br>справочник</span>
+      </div>
+      <div class="nav-item" data-section="news" onclick="switchNav(this,'news')">
+        <img class="nav-icon-img" src="assets/img/img-7fe5918b.png" alt="">
+        <span class="nav-label">Новости,<br>события и НТИ</span>
+      </div>
+      <div class="nav-item" data-section="qa" onclick="switchNav(this,'qa')">
+        <img class="nav-icon-img" src="assets/img/img-2b6b5119.png" alt="">
+        <span class="nav-label">Вопросы<br>и ответы</span>
+      </div>
+      <div class="nav-item" data-section="services" onclick="switchNav(this,'services')">
+        <img class="nav-icon-img" src="assets/img/img-2db87e6d.png" alt="">
+        <span class="nav-label">Сервисы ИСОД</span>
+      </div>
+    </div>
+    <div class="nav-search" id="navSearchBtn" onclick="toggleGlobalSearch(event)">
+      <img class="nav-search-icon" src="assets/img/img-15356a97.png" alt="">
+      <input type="text" id="globalSearch" class="nav-search-input" placeholder="Поиск по порталу" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();doSearch();}">
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main>
+  <!-- ══ HOME (стартовая страница) ══ -->
+  <section id="section-home" class="section active">
+    <div class="section-title-block"><div class="section-title">Новостная лента</div><div class="section-title-line"></div></div>
+
+    <div class="home-news-grid">
+      <div class="home-news-item">
+        <div class="home-news-title" onclick="openNewsModal('УМВД России по Ивановской области приглашает на службу','УЭБиПК УМВД России по Ивановской области приглашает на службу.')">УМВД России по Ивановской области приглашает на службу</div>
+        <div class="home-news-excerpt">УЭБиПК УМВД России по Ивановской области приглашает на службу.</div>
+        <div class="home-news-date">28 августа 2026 в 15:54</div>
+        <div class="home-news-src">• УМВД России по Ивановской области</div>
+      </div>
+      <div class="home-news-item">
+        <div class="home-news-title" onclick="openNewsModal('Приглашаем на службу в ОМВД России по федеральной территории «Сириус»','Приглашаем на службу в ОМВД России по федеральной территории «Сириус» на должности младшего и среднего начальствующего состава.')">Приглашаем на службу в ОМВД России по федеральной территории «Сириус»</div>
+        <div class="home-news-excerpt">Приглашаем на службу в ОМВД России по федеральной территории «Сириус» на должности младшего и среднего начальствующего состава.</div>
+        <div class="home-news-date">21 августа 2026 в 11:14</div>
+        <div class="home-news-src">• ОМВД России по федеральной территории «Сириус»</div>
+      </div>
+      <div class="home-news-item">
+        <div class="home-news-title" onclick="openNewsModal('УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области приглашает на службу','Информация о вакансиях.')">УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области приглашает на службу</div>
+        <div class="home-news-excerpt">Информация о вакансиях.</div>
+        <div class="home-news-date">13 августа 2026 в 15:17</div>
+        <div class="home-news-src">• УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области</div>
+      </div>
+    </div>
+
+    <div class="contracts-grid">
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 21/2026/ЗЭА<br>от 27.05.2026</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по техническому сопровождению эксплуатации государственной информационной системы миграционного учета в части единого информационного ресурса регистрационного и миграционного учетов на 2026 – 2028 годы</div>
+      </div>
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 25281882005220077277739372/52/2025<br>от 18.10.2025</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по техническому сопровождению эксплуатации ИСОД МВД России и унаследованных информационных систем МВД России на 2025-2027 годы</div>
+      </div>
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 35/2025<br>от 06.08.2025</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по техническому сопровождению эксплуатации объектов ведомственного сегмента МВД России государственной системы изготовления, оформления и контроля паспортно-визовых документов нового поколения на 2025 – 2027 годы</div>
+      </div>
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 16/2024<br>от 27.05.2024</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по техническому сопровождению эксплуатации государственной информационной системы миграционного учета в части единого информационного ресурса регистрационного и миграционного учетов на 2024 - 2026 годы</div>
+      </div>
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 24261882000120077277739372/1<br>от 14.03.2024</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по техническому сопровождению эксплуатации унаследованных информационных систем МВД России на 2024 год</div>
+      </div>
+      <div class="contract-card">
+        <div class="contract-title">Государственный контракт</div>
+        <div class="contract-num">№ 25<br>от 12.02.2024</div>
+        <div class="contract-desc">с ООО «ЭйТи Консалтинг» на оказание услуг по технической поддержке объектов ведомственного сегмента МВД России</div>
+      </div>
+    </div>
+  </section>
+  <!-- ══ DIRECTORY ══ -->
+  <section id="section-directory" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <span>Адресно-телефонный справочник</span>
+    </div>
+    <div class="page-title">Адресно-телефонный справочник</div>
+
+    <div class="search-bar">
+      <div class="search-row">
+        <input type="text" placeholder="Поиск по телефонному справочнику" id="staffSearch" onkeydown="if(event.key==='Enter')searchStaff()">
+        <button class="btn-primary" onclick="searchStaff()">Искать</button>
+      </div>
+      <div class="adv-search-toggle" onclick="showToast('Расширенный поиск')">Расширенный поиск <span class="icon" data-icon="chevron" style="transform:rotate(90deg);"></span></div>
+    </div>
+
+
+    <div class="section-title-block"><div class="section-title">Организационная структура</div><div class="section-title-line"></div></div>
+    <div class="org-layout">
+      <div class="org-tree-wrap">
+        <div class="org-root" id="orgRoot" onclick="selectOrg(null,'root')">
+          <img src="assets/img/img-5adc0a4c.png" alt="">
+          <div>
+            <div class="rn">МВД России</div>
+            <div class="rc">529 622 сотрудника</div>
+          </div>
+        </div>
+        <div id="orgTree"></div>
+      </div>
+
+      <div class="staff-panel">
+        <div class="staff-panel-title" id="staffPanelTitle">МВД России</div>
+        <div id="staffList"></div>
+      </div>
+    </div>
+  </section>
+  <!-- ══ NEWS ══ -->
+  <section id="section-news" class="section active">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <span>Новости, события и НТИ</span>
+    </div>
+    <div class="page-title">Новости, события и НТИ</div>
+
+    <div class="news-layout">
+      <div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'tab-news')">Новости</div>
+          <div class="tab" onclick="switchTab(this,'tab-events')">События</div>
+          <div class="tab" onclick="switchTab(this,'tab-nti')">Научно-техническая информация</div>
+        </div>
+
+        <div id="tab-news">
+          <div class="news-card" onclick="openNewsModal('УМВД России по Ивановской области приглашает на службу','УМВД России по Ивановской области приглашает граждан и действующих сотрудников на службу в подразделения, дислоцирующиеся на территории Ивановской области.')">
+            <div class="news-thumb"><img src="assets/img/img-cc38fdef.jpg" alt=""></div>
+            <div style="flex:1">
+              <div class="news-title">УМВД России по Ивановской области приглашает на службу</div>
+              <div class="news-excerpt">УЭБиПК УМВД России по Ивановской области приглашает на службу.</div>
+              <div class="news-date">28 августа 2026 в 15:54 · УМВД России по Ивановской области</div>
+              <div class="news-tags">
+                <span class="tag">перевод</span><span class="tag">Вакансии</span><span class="tag">служба</span><span class="tag">трудоустройство</span>
+                <span class="tag">УМВД России по Ивановской области</span><span class="tag">ЭБиПК</span><span class="tag">Иваново</span><span class="tag">УЭБиПК</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="news-card" onclick="openNewsModal('Приглашаем на службу в ОМВД России по федеральной территории «Сириус»','Приглашаем на службу в ОМВД России по федеральной территории «Сириус» на должности младшего и среднего начальствующего состава.')">
+            <div class="news-thumb"><img src="assets/img/img-1586649c.jpg" alt=""></div>
+            <div style="flex:1">
+              <div class="news-title">Приглашаем на службу в ОМВД России по федеральной территории «Сириус»</div>
+              <div class="news-excerpt">Приглашаем на службу в ОМВД России по федеральной территории «Сириус» на должности младшего и среднего начальствующего состава.</div>
+              <div class="news-date">21 августа 2026 в 11:14 · ОМВД России по федеральной территории «Сириус»</div>
+              <div class="news-tags">
+                <span class="tag">Вакансии</span><span class="tag">Перевод</span><span class="tag">Служба</span><span class="tag">ОМВД России по федеральной территории «Сириус»</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="news-card" onclick="openNewsModal('УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области приглашает на службу','Информация о вакансиях.')">
+            <div class="news-thumb"><img src="assets/img/img-d0c75ff8.png" alt=""></div>
+            <div style="flex:1">
+              <div class="news-title">УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области приглашает на службу</div>
+              <div class="news-excerpt">Информация о вакансиях.</div>
+              <div class="news-date">13 августа 2026 в 15:17 · УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области</div>
+              <div class="news-tags">
+                <span class="tag">перевод</span><span class="tag">Вакансии</span><span class="tag">служба</span>
+                <span class="tag">УВМ ГУ МВД России по г. Санкт-Петербургу и Ленинградской области</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="news-card" onclick="openNewsModal('ФКУ «УОУМТС МВД России» информирует о наличии вакантных должностей','Приглашаем на службу в Федеральное казенное учреждение «Уральское окружное управление материально-технического снабжения Министерства внутренних дел Российской Федерации».')">
+            <div class="news-thumb"><img src="assets/img/img-2546875e.jpg" alt=""></div>
+            <div style="flex:1">
+              <div class="news-title">ФКУ «УОУМТС МВД России» информирует о наличии вакантных должностей</div>
+              <div class="news-excerpt">Приглашаем на службу в Федеральное казенное учреждение «Уральское окружное управление материально-технического снабжения Министерства внутренних дел Российской Федерации».</div>
+              <div class="news-date">11 августа 2026, 12:16</div>
+              <div class="news-tags">
+                <span class="tag">Вакансии</span><span class="tag">Перевод</span><span class="tag">Служба</span><span class="tag">ФКУ «УОУМТС МВД России»</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="news-card" onclick="openNewsModal('УМВД России по Ивановской области приглашает на службу','УМВД России по Ивановской области приглашает граждан и действующих сотрудников на службу в подразделения, дислоцирующиеся на территории Ивановской области.')">
+            <div class="news-thumb"><img src="assets/img/img-cc38fdef.jpg" alt=""></div>
+            <div style="flex:1">
+              <div class="news-title">УМВД России по Ивановской области приглашает на службу</div>
+              <div class="news-excerpt">УМВД России по Ивановской области приглашает граждан и действующих сотрудников на службу в подразделения, дислоцирующиеся на территории Ивановской области.</div>
+              <div class="news-date">05 августа 2026 в 11:43 · УМВД России по Ивановской области</div>
+              <div class="news-tags">
+                <span class="tag">перевод</span><span class="tag">Вакансии</span><span class="tag">служба</span><span class="tag">Ивановская область</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="news-pagination">
+            <span class="count">Показано 5 из 340</span>
+            <button onclick="showToast('Первая страница')">«</button>
+            <button onclick="showToast('Назад')">‹</button>
+            <button class="active">1</button>
+            <button onclick="showToast('Страница 2')">2</button>
+            <button onclick="showToast('Страница 3')">3</button>
+            <span style="font-size:12px;color:var(--text-light);">…</span>
+            <button onclick="showToast('Вперёд')">›</button>
+            <button onclick="showToast('Последняя страница')">»</button>
+          </div>
+        </div>
+
+        <div id="tab-events" style="display:none">
+          <div class="news-card">
+            <div class="news-thumb"><span class="icon" style="width:32px;height:32px;" data-icon="building"></span></div>
+            <div style="flex:1">
+              <div class="news-title">Подготовка к XX Международной выставке "Интерполитех-2026"</div>
+              <div class="news-excerpt" style="display:flex;flex-direction:column;gap:3px;">
+                <span>Дата: 18 октября 2026</span><span>Время: 10:00 – 19:00</span><span>Место: г. Москва, ВДНХ, пав. 75</span>
+              </div>
+              <button class="btn-sm outline" style="margin-top:10px;" onclick="event.stopPropagation();showToast('Событие добавлено в календарь')">+ В календарь</button>
+            </div>
+          </div>
+          <div class="news-card">
+            <div class="news-thumb"><span class="icon" style="width:32px;height:32px;" data-icon="person"></span></div>
+            <div style="flex:1">
+              <div class="news-title">Заседание рабочей группы МВД России по подготовке к выставке "Интерполитех-2026"</div>
+              <div class="news-excerpt" style="display:flex;flex-direction:column;gap:3px;">
+                <span>Дата: 7 июля 2026</span><span>Время: 10:00 – 12:00</span><span>Место: Москва, ВДНХ, павильон № 75; Московская обл., г. Красноармейск</span>
+              </div>
+              <button class="btn-sm outline" style="margin-top:10px;" onclick="event.stopPropagation();showToast('Событие добавлено в календарь')">+ В календарь</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-nti" style="display:none">
+          <div class="news-card">
+            <div class="news-thumb"><span class="icon" style="width:32px;height:32px;" data-icon="doc"></span></div>
+            <div style="flex:1">
+              <div class="news-title">Вооружение и специальные средства полиции за рубежом. Выпуск 2. 2026 год</div>
+              <div class="news-excerpt">Содержит описание и тактико-технические характеристики перспективных образцов вооружения и специальной техники зарубежного производства.</div>
+              <div class="news-date">07 июля 2026, 15:41</div>
+              <div class="news-tags"><span class="tag">За рубежом</span><span class="tag">Сборник</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINI CALENDAR -->
+      <div>
+        <div class="mini-calendar">
+          <div class="cal-header">
+            <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+            <span id="calMonthLabel">Сентябрь 2026</span>
+            <button class="cal-nav" onclick="changeMonth(1)">›</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ══ Q&A ══ -->
+  <section id="section-qa" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <span>Часто задаваемые вопросы</span>
+    </div>
+    <div class="page-title">Часто задаваемые вопросы</div>
+
+    <div class="search-bar">
+      <div class="search-row">
+        <input type="text" placeholder="Поиск по вопросам" id="qaSearch">
+        <button class="btn-primary" onclick="showToast('Поиск выполнен')">Искать</button>
+      </div>
+    </div>
+
+    <div class="qa-grid" id="qaGrid"></div>
+  </section>
+  <!-- ══ SERVICES (ИСОД) ══ -->
+  <section id="section-services" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <span>Список сервисов</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      <div class="page-title" style="margin-bottom:0;">Список сервисов ИСОД МВД России</div>
+      <div class="services-toolbar" style="margin-bottom:0;">
+        <div class="seg-tabs">
+          <div class="seg-tab" onclick="setServicesView('mine', this)">Мои сервисы</div>
+          <div class="seg-tab active" onclick="setServicesView('types', this)">По типам</div>
+          <div class="seg-tab" onclick="setServicesView('list', this)">Списком</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="servicesContainer"></div>
+  </section>
+
+  <!-- ══ SERVICE DETAIL (dynamically filled) ══ -->
+  <section id="section-svcdetail" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <a onclick="goToServicesList()">Сервисы ИСОД</a>
+      <span class="sep">»</span>
+      <span id="svcBreadcrumbName">Сервис</span>
+    </div>
+    <div class="page-title" id="svcTitle">СЕРВИС</div>
+
+    <div class="svc-detail-tabs" id="svcTabs">
+      <div class="svc-detail-tab active" data-t="desc" onclick="switchSvcTab('desc')">Описание сервиса</div>
+      <div class="svc-detail-tab" data-t="qa" onclick="switchSvcTab('qa')">Вопросы по сервису</div>
+      <div class="svc-detail-tab" data-t="dev" onclick="switchSvcTab('dev')">Развитие сервиса</div>
+    </div>
+    <div class="svc-detail-body">
+
+      <div id="svcNoticesBlock" style="display:none;margin-bottom:22px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;">Уважаемые пользователи!</div>
+        <div id="svcNoticesList"></div>
+        <div id="svcNoticesFooter" style="font-size:13px;margin-top:4px;"></div>
+      </div>
+
+      <div id="svc-tab-desc"></div>
+      <div id="svc-tab-qa" style="display:none"></div>
+      <div id="svc-tab-dev" style="display:none"></div>
+
+    </div>
+  </section>
+  <!-- ══ PROFILE ══ -->
+  <section id="section-profile" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <span>Личный кабинет</span>
+    </div>
+    <div class="page-title">Мой профиль</div>
+
+    <div class="profile-layout">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="profile-sidebar">
+          <div class="profile-avatar-big"><span class="icon" data-icon="person"></span></div>
+          <div class="profile-name">Жмурко Даниил Юрьевич</div>
+          <div class="profile-dept">Отдел организации функционирования ИСОД МВД России</div>
+          <div style="border-top:1px solid var(--border);margin:14px 0;"></div>
+          <div class="profile-menu-item active" onclick="showProfileTab(this,'tab-profile')"><span class="icon" data-icon="person"></span> Мой профиль</div>
+          <div class="profile-menu-item" onclick="showProfileTab(this,'tab-calendar')"><span class="icon" data-icon="calendar"></span> Календарь</div>
+          <div class="profile-menu-item-wrap" id="eceMenuWrap">
+            <div class="profile-menu-item profile-menu-item-head" onclick="toggleEceMenu(this)"><span style="display:flex;align-items:center;gap:10px;"><span class="icon" data-icon="clipboard"></span> Обращения в ЕЦЭ</span><span class="icon chev" data-icon="chevron"></span></div>
+            <div class="profile-submenu">
+              <div class="profile-submenu-item" onclick="showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-ece')">Список обращений</div>
+              <div class="profile-submenu-item" onclick="showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-notif')">Настройки уведомлений</div>
+            </div>
+          </div>
+          <div class="profile-menu-item" onclick="showProfileTab(this,'tab-vacations')"><span class="icon" data-icon="calendar"></span> Мои отпуска</div>
+        </div>
+        <div class="profile-sidebar-link" onclick="showToast('Личный кабинет СУДИС')">Личный кабинет СУДИС »</div>
+        <div class="profile-sidebar-link" onclick="showToast('Информация о системе пользователя')">Информация о системе пользователя »</div>
+        <div class="profile-sidebar-link" onclick="showToast('Определение пропускной способности канала связи')">Определение пропускной способности канала связи »</div>
+      </div>
+
+      <div class="profile-content">
+        <div id="tab-profile">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div class="field-row"><div class="field-label">Должность</div><div class="field-value">Ведущий специалист</div></div>
+              <div class="field-row"><div class="field-label">Дата рождения</div><div class="field-value">14.03.1988</div></div>
+              <div class="field-row"><div class="field-label">Служебный телефон</div><div class="field-value">031-67-17</div></div>
+              <div class="field-row"><div class="field-label">Мобильный телефон</div><div class="field-value" style="color:var(--text-light);">—</div></div>
+              <div class="field-row"><div class="field-label">IP-телефон</div><div class="field-value" style="color:var(--text-light);">—</div></div>
+              <div class="field-row"><div class="field-label">Эл. почта</div><div class="field-value"><a>djmurko@mvd.ru</a></div></div>
+              <div class="field-row"><div class="field-label">Адрес</div><div class="field-value">г. Москва</div></div>
+              <div class="field-row"><div class="field-label">Номер кабинета</div><div class="field-value">412</div></div>
+              <div class="field-row"><div class="field-label">Часовой пояс</div><div class="field-value">(GMT+03:00) Московское время</div></div>
+              <button class="btn-primary" style="margin-top:6px;border-radius:4px;" onclick="showEditModal()">Редактировать</button>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:16px;font-size:13px;color:var(--text-light);border-left:4px solid var(--blue-light);">
+              <p style="margin-bottom:14px;">Свой служебный, добавочный, мобильный и IP-телефон, дату рождения, номер кабинета и часовой пояс Вы можете изменить самостоятельно.</p>
+              <p style="margin-bottom:16px;">Для добавления электронной почты и фотографии в профиль, а также при обнаружении орфографической ошибки</p>
+              <div style="font-weight:800;color:var(--text);margin-bottom:14px;letter-spacing:.3px;">ОБРАТИТЕСЬ<br>В ЕЦЭ ИСОД МВД РОССИИ</div>
+              <button class="btn-success" onclick="showEditModal()">Изменить данные профиля</button>
+              <p style="margin-top:18px;">Для изменения остальной информации профиля просим Вас ознакомиться с <a class="svc-ext-link" style="border:none;padding:0;font-size:13px;" onclick="showToast('Порядок изменения данных профиля')">порядком изменения данных профиля</a></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-calendar" style="display:none">
+          <div style="text-align:center;padding:40px;color:var(--text-light);">
+            <div style="width:56px;height:56px;margin:0 auto 12px;color:var(--icon-pale);" class="icon" data-icon="calendar"></div>
+            <div style="font-size:14px;">Здесь отображается ваш личный календарь мероприятий.</div>
+          </div>
+        </div>
+
+        <div id="tab-ece" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Обращения в ЕЦЭ ИСОД МВД</div>
+            <button class="btn-primary" onclick="openNewAppealPage()">+ Новое обращение</button>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:var(--bg);">
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Код/Описание</th>
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Услуга</th>
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Создано</th>
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Статус</th>
+               </tr>
+            </thead>
+            <tbody id="appealsTable">
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:8px;"><span style="color:var(--blue-light);cursor:pointer">SD639930</span><br>Дублирование ОШС</td>
+                <td style="padding:8px;">СЭД</td>
+                <td style="padding:8px;">02.08.2026</td>
+                <td style="padding:8px;"><span style="color:var(--orange)">● Подтвердите решение</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:8px;"><span style="color:var(--blue-light);cursor:pointer">SD635769</span><br>тестирование ВИСП</td>
+                <td style="padding:8px;">ВИСП</td>
+                <td style="padding:8px;">29.07.2026</td>
+                <td style="padding:8px;"><span style="color:var(--green)">● Решено</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="tab-notif" style="display:none">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;">Настройки уведомлений</div>
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--bg);border-radius:6px;cursor:pointer;">
+              <span style="font-size:13px;">Уведомлять об изменении статуса обращения</span>
+              <input type="checkbox" checked onchange="showToast('Настройка сохранена')">
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--bg);border-radius:6px;cursor:pointer;">
+              <span style="font-size:13px;">Уведомлять по электронной почте</span>
+              <input type="checkbox" checked onchange="showToast('Настройка сохранена')">
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--bg);border-radius:6px;cursor:pointer;">
+              <span style="font-size:13px;">Уведомлять по SMS</span>
+              <input type="checkbox" onchange="showToast('Настройка сохранена')">
+            </label>
+          </div>
+        </div>
+
+        <div id="tab-vacations" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Мои отпуска</div>
+            <button class="btn-primary" onclick="showNewVacationModal()">+ Новый отпуск</button>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;" id="vacTable">
+            <thead>
+              <tr style="background:var(--bg);">
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Дата начала</th>
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Дата окончания</th>
+                <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border);">Кол-во дней</th>
+                <th style="padding:8px;border-bottom:2px solid var(--border);">Действие</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:8px;">27.04.2026</td><td style="padding:8px;">19.05.2026</td><td style="padding:8px;">23</td>
+                <td style="padding:8px;text-align:center;"><button class="btn-sm outline" onclick="showToast('Редактирование отпуска...')">Изм.</button> <button class="btn-sm outline" style="color:var(--red);border-color:var(--red);" onclick="this.closest('tr').remove();showToast('Отпуск удалён')">Удал.</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ NEW APPEAL — FULL PAGE ══ -->
+  <section id="section-appeal-new" class="section">
+    <div class="breadcrumb">
+      <a onclick="goHome()">Главная</a>
+      <span class="sep">»</span>
+      <a onclick="switchNav(null,'profile');showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-ece')">Личный кабинет</a>
+      <span class="sep">»</span>
+      <a onclick="switchNav(null,'profile');showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-ece')">Обращения</a>
+      <span class="sep">»</span>
+      <span>Категория обращения</span>
+      <span class="sep">»</span>
+      <span>Новое обращение</span>
+    </div>
+    <div class="page-title">Новое обращение в ЕЦЭ ИСОД МВД России</div>
+
+    <div class="profile-layout">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="profile-sidebar">
+          <div class="acct-sidebar-topbox"><span class="icon" data-icon="doc"></span></div>
+          <div class="profile-menu-item" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('.profile-menu-item'),'tab-profile')"><span class="icon" data-icon="person"></span> Мой профиль</div>
+          <div class="profile-menu-item" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('.profile-menu-item'),'tab-calendar')"><span class="icon" data-icon="calendar"></span> Календарь</div>
+          <div class="profile-menu-item-wrap open">
+            <div class="profile-menu-item profile-menu-item-head active"><span style="display:flex;align-items:center;gap:10px;"><span class="icon" data-icon="clipboard"></span> Обращения в ЕЦЭ</span><span class="icon chev" data-icon="chevron"></span></div>
+            <div class="profile-submenu">
+              <div class="profile-submenu-item" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-ece')">Список обращений</div>
+              <div class="profile-submenu-item" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('#eceMenuWrap .profile-menu-item-head'),'tab-notif')">Настройки уведомлений</div>
+            </div>
+          </div>
+          <div class="profile-menu-item" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('.profile-menu-item'),'tab-vacations')"><span class="icon" data-icon="calendar"></span> Мои отпуска</div>
+        </div>
+        <div class="profile-sidebar-link" onclick="showToast('Личный кабинет СУДИС')">Личный кабинет СУДИС »</div>
+        <div class="profile-sidebar-link" onclick="showToast('Информация о системе пользователя')">Информация о системе пользователя »</div>
+        <div class="profile-sidebar-link" onclick="showToast('Определение пропускной способности канала связи')">Определение пропускной способности канала связи »</div>
+      </div>
+
+      <div class="profile-content">
+        <div class="field-row">
+          <label class="field-label">Укажите сервис, к которому относится обращение</label>
+          <select id="appealServiceSelectPage" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;margin-top:4px;"></select>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;cursor:pointer;"><input type="checkbox"> Я не знаю, какой сервис</label>
+        </div>
+        <div class="field-row">
+          <label class="field-label">Введите текст обращения</label>
+          <textarea id="appealTextPage" style="width:100%;min-height:120px;padding:10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;resize:vertical;margin-top:4px;" placeholder="Подскажите, как..."></textarea>
+        </div>
+        <div style="border:2px dashed var(--border);border-radius:6px;padding:20px;text-align:center;font-size:12px;color:var(--text-light);cursor:pointer;" onclick="showToast('Выбор файлов...')">
+          Перетащите файлы сюда или <span style="color:var(--blue-light);font-weight:700;">Выберите файлы</span><br>
+          <span style="font-size:11px;">Не более 5 файлов, максимальный размер файла — 20Мб</span>
+        </div>
+        <div class="field-row" style="margin-top:18px;">
+          <label class="field-label" style="margin-bottom:8px;">Предпочитаемый способ связи:</label>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Мобильный телефон:</span>
+              <input type="checkbox">
+              <input type="text" placeholder="Добавьте в профиле" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text-light);">
+              <span style="cursor:pointer;color:var(--blue-link);" title="Изменить в профиле" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('.profile-menu-item'),'tab-profile');">✎</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Электронная почта:</span>
+              <input type="checkbox" checked>
+              <input type="text" value="djmurko@mvd.ru" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text);">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Служебный телефон:</span>
+              <input type="checkbox">
+              <input type="text" value="031-67-17" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text);">
+              <span style="cursor:pointer;color:var(--blue-link);" title="Изменить в профиле" onclick="switchNav(null,'profile');showProfileTab(document.querySelector('.profile-menu-item'),'tab-profile');">✎</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Указанные контактные данные отображаются в адресно-телефонном справочнике</div>
+        </div>
+        <button class="btn-success" style="margin-top:16px;width:100%;padding:11px;" onclick="submitAppealPage()">Отправить обращение</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div>© Министерство внутренних дел Российской Федерации, 2026 г.</div>
+  <div class="footer-right">
+    <span>Круглосуточная служба поддержки ЕЦЭ ИСОД МВД России</span>
+    <span>8 (800) 2000-462 (звонок бесплатный), 8 (495) 031-67-17</span>
+    <a href="mailto:helpdesk@mvd.ru">helpdesk@mvd.ru</a>
+  </div>
+</footer>
+<!-- ══ BLOB OVERLAY PLACEHOLDER ══ -->
+<div id="ph-overlay">
+  <div class="ph-box">
+    <button class="ph-close-btn" onclick="closePh()"><span class="icon" data-icon="close"></span></button>
+    <div class="ph-ico" id="ph-ico"></div>
+    <div class="ph-ttl" id="ph-ttl">СИМУЛЯТОР НЕ ВСТАВЛЕН</div>
+    <div class="ph-msg">
+      Положите файл <b>index.html</b> (один файл или с папками css/js/data/assets) в папку проекта:
+      <code class="ph-code" id="ph-code">simulators/NN-слаг/index.html</code>
+      Путь указан от папки <b>app</b>. Имя файла строго <b>index.html</b> (в Проводнике включите «Вид → Показать → Расширения имён файлов» и проверьте, что нет «index.html.html»). Затем нажмите кнопку снова.
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT PROFILE MODAL ══ -->
+<div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeModal('editModal')">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">Редактирование профиля</div>
+      <button class="modal-close" onclick="closeModal('editModal')"><span class="icon" data-icon="close"></span></button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:var(--text-light);margin-bottom:16px;">* — поля, обязательные для заполнения</div>
+      <div class="field-row"><label class="field-label">Служебный телефон *</label><input type="text" value="031-67-17" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">Добавочный телефон</label><input type="text" placeholder="Введите добавочный телефон" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">Мобильный телефон</label><input type="text" value="8 (900) 000-00-00" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">IP-телефон</label><input type="text" placeholder="Введите IP-телефон" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">Дата рождения</label><input type="date" value="1988-03-14" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">Номер кабинета</label><input type="text" value="412" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;"></div>
+      <div class="field-row"><label class="field-label">Часовой пояс</label>
+        <select style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;">
+          <option>(GMT+03:00) Московское время</option>
+          <option>(GMT+05:00) Екатеринбург</option>
+          <option>(GMT+07:00) Красноярск</option>
+          <option>(GMT+10:00) Владивосток</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button class="btn-primary" onclick="showToast('Данные сохранены ✓');closeModal('editModal')">Сохранить</button>
+        <button class="btn-secondary" onclick="closeModal('editModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW APPEAL MODAL ══ -->
+<div class="modal-overlay" id="appealModal" onclick="if(event.target===this)closeModal('appealModal')">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title">Новое обращение</div>
+      <button class="modal-close" onclick="closeModal('appealModal')"><span class="icon" data-icon="close"></span></button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <label class="field-label">Укажите сервис ИСОД, к которому относится обращение</label>
+        <select id="appealServiceSelect" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;margin-top:4px;"></select>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;cursor:pointer;"><input type="checkbox"> Я не знаю, какой сервис</label>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Введите текст обращения</label>
+        <textarea style="width:100%;min-height:120px;padding:10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;resize:vertical;margin-top:4px;" placeholder="Подскажите, как..."></textarea>
+      </div>
+      <div style="border:2px dashed var(--border);border-radius:6px;padding:20px;text-align:center;font-size:12px;color:var(--text-light);cursor:pointer;" onclick="showToast('Выбор файлов...')">
+        Перетащите файлы сюда или <span style="color:var(--blue-light);font-weight:700;">Выберите файлы</span><br>
+        <span style="font-size:11px;">Не более 5 файлов, максимальный размер файла — 15Мб</span>
+      </div>
+      <div class="field-row" style="margin-top:18px;">
+        <label class="field-label" style="margin-bottom:8px;">Предпочитаемый способ связи:</label>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Мобильный телефон:</span>
+            <input type="checkbox">
+            <input type="text" placeholder="Добавьте в профиле" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text-light);">
+            <span style="cursor:pointer;color:var(--blue-link);" title="Изменить в профиле" onclick="closeModal('appealModal');switchNav(null,'profile');">✎</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Электронная почта:</span>
+            <input type="checkbox" checked>
+            <input type="text" value="djmurko@mvd.ru" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text);">
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12.5px;color:var(--text);width:150px;flex-shrink:0;">Служебный телефон:</span>
+            <input type="checkbox">
+            <input type="text" value="031-67-17" disabled style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:12.5px;background:var(--bg);color:var(--text);">
+            <span style="cursor:pointer;color:var(--blue-link);" title="Изменить в профиле" onclick="closeModal('appealModal');switchNav(null,'profile');">✎</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Указанные контактные данные отображаются в адресно-телефонном справочнике</div>
+      </div>
+      <button class="btn-primary" style="margin-top:16px;width:100%;" onclick="submitAppeal()">Отправить обращение</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW VACATION MODAL ══ -->
+<div class="modal-overlay" id="vacModal" onclick="if(event.target===this)closeModal('vacModal')">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">Новый отпуск</div>
+      <button class="modal-close" onclick="closeModal('vacModal')"><span class="icon" data-icon="close"></span></button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row"><label class="field-label">Дата начала *</label><input type="date" id="vacStart" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;" oninput="calcDays()"></div>
+      <div class="field-row"><label class="field-label">Дата окончания *</label><input type="date" id="vacEnd" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px;" oninput="calcDays()"></div>
+      <div style="background:var(--blue-pale);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:700;color:var(--blue-dark);margin-bottom:16px;" id="vacDaysLabel">Итого дней: —</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-primary" onclick="saveVacation()">Сохранить</button>
+        <button class="btn-secondary" onclick="closeModal('vacModal')">Отменить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Порядок подключения важен: лицензия -> иконки -> данные -> логика -> запуск -->
+<script src="license.js"></script>
+<script src="js/icons.js"></script>
+<script src="data/org.js"></script>
+<script src="data/faq.js"></script>
+<script src="data/services-list.js"></script>
+<script src="data/service-page.js"></script>
+<script src="data/service-arm.js"></script>
+<script src="data/service-sep.js"></script>
+<script src="data/service-forms.js"></script>
+<script src="data/sims.js"></script>
+<script src="data/sim-files.js"></script>
+<script src="data/fingerprints.js"></script>
+<script src="js/org.js"></script>
+<script src="js/faq.js"></script>
+<script src="js/services-list.js"></script>
+<script src="js/service-page.js"></script>
+<script src="js/service-sep.js"></script>
+<script src="js/service-default.js"></script>
+<script src="js/service-forms.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/simulators.js"></script>
+<script src="js/layout.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

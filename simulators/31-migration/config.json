@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "name": "ФИС ГМУ — Симулятор МВД",
+  "sim_today": "2025-12-20T00:00:00",
+  "manifest": "data/manifest.json",
+  "modes": [
+    "training",
+    "exam",
+    "instructor"
+  ]
+}

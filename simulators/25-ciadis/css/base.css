@@ -1,0 +1,32 @@
+/* =====================================================
+   ЭТАП 1 — CSS ПЕРЕМЕННЫЕ И ТЕМА (светлая)
+   ===================================================== */
+:root {
+  --bg:        #EEF3F9;
+  --panel:     #FFFFFF;
+  --sidebar:   #003F8A;
+  --sidebar-h: #1A56A0;
+  --accent:    #003F8A;
+  --accent2:   #2D7DD2;
+  --green:     #1E8449;
+  --green-bg:  #D5F5E3;
+  --orange:    #B7770D;
+  --orange-bg: #FEF9E7;
+  --red:       #922B21;
+  --red-bg:    #FDEDEC;
+  --blue-bg:   #EBF5FB;
+  --text:      #1A1A2E;
+  --text2:     #5A6A7E;
+  --muted:     #8A9AB0;
+  --border:    #DDE3EE;
+  --shadow:    0 2px 12px rgba(0,63,138,.10);
+  --shadow-l:  0 8px 32px rgba(0,63,138,.15);
+  /* квест-панель */
+  --qbg:       #0D1117;
+  --qbrd:      #30363D;
+  --qtxt:      #C9D1D9;
+  --qacc:      #58A6FF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:var(--bg);color:var(--text);overflow:hidden}

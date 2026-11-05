@@ -1,0 +1,36 @@
+[
+ {
+  "id": "HP-01",
+  "type": "legal",
+  "name": "ООО «СтройГрупп»",
+  "inn": "7701234567",
+  "ogrn": "1234567890123",
+  "status": "active",
+  "director": "Петров А.В."
+ },
+ {
+  "id": "HP-02",
+  "type": "legal",
+  "name": "ООО «Вектор»",
+  "inn": "7709876543",
+  "ogrn": "9876543210123",
+  "status": "liquidated",
+  "director": "Сидоров М.К."
+ },
+ {
+  "id": "HP-03",
+  "type": "person",
+  "name": "Иванов Иван Иванович",
+  "inn": "773311223344",
+  "passport": "4520 123456",
+  "status": "active"
+ },
+ {
+  "id": "HP-04",
+  "type": "person",
+  "name": "Козлова Светлана Петровна",
+  "inn": "772244556677",
+  "passport": "4521 654321",
+  "status": "active"
+ }
+]
