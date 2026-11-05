@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Руководство пользователя — ФИС ГМУ (ИС ГМУ) · Симулятор миграционного учёта</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:    #0f2b4e;
+    --navy2:   #1a3d6b;
+    --blue:    #1e5fa8;
+    --blue2:   #2471c8;
+    --sky:     #e8f2fc;
+    --sky2:    #d0e5f8;
+    --red:     #c0392b;
+    --red-lt:  #fdf0ee;
+    --green:   #1a7a3c;
+    --grn-lt:  #e8f5ed;
+    --amber:   #b45309;
+    --amb-lt:  #fef9ec;
+    --ink:     #111a27;
+    --ink2:    #374355;
+    --ink3:    #6b7d92;
+    --line:    #dce7f3;
+    --paper:   #f4f8fc;
+    --white:   #ffffff;
+    --shadow:  0 2px 12px rgba(15,43,78,.08);
+    --shadow2: 0 8px 32px rgba(15,43,78,.13);
+    --r:       10px;
+    --r2:      6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--line); }
+  ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+  /* ── TOP HEADER ────────────────────────────── */
+  .site-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, var(--blue) 100%);
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 16px rgba(15,43,78,.35);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 32px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .header-emblem { font-size: 32px; flex-shrink: 0; }
+  .header-text h1 { font-size: 16px; font-weight: 800; letter-spacing: -.2px; line-height: 1.2; }
+  .header-text p  { font-size: 12px; opacity: .72; margin-top: 2px; }
+  .header-stamp {
+    margin-left: auto;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: var(--r2);
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 268px 1fr;
+    gap: 0;
+    max-width: 1300px;
+    margin: 0 auto;
+    min-height: calc(100vh - 62px);
+  }
+
+  /* ── SIDEBAR NAV ───────────────────────────── */
+  .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--line);
+    padding: 28px 0 48px;
+    position: sticky;
+    top: 62px;
+    height: calc(100vh - 62px);
+    overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding: 14px 24px 6px;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink2);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+    cursor: pointer;
+  }
+  .nav-link:hover { background: var(--sky); color: var(--blue); }
+  .nav-link.active { background: var(--sky); color: var(--blue); border-left-color: var(--blue); font-weight: 700; }
+  .nav-link .ni { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 7px;
+  }
+
+  /* ── MAIN CONTENT ──────────────────────────── */
+  .main {
+    padding: 40px 48px 80px;
+    max-width: 900px;
+  }
+
+  /* ── HERO ──────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue2) 100%);
+    border-radius: var(--r);
+    padding: 40px 44px;
+    color: #fff;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🛡️';
+    position: absolute;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 96px;
+    opacity: .12;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    opacity: .65;
+    margin-bottom: 10px;
+  }
+  .hero h2 {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    letter-spacing: -.4px;
+  }
+  .hero p { font-size: 14px; opacity: .8; max-width: 560px; line-height: 1.6; }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item { font-size: 12px; opacity: .75; display: flex; align-items: center; gap: 6px; }
+
+  /* ── SECTION ───────────────────────────────── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 80px;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -.3px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title .icon { font-size: 26px; }
+  .section-desc {
+    font-size: 14px;
+    color: var(--ink3);
+    margin-bottom: 28px;
+    max-width: 620px;
+  }
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 32px 0;
+  }
+  .body-p { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 16px; }
+
+  /* ── STEP CARDS ────────────────────────────── */
+  .steps-list { display: flex; flex-direction: column; gap: 0; }
+
+  .step-card {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--line);
+    border-radius: var(--r);
+    background: var(--white);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s, transform .2s;
+  }
+  .step-card:hover { box-shadow: var(--shadow2); transform: translateY(-1px); }
+
+  .step-num-col {
+    width: 64px;
+    flex-shrink: 0;
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 22px;
+    gap: 6px;
+  }
+  .step-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .step-num-col .s-icon { font-size: 18px; }
+
+  .step-body { padding: 22px 26px; flex: 1; }
+  .step-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-body p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 12px; }
+  .step-body p:last-child { margin-bottom: 0; }
+
+  .step-card.danger .step-num-col { background: var(--red); }
+  .step-card.success .step-num-col { background: var(--green); }
+  .step-card.amber  .step-num-col { background: var(--amber); }
+
+  /* ── SUBSTEPS ───────────────────────────────── */
+  .substep-list { list-style: none; margin: 10px 0 4px; }
+  .substep-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+    color: var(--ink2);
+    line-height: 1.55;
+  }
+  .substep-list li:last-child { border-bottom: none; }
+  .substep-list li .bullet {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--sky2);
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── ALERT BOXES ───────────────────────────── */
+  .alert-box {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    border-radius: var(--r2);
+    border-left: 4px solid;
+    margin: 14px 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .alert-box .a-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-box strong { display: block; font-weight: 700; margin-bottom: 3px; }
+  .alert-info    { background: var(--sky);   border-color: var(--blue);  color: var(--navy2); }
+  .alert-success { background: var(--grn-lt); border-color: var(--green); color: #145c2e; }
+  .alert-warning { background: var(--amb-lt); border-color: #d97706;      color: #7c3d0a; }
+  .alert-danger  { background: var(--red-lt); border-color: var(--red);   color: #8b1c13; }
+
+  /* ── ROLE CARDS ────────────────────────────── */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .role-card {
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-radius: var(--r);
+    padding: 20px 16px;
+    box-shadow: var(--shadow);
+  }
+  .role-card .r-icon { font-size: 32px; margin-bottom: 10px; }
+  .role-card .r-name { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+  .role-card .r-desc { font-size: 12px; color: var(--ink3); line-height: 1.5; }
+  .role-card .r-badge {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 10px;
+    background: var(--sky2);
+    color: var(--blue);
+  }
+
+  /* ── MODULE OVERVIEW ───────────────────────── */
+  .module-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .module-card {
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .module-card-top {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .module-card-top .m-icon { font-size: 30px; margin-bottom: 8px; }
+  .module-card-top .m-name { font-size: 13px; font-weight: 800; color: var(--ink); }
+  .module-card-top .m-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+  .tag-basic    { background: var(--grn-lt); color: var(--green); }
+  .tag-advanced { background: var(--amb-lt); color: var(--amber); }
+  .tag-instr    { background: var(--sky2);   color: var(--blue);  }
+  .module-card-body { padding: 14px 18px; font-size: 12.5px; color: var(--ink3); line-height: 1.6; }
+
+  /* ── SCORE TABLE ───────────────────────────── */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .score-table thead th {
+    background: var(--navy);
+    color: #fff;
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .score-table tbody td { padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--white); vertical-align: top; }
+  .score-table tbody tr:last-child td { border-bottom: none; }
+  .score-table tbody tr:hover td { background: var(--sky); }
+  .pts-pos { color: var(--green); font-weight: 800; }
+  .pts-neg { color: var(--red);   font-weight: 800; }
+  .sev-crit { background: var(--red-lt); color: var(--red); }
+  .sev-high { background: var(--amb-lt); color: var(--amber); }
+  .sev-low  { background: var(--grn-lt); color: var(--green); }
+  .severity {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ── SCENARIO CARDS ────────────────────────── */
+  .scenario-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .scenario-card {
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-radius: var(--r);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+  }
+  .scenario-header:hover { background: var(--sky); }
+  .scenario-icon { font-size: 22px; flex-shrink: 0; }
+  .scenario-name { font-size: 14px; font-weight: 700; flex: 1; }
+  .scenario-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+  .scenario-toggle {
+    font-size: 14px;
+    color: var(--ink3);
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .scenario-toggle.open { transform: rotate(180deg); }
+  .scenario-body {
+    padding: 0 20px 18px;
+    display: none;
+    border-top: 1px solid var(--line);
+    font-size: 13.5px;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+  .scenario-body.open { display: block; padding-top: 16px; }
+  .scenario-body .correct { color: var(--green); font-weight: 600; }
+  .scenario-body .wrong   { color: var(--red);   font-weight: 600; }
+  .scenario-body .action-list { list-style: none; margin: 8px 0; }
+  .scenario-body .action-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .scenario-body .action-list li::before { content: '→'; color: var(--blue); font-weight: 700; flex-shrink: 0; }
+
+  /* ── TIP BLOCK ─────────────────────────────── */
+  .tip-block {
+    background: linear-gradient(135deg, var(--sky) 0%, #f0f8ff 100%);
+    border: 1.5px solid var(--sky2);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .tip-block .t-icon { font-size: 24px; flex-shrink: 0; }
+  .tip-block .t-title { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 5px; }
+  .tip-block .t-body  { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+
+  /* ── SHORTCUT TABLE ─────────────────────────── */
+  .shortcut-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .shortcut-row:last-child { border-bottom: none; }
+  .kbd {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: var(--r2);
+    flex-shrink: 0;
+  }
+
+  /* ── GRADE TABLE ────────────────────────────── */
+  .grade-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .grade-card {
+    border-radius: var(--r);
+    padding: 18px 14px;
+    text-align: center;
+    border: 1.5px solid;
+  }
+  .g5 { background: #e9faf0; border-color: var(--green); }
+  .g4 { background: var(--sky);   border-color: var(--blue);  }
+  .g3 { background: var(--amb-lt); border-color: #d97706; }
+  .g2 { background: var(--red-lt); border-color: var(--red);  }
+  .grade-num { font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+  .g5 .grade-num { color: var(--green); }
+  .g4 .grade-num { color: var(--blue); }
+  .g3 .grade-num { color: var(--amber); }
+  .g2 .grade-num { color: var(--red); }
+  .grade-label { font-size: 12px; font-weight: 700; }
+  .grade-pts   { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+
+  /* ── PRINT BUTTON ───────────────────────────── */
+  .print-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 20px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .print-bar span { font-size: 13px; color: var(--ink3); }
+  .print-btn {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: var(--r2);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background .15s;
+  }
+  .print-btn:hover { background: var(--navy2); }
+
+  /* ── PROGRESS INDICATOR ─────────────────────── */
+  .reading-progress {
+    position: fixed;
+    top: 62px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--line);
+    z-index: 300;
+  }
+  .reading-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue2), var(--blue));
+    width: 0%;
+    transition: width .1s;
+  }
+
+  /* ── FOOTER ─────────────────────────────────── */
+  .footer {
+    background: var(--white);
+    border-top: 1px solid var(--line);
+    padding: 20px 32px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink3);
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    .main { padding: 24px 20px 60px; }
+    .module-cards { grid-template-columns: 1fr; }
+    .grade-cards  { grid-template-columns: repeat(2,1fr); }
+  }
+
+  @media print {
+    .site-header, .sidebar, .print-bar, .reading-progress { display: none !important; }
+    .layout { grid-template-columns: 1fr; }
+    .main { padding: 0; max-width: 100%; }
+    .scenario-body { display: block !important; padding-top: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="reading-progress"><div class="reading-progress-fill" id="rpf"></div></div>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-emblem">🛡️</div>
+    <div class="header-text">
+      <h1>ФИС ГМУ (ИС ГМУ) — Симулятор миграционного учёта МВД России</h1>
+      <p>Руководство пользователя · Сервисы миграционного учёта (ВНЖ, РВП, патенты) · Цифропол ИСОД</p>
+    </div>
+    <div class="header-stamp">Версия 1.0 · 2026</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="nav-label">Начало работы</div>
+    <a class="nav-link active" href="#intro" onclick="setActive(this)"><span class="ni">📖</span> Введение</a>
+    <a class="nav-link" href="#start" onclick="setActive(this)"><span class="ni">🚀</span> Запуск симулятора</a>
+    <a class="nav-link" href="#login" onclick="setActive(this)"><span class="ni">🔑</span> Вход и токен доступа</a>
+    <a class="nav-link" href="#roles" onclick="setActive(this)"><span class="ni">👮</span> Роли пользователей</a>
+
+    <div class="nav-label">Интерфейс</div>
+    <a class="nav-link" href="#interface" onclick="setActive(this)"><span class="ni">🖥️</span> Интерфейс системы</a>
+    <a class="nav-link" href="#queue" onclick="setActive(this)"><span class="ni">📥</span> Дашборд и очередь дел</a>
+
+    <div class="nav-label">Рабочие модули</div>
+    <a class="nav-link" href="#module-migration" onclick="setActive(this)"><span class="ni">📋</span> Миграционный учёт</a>
+    <a class="nav-link" href="#amina" onclick="setActive(this)"><span class="ni">📱</span> Приложение «Амина»</a>
+    <a class="nav-link" href="#module-patent" onclick="setActive(this)"><span class="ni">🪪</span> Оформление патента</a>
+    <a class="nav-link" href="#module-rvp" onclick="setActive(this)"><span class="ni">📄</span> РВП и ВНЖ</a>
+
+    <div class="nav-label">Проверки и решения</div>
+    <a class="nav-link" href="#checks" onclick="setActive(this)"><span class="ni">🔍</span> Межвед. проверки</a>
+    <a class="nav-link" href="#biometric" onclick="setActive(this)"><span class="ni">🖐️</span> Дактилоскопия</a>
+    <a class="nav-link" href="#decisions" onclick="setActive(this)"><span class="ni">✍️</span> Принятие решений</a>
+    <a class="nav-link" href="#alerts" onclick="setActive(this)"><span class="ni">🚨</span> Критические алерты</a>
+
+    <div class="nav-label">Оценка и аналитика</div>
+    <a class="nav-link" href="#scoring" onclick="setActive(this)"><span class="ni">🏆</span> Система баллов</a>
+    <a class="nav-link" href="#data" onclick="setActive(this)"><span class="ni">🗂️</span> Данные и ловушки</a>
+    <a class="nav-link" href="#cases" onclick="setActive(this)"><span class="ni">🎭</span> Разбор кейсов</a>
+    <a class="nav-link" href="#reports" onclick="setActive(this)"><span class="ni">📤</span> Отчёты и экспорт JSON</a>
+    <a class="nav-link" href="#instructor" onclick="setActive(this)"><span class="ni">🎓</span> АРМ Преподавателя</a>
+    <a class="nav-link" href="#audit" onclick="setActive(this)"><span class="ni">🔒</span> Журнал аудита</a>
+    <a class="nav-link" href="#faq" onclick="setActive(this)"><span class="ni">❓</span> Частые вопросы</a>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <div class="print-bar">
+      <span>📄 Это интерактивное руководство. Используйте боковое меню для навигации, кнопки «▼» — для раскрытия разборов кейсов.</span>
+      <button class="print-btn" onclick="window.print()">🖨️ Распечатать</button>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">Учебно-тренировочная система · Цифропол ИСОД · МВД России</div>
+      <h2>Руководство пользователя<br>ФИС ГМУ — Симулятор</h2>
+      <p>Пошаговая инструкция по работе с учебным симулятором сервисов миграционного учёта: постановка на учёт, патенты, РВП и ВНЖ. Включает цифровой контроль через приложение «Амина», дактилоскопию АДИС «Папилон», веерные проверки СМЭВ и экспорт итогового отчёта для проверяющей платформы.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">📋 3 учебных модуля</div>
+        <div class="hero-meta-item">🎭 6 типов ловушек</div>
+        <div class="hero-meta-item">🗂️ 600 ИГ в картотеке</div>
+        <div class="hero-meta-item">👮 5 ролей</div>
+        <div class="hero-meta-item">🔒 Без сервера · Только браузер</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- INTRO -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="intro">
+      <div class="section-eyebrow">Раздел 1</div>
+      <div class="section-title"><span class="icon">📖</span> Введение</div>
+      <p class="section-desc">Что такое симулятор, из чего состоит и для кого предназначен.</p>
+
+      <p class="body-p">
+        Симулятор <strong>ФИС ГМУ (ИС ГМУ)</strong> — это браузерный учебно-тренировочный программный комплекс, воспроизводящий рабочее место инспекторов Управления по вопросам миграции (УВМ) МВД России. Он имитирует интерфейс <strong>ГС МИР / ППО «Территория»</strong> и сервисов миграционного учёта (ВНЖ, РВП, патенты) в контуре <strong>Цифропол ИСОД</strong>, а также интеграции с АС ЦБДУИГ (картотека ИГ), СМЭВ (межведомственные проверки), АДИС «Папилон» (дактилоскопия), базами Пограничной службы ФСБ, ФНС, Минздрава и ФССП. С версии 1.0 в симулятор добавлен цифровой контроль через приложение <strong>«Амина»</strong>.
+      </p>
+
+      <p class="body-p">
+        Комплекс построен как автономный веб-пакет: движок приложения (JavaScript), синтетическая база данных на <strong>600 иностранных граждан</strong>, сценарные пресеты и справочник ловушек поставляются в одной папке и работают без серверной части. Три контура работы — учебный (<em>training</em>), экзаменационный (<em>exam</em>) и инструкторский (<em>instructor</em>) — заданы в конфигурации <code>config.json</code>.
+      </p>
+
+      <div class="tip-block">
+        <div class="t-icon">🎯</div>
+        <div>
+          <div class="t-title">Цель симулятора</div>
+          <div class="t-body">Сформировать у курсантов устойчивые навыки работы с миграционными информационными системами МВД: от приёма уведомлений о прибытии и проверки «Амины» до выявления скрытых нарушений (розыск, смена личности, фиктивные документы, «резиновые квартиры») и принятия юридически значимых решений с точным указанием нормы права.</div>
+        </div>
+      </div>
+
+      <div class="alert-box alert-info">
+        <div class="a-icon">ℹ️</div>
+        <div><strong>Технические требования</strong> Современный браузер (Chrome, Firefox, Edge) и Python 3 для запуска локального сервера. Без интернета и установки. Все учебные данные (очередь дел, баллы, журнал) живут в памяти браузера и сбрасываются при перезагрузке страницы. Расчёты сроков по иностранному гражданину выполняются не от реальных часов, а от фиксированной опорной даты сценария — <strong>20.12.2025</strong>.</div>
+      </div>
+
+      <div class="alert-box alert-warning">
+        <div class="a-icon">⚠️</div>
+        <div><strong>Важно</strong> Все персональные данные в симуляторе вымышленные. Система предназначена исключительно для учебных целей и не подключается к реальным базам МВД. Правила приложения «Амина» (эксперимент в Москве и Московской области с 01.09.2025) смоделированы упрощённо по открытым публикациям — сверяйте их с действующими нормативными актами.</div>
+      </div>
+
+      <div class="module-cards">
+        <div class="module-card">
+          <div class="module-card-top">
+            <div class="m-icon">📋</div>
+            <div class="m-name">Миграционный учёт</div>
+            <span class="m-tag tag-basic">Базовый</span>
+          </div>
+          <div class="module-card-body">Уведомления о прибытии, постановка на учёт по месту пребывания. Проверка адреса (ФИАС), принимающей стороны (ФНС), правила 90/180, цифровой контроль «Амина», рапорты в ОИК.</div>
+        </div>
+        <div class="module-card">
+          <div class="module-card-top">
+            <div class="m-icon">🪪</div>
+            <div class="m-name">Патент / РВП / ВНЖ</div>
+            <span class="m-tag tag-advanced">Продвинутый</span>
+          </div>
+          <div class="module-card-body">Оформление разрешительных статусов: пакет документов, дактилоскопия АДИС «Папилон», НДФЛ-контроль, веерные проверки ИБД-Р/Ф, ФСБ, Минздрава, ФССП, ФНС, решение и УКЭП.</div>
+        </div>
+        <div class="module-card">
+          <div class="module-card-top">
+            <div class="m-icon">🎓</div>
+            <div class="m-name">АРМ Преподавателя</div>
+            <span class="m-tag tag-instr">Инструктор</span>
+          </div>
+          <div class="module-card-body">Мониторинг взвода в реальном времени, стохастический генератор кейсов, тематические пресеты, ручная «подкидка» ловушек, итоговые ведомости и аналитика ошибок.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- START -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="start">
+      <div class="section-eyebrow">Раздел 2</div>
+      <div class="section-title"><span class="icon">🚀</span> Запуск симулятора</div>
+      <p class="section-desc">Симулятор распространяется пакетом папок. Два способа запуска и обслуживание данных.</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">📂</div></div>
+          <div class="step-body">
+            <div class="step-title">Распакуйте пакет fis-gmu</div>
+            <p>Симулятор — это не один HTML-файл, а пакет <strong>fis-gmu/</strong>. Структура пакета:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">1</span><span><strong>index.html</strong> — оболочка: экран входа, рабочая область, модальные окна и загрузчик.</span></li>
+              <li><span class="bullet">2</span><span><strong>config.json</strong> — версия (1.0.0), опорная дата сценария (sim_today = 20.12.2025), режимы training / exam / instructor.</span></li>
+              <li><span class="bullet">3</span><span><strong>app/core</strong> и <strong>app/panels</strong> — движок: состояние, баллы, аудит, сессия, токен, «Амина»; панели очереди, миграционного учёта, патента, РВП/ВНЖ, картотеки, АРМ преподавателя, отчётов и решений.</span></li>
+              <li><span class="bullet">4</span><span><strong>data/</strong> — синтетические данные: 600 ИГ, адреса, принимающие стороны, индексы фото и отпечатков; <strong>scenarios/</strong> — ловушки, пресеты, ползунки генератора, состав взвода.</span></li>
+              <li><span class="bullet">5</span><span><strong>dist/data_bundle/data.js</strong> — автономный пакет данных для запуска двойным щелчком; <strong>tools/</strong> — утилиты сборки и импорта; <strong>docs/</strong> — README и лицензии.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">🌐</div></div>
+          <div class="step-body">
+            <div class="step-title">Способ 1 (рекомендуется): локальный сервер</div>
+            <p>Запустите <strong>start.bat</strong> (Windows) или <strong>start.sh</strong> (Linux/macOS). Скрипт поднимает локальный веб-сервер на Python и открывает браузер по адресу <strong>http://localhost:8080</strong>. В этом режиме данные читаются напрямую из файлов <code>data/*.json</code> и <code>scenarios/*.json</code> — правки подхватываются после обновления страницы.</p>
+            <div class="alert-box alert-info" style="margin:10px 0 0">
+              <div class="a-icon">💡</div>
+              <div>Требуется установленный <strong>Python 3</strong>. Рекомендуемый браузер — Google Chrome или Microsoft Edge. Для полного экрана нажмите <kbd>F11</kbd>.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">🖱️</div></div>
+          <div class="step-body">
+            <div class="step-title">Способ 2: двойной щелчок по index.html</div>
+            <p>При открытии файла напрямую (протокол <em>file://</em>) браузер не умеет читать JSON — симулятор автоматически возьмёт данные из автономного пакета <strong>dist/data_bundle/data.js</strong>. Если пакета нет, страница покажет красную плашку с подсказкой. Способ удобен для раздачи курсантам одним архивом.</p>
+          </div>
+        </div>
+
+        <div class="step-card amber">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">🧰</div></div>
+          <div class="step-body">
+            <div class="step-title">Обслуживание данных (для преподавателя)</div>
+            <p>После правки файлов в <code>data/</code> или <code>scenarios/</code> выполните в папке симулятора:</p>
+            <p style="font-family:Consolas,monospace;background:var(--ink);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px">python tools/build_manifest.py && python tools/bundle_for_file.py</p>
+            <p>Проверку целостности делает <strong>tools/validate.py</strong> — в частности, он убедится, что все ловушки, проставленные в записях граждан, известны справочнику <code>scenarios/traps/traps.json</code>. Импорт фотографий и отпечатков описан в разделе 16.</p>
+          </div>
+        </div>
+
+        <div class="step-card danger">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">🚫</div></div>
+          <div class="step-body">
+            <div class="step-title">Если видите «Не удалось загрузить симулятор…»</div>
+            <p>Красная плашка при старте означает, что браузер не смог прочитать данные или скрипты. Решение: запустите симулятор через <strong>start.bat / start.sh</strong>, либо соберите автономный пакет командой <strong>python tools/bundle_for_file.py</strong> и обновите страницу с очисткой кэша (<kbd>Ctrl</kbd>+<kbd>F5</kbd>).</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="alert-box alert-info">
+        <div class="a-icon">📅</div>
+        <div><strong>Опорная дата сценария — 20.12.2025</strong> Все данные (въезд, паспорта, «Амина») сгенерированы относительно этой даты. Правило 90/180, истечение паспорта и геолокация «Амины» считаются от неё, поэтому кейсы ведут себя одинаково в любой день реального запуска. Реальные часы на экране нужны только для хронометража сессии.</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LOGIN -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="login">
+      <div class="section-eyebrow">Раздел 3</div>
+      <div class="section-title"><span class="icon">🔑</span> Вход и токен доступа</div>
+      <p class="section-desc">Идентификация курсанта обязательна: без ФИО и номера взвода система не пустит.</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">🎫</div></div>
+          <div class="step-body">
+            <div class="step-title">Вставьте токен доступа (если выдан преподавателем)</div>
+            <p>Токен — однострочная строка вида <code>…base64….…подпись…</code>. Его можно вставить в поле «Токен доступа» на экране приветствия <em>целиком</em> или сразу открыть симулятор по ссылке с параметром <strong>?token=…</strong> — тогда курсанту даже не нужно ничего копировать вручную.</p>
+            <ul class="substep-list">
+              <li><span class="bullet">✓</span><span><strong>Токен распознан</strong> — ФИО подтягивается из токена и блокируется от редактирования (серое поле), под ним появляется зелёная надпись «ФИО подтверждено токеном».</span></li>
+              <li><span class="bullet">⏱</span><span><strong>Токен просрочен</strong> (задан срок действия) — появляется жёлтое предупреждение «Срок действия истёк — сообщите преподавателю».</span></li>
+              <li><span class="bullet">✕</span><span><strong>Токен скопирован не полностью</strong> — красная ошибка «Не удалось распознать токен»; поле ФИО снова разблокируется.</span></li>
+            </ul>
+            <p>Токен хранится до закрытия вкладки (sessionStorage), поэтому перезагрузка страницы (F5) его сохранит. Если токен не выдавали — оставьте поле пустым и введите ФИО вручную.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">📋</div></div>
+          <div class="step-body">
+            <div class="step-title">Заполните ФИО и номер взвода</div>
+            <p>Оба поля обязательны: при попытке войти с пустыми значениями появится предупреждение «Укажите ФИО и номер взвода перед входом в систему», и курсор вернётся в незаполненное поле. Эти данные попадут в журнал аудита, шапку интерфейса и итоговый отчёт.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">📚</div></div>
+          <div class="step-body">
+            <div class="step-title">Выберите учебный модуль</div>
+            <ul class="substep-list">
+              <li><span class="bullet">А</span><span><strong>Миграционный учёт</strong> — начните здесь, если вы новичок: базовые операции постановки на учёт.</span></li>
+              <li><span class="bullet">Б</span><span><strong>Патент / РВП / ВНЖ</strong> — продвинутый уровень: дактилоскопия, СМЭВ-проверки, решения со статьями ФЗ-115.</span></li>
+              <li><span class="bullet">В</span><span><strong>АРМ Преподавателя</strong> — для инструкторов. Выбор этой карточки автоматически переключает роль на «Преподаватель», и после входа система сразу откроет АРМ.</span></li>
+            </ul>
+            <p>Выбранный модуль влияет на стартовый экран, но не ограничивает работу: все разделы бокового меню доступны после входа.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">👮</div></div>
+          <div class="step-body">
+            <div class="step-title">Выберите роль</div>
+            <p>Пять кнопок: <strong>Инспектор ОВМ</strong> (по умолчанию), <strong>Ст. инспектор ОВМ</strong>, <strong>Начальник ОВМ</strong>, <strong>Контроль ИГ</strong>, <strong>Преподаватель</strong>. Роль отображается в шапке и фиксируется в журнале аудита и итоговом отчёте.</p>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">▶️</div></div>
+          <div class="step-body">
+            <div class="step-title">Нажмите «Войти в систему»</div>
+            <p>Система сформирует <strong>ID сессии</strong> (SIM-…), создаст очередь из 12 дел, загрузит состав взвода и запустит часы. В журнал пишется запись «ВХОД» с ролью и модулем. В шапке появятся: часы, ваша роль, «ФИО · взвод N», счётчик <strong>Баллы: 100</strong> и кнопка <strong>«Отчёт»</strong> — она доступна в любой момент для формирования и выгрузки отчёта по сессии.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ROLES -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="roles">
+      <div class="section-eyebrow">Раздел 4</div>
+      <div class="section-title"><span class="icon">👮</span> Роли пользователей</div>
+      <p class="section-desc">Роль задаёт «сцену» работы и подпись в журнале; в учебной версии все разделы доступны.</p>
+
+      <div class="role-grid">
+        <div class="role-card">
+          <div class="r-icon">👮</div>
+          <div class="r-name">Инспектор ОВМ</div>
+          <div class="r-desc">Базовая роль: приём уведомлений, ввод и проверка данных, дактилоскопия, запросы ведомств, оформление решений.</div>
+          <span class="r-badge">Базовый уровень</span>
+        </div>
+        <div class="role-card">
+          <div class="r-icon">🏅</div>
+          <div class="r-name">Ст. инспектор ОВМ</div>
+          <div class="r-desc">Работа со сложными кейсами: согласование решений, контроль правильности, разбор спорных ситуаций.</div>
+          <span class="r-badge">Средний уровень</span>
+        </div>
+        <div class="role-card">
+          <div class="r-icon">⭐</div>
+          <div class="r-name">Начальник ОВМ</div>
+          <div class="r-desc">Подписание решений УКЭП (РВП/ВНЖ направляются «на подпись начальнику»), аудит действий сотрудников.</div>
+          <span class="r-badge">Руководящий</span>
+        </div>
+        <div class="role-card">
+          <div class="r-icon">🔍</div>
+          <div class="r-name">Контроль ИГ</div>
+          <div class="r-desc">Иммиграционный контроль: картотека ИГ, реестр нарушений, «резиновые квартиры», розыск и запреты въезда.</div>
+          <span class="r-badge">Контрольный</span>
+        </div>
+        <div class="role-card">
+          <div class="r-icon">🎓</div>
+          <div class="r-name">Преподаватель</div>
+          <div class="r-desc">АРМ преподавателя: генератор кейсов, пресеты, подкидка ловушек, мониторинг и ведомости взвода.</div>
+          <span class="r-badge">Инструктор</span>
+        </div>
+      </div>
+
+      <div class="alert-box alert-info">
+        <div class="a-icon">💡</div>
+        <div><strong>Рекомендация для новичков</strong> Войдите как «Инспектор ОВМ» в модуле «Миграционный учёт» и полностью обработайте уведомление о прибытии (все 6 шагов), прежде чем переходить к патенту и РВП/ВНЖ. Роль фиксируется в отчёте — преподаватель увидит, кем именно отработан кейс.</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- INTERFACE -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="interface">
+      <div class="section-eyebrow">Раздел 5</div>
+      <div class="section-title"><span class="icon">🖥️</span> Интерфейс системы</div>
+      <p class="section-desc">Описание всех элементов рабочего места после входа.</p>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:14px">TOP</div><div class="s-icon">📊</div></div>
+          <div class="step-body">
+            <div class="step-title">Верхняя панель (Топбар)</div>
+            <p>Фиксированная синяя полоса в самом верху. Содержит:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🛡️</span><span><strong>Логотип</strong> — «Цифропол ИСОД — МВД России — сервисы миграционной службы».</span></li>
+              <li><span class="bullet">🕐</span><span><strong>Часы</strong> — реальное время устройства (ЧЧ:ММ:СС) для хронометража. Расчёты сроков по делам идут от опорной даты 20.12.2025.</span></li>
+              <li><span class="bullet">👮</span><span><strong>Роль и курсант</strong> — иконка и наименование роли, под ней «ФИО · взвод N».</span></li>
+              <li><span class="bullet">💰</span><span><strong>Баллы</strong> — текущий учебный балл. Старт — 100, максимальная цель — 150, ниже нуля не опускается.</span></li>
+              <li><span class="bullet">📤</span><span><strong>Кнопка «Отчёт»</strong> — открыть итоговое окно сессии и скачать JSON-отчёт (раздел 18).</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:14px">NAV</div><div class="s-icon">📁</div></div>
+          <div class="step-body">
+            <div class="step-title">Боковая панель навигации</div>
+            <p>Слева — вертикальное меню с группами. Возле «Очереди дел» висит бейдж с числом новых дел.</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🏠</span><span><strong>Дашборд</strong> — счётчики дел, последние дела, ваши показатели, системные уведомления о просрочках.</span></li>
+              <li><span class="bullet">📥</span><span><strong>Очередь дел</strong> — 12 входящих заявлений с поиском, фильтром по типу и цветовой индикацией сроков.</span></li>
+              <li><span class="bullet">📋</span><span><strong>Мигр. учёт</strong> — модуль постановки на учёт (список уведомлений о прибытии).</span></li>
+              <li><span class="bullet">🪪</span><span><strong>Патент</strong> — заявления на патент с колонкой «Дактилоскопия».</span></li>
+              <li><span class="bullet">📄</span><span><strong>РВП / ВНЖ</strong> — заявления на разрешительные статусы с колонкой «Проверки».</span></li>
+              <li><span class="bullet">🗂️</span><span><strong>Картотека ИГ</strong> — все 600 досье (АС ЦБДУИГ) с поиском и пагинацией.</span></li>
+              <li><span class="bullet">⚠️</span><span><strong>Нарушения</strong> — реестр выявленных нарушений со статьями УК РФ и КоАП.</span></li>
+              <li><span class="bullet">🎓</span><span><strong>АРМ Препод.</strong> — панель преподавателя (4 вкладки).</span></li>
+              <li><span class="bullet">📊</span><span><strong>Отчёты</strong> — статистика по типам дел и итоги сессии.</span></li>
+              <li><span class="bullet">🔒</span><span><strong>Журнал аудита</strong> — все ваши действия в хронологии.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:14px">WRK</div><div class="s-icon">💼</div></div>
+          <div class="step-body">
+            <div class="step-title">Центральная рабочая область</div>
+            <p>Меняется в зависимости от раздела: заголовок с подзаголовком, таблицы, карточки дела, формы и модальные окна. Кнопки <strong>«Очередь»</strong> и <strong>«＋ Новое дело»</strong> в правом углу заголовка доступны с любого экрана.</p>
+            <div class="alert-box alert-info" style="margin-top:10px">
+              <div class="a-icon">💡</div>
+              <div>Всплывающие уведомления (toast) о баллах, ошибках и подтверждениях появляются в правом верхнем углу и исчезают через несколько секунд. Штрафные уведомления красные, поощрительные — зелёные.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:14px">INS</div><div class="s-icon">📚</div></div>
+          <div class="step-body">
+            <div class="step-title">Панель инструкций (справа)</div>
+            <p>Синяя панель с текущим шагом обработки дела. Для каждого типа дела свой маршрут: <strong>миграционный учёт — 6 шагов</strong>, <strong>патент — 5 шагов</strong>, <strong>РВП/ВНЖ — 6 шагов</strong>. Внутри шага — текст инструкции, чек-лист (пункты отмечаются по мере выполнения) и индикатор прогресса «Шаг N из M».</p>
+            <p>Кнопка <strong>«◀»</strong> в шапке — свернуть/развернуть панель; кнопки <strong>«← Пред»</strong> и <strong>«След →»</strong> — перейти между шагами вручную.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:14px">CLR</div><div class="s-icon">🎨</div></div>
+          <div class="step-body">
+            <div class="step-title">Цветовая индикация строк и статусы дел</div>
+            <p>Каждая строка таблиц окрашена по возрасту дела:</p>
+            <ul class="substep-list">
+              <li><span class="bullet" style="background:#e8f5ed;color:var(--green)">🟢</span><span><strong>Зелёная</strong> — поступило сегодня. Срок в норме.</span></li>
+              <li><span class="bullet" style="background:var(--amb-lt);color:var(--amber)">🟡</span><span><strong>Жёлтая</strong> — 1–2 дня. Срок истекает (на дашборде для «2 дней» — предупреждение «срок истекает сегодня»).</span></li>
+              <li><span class="bullet" style="background:var(--red-lt);color:var(--red)">🔴</span><span><strong>Красная</strong> — 3 дня и больше. Просрочено! На дашборде формируется алерт «Просрочено!».</span></li>
+            </ul>
+            <p>Статусы дел: <strong>Новое</strong> (зелёный), <strong>В обработке</strong> (жёлтый), <strong>Ожидание</strong> (синий), <strong>Закрыто</strong> (серый), <strong>Одобрено</strong> (зелёный), <strong>Отказано</strong> (красный).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- QUEUE -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="queue">
+      <div class="section-eyebrow">Раздел 6</div>
+      <div class="section-title"><span class="icon">📥</span> Дашборд и очередь дел</div>
+      <p class="section-desc">Откуда берутся дела, как искать их и как создать новое.</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">🏠</div></div>
+          <div class="step-body">
+            <div class="step-title">Дашборд — стартовый экран</div>
+            <p>Три счётчика (<strong>Новые / В обработке / Завершено</strong>), таблица последних дел и карточка «Ваши показатели»: баллы из 150, прогресс-бар и текущая оценка (2–5). Ниже — карточка «Системные уведомления»: по каждому делу с возрастом 2 дня выводится «срок истекает сегодня», с возрастом 3+ дней — красное «Просрочено!». Если всё чисто, карточка показывает «Нарушений не обнаружено».</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">📥</div></div>
+          <div class="step-body">
+            <div class="step-title">Очередь дел — 12 заявлений</div>
+            <p>При входе система формирует очередь <strong>ДЕЛО-1000 … ДЕЛО-1011</strong>. Типы услуг идут по кругу (миграционный учёт → патент → РВП → ВНЖ), источники чередуются: <strong>ЕПГУ (Госуслуги)</strong>, <strong>МФЦ</strong>, <strong>Личный приём</strong>. Уникальные граждане случайно выбираются из всей базы на 600 человек, причём <strong>каждое третье дело — «проблемное»</strong>: у него либо ловушка в данных, либо нарушение режима «Амины». Остальные — заведомо чистые.</p>
+            <p>Колонки таблицы: ID дела, дата подачи, ИГ (ФИО + гражданство), тип услуги, принимающая сторона, источник, статус и кнопка «Открыть». Открытие дела фиксируется в журнале аудита.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">🔎</div></div>
+          <div class="step-body">
+            <div class="step-title">Поиск и фильтр работают вместе</div>
+            <p>Строка поиска фильтрует таблицу по ФИО, паспорту и гражданству; выпадающий список — по типу услуги (Миграционный учёт / Патент / РВП / ВНЖ). Условия применяются <em>одновременно</em>: можно, например, искать только патентные дела по фамилии. Правее — легенда цветовой индикации.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">➕</div></div>
+          <div class="step-body">
+            <div class="step-title">«＋ Новое дело» — четыре типа услуг</div>
+            <p>Кнопка открывает окно выбора типа: <strong>Миграционный учёт</strong>, <strong>Оформление патента</strong>, <strong>РВП</strong>, <strong>ВНЖ</strong>. После выбора система создаёт дело с номером ДЕЛО-1020+ на случайного гражданина из базы 600, источник — «Личный приём», и сразу открывает его карточку. Новое дело попадает в очередь и в статистику сессии.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">🗂️</div></div>
+          <div class="step-body">
+            <div class="step-title">Картотека ИГ — 600 досье</div>
+            <p>Раздел «Картотека ИГ» (аналог АС ЦБДУИГ) содержит всю учебную базу: фото (или силуэт), ФИО на русском и латинице, гражданство, дату рождения, паспорт, срок действия, дату въезда и колонку <strong>«Амина»</strong> со статусом цифрового контроля (норма / внимание / нарушение). Поиск — по ID, ФИО, паспорту и гражданству; пагинация — по 50 записей.</p>
+            <p>Клик по строке открывает <strong>электронное досье</strong> с пятью вкладками:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">1</span><span><strong>Основные данные</strong> — фото, ФИО, дата рождения, ИНН, цель въезда, ID; при наличии ловушки — красный бейдж с её типом.</span></li>
+              <li><span class="bullet">2</span><span><strong>Документы</strong> — паспорт (красный, если истекает), миграционная карта, дата въезда (ПС ФСБ).</span></li>
+              <li><span class="bullet">3</span><span><strong>История границ (ФСБ)</strong> — хронология въездов/выездов с КПП (Шереметьево, Домодедово).</span></li>
+              <li><span class="bullet">4</span><span><strong>Статусы</strong> — текущий статус цифрового контроля и связанные дела.</span></li>
+              <li><span class="bullet">5</span><span><strong>Адм. практика</strong> — штрафы, депортации, запреты (например, у «двойников» — депортация 2023 года и запрет въезда на 5 лет).</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODULE MIGRATION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="module-migration">
+      <div class="section-eyebrow">Раздел 7</div>
+      <div class="section-title"><span class="icon">📋</span> Модуль: Миграционный учёт</div>
+      <p class="section-desc">Обработка уведомлений о прибытии. Регламент: приём — 10 минут, внесение в ГИС — 3 рабочих дня. Маршрут из 6 шагов: Приём → Проверка → Адрес → Принимающая → Сроки → Регистрация.</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">🔎</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте сведения об иностранном гражданине</div>
+            <p>В карточке дела (левая колонка) — фото, ФИО на русском и латинице, гражданство, пол. Обязательно сверьте:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🛂</span><span><strong>Паспорт и срок его действия</strong> — если поле красное, паспорт истекает раньше срока учёта: под ним выведено «Паспорт истекает до конца срока учёта!». Это основание для отказа.</span></li>
+              <li><span class="bullet">🗓️</span><span><strong>Дата рождения и гражданство</strong> — из документа.</span></li>
+              <li><span class="bullet">🎫</span><span><strong>№ Миграционной карты</strong> и <strong>Дата въезда (ПС ФСБ)</strong> — подтягиваются из базы Пограничной службы.</span></li>
+              <li><span class="bullet">🎯</span><span><strong>Цель въезда</strong> — должна соответствовать услуге (например, патент положен только ИГ с целью «Работа»).</span></li>
+            </ul>
+            <p>Если у гражданина ловушка, над формой уже висят цветные предупреждения: «АЛЕРТ ИБД-Р!», «Истекающий паспорт!», «Массовый адрес!» и другие — не игнорируйте их.</p>
+          </div>
+        </div>
+
+        <div class="step-card amber">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">🏠</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте адрес (ФИАС), срок пребывания и правило 90/180</div>
+            <ul class="substep-list">
+              <li><span class="bullet">⚠️</span><span><strong>Адрес места пребывания</strong> привязан к справочнику ФИАС. Если под адресом красное предупреждение «уже зарегистрировано N граждан» и N &gt; 10 — признаки <strong>«резиновой квартиры»</strong>. Дело можно зарегистрировать (оснований для отказа нет), но обязательно нажмите кнопку <strong>«📤 Направить рапорт в ОИК»</strong> — иначе штраф.</span></li>
+              <li><span class="bullet">📅</span><span><strong>Заявленный срок пребывания (по)</strong> — поле с датой (по умолчанию +3 месяца). Если указать дату позже окончания паспорта, система оштрафует на −5 баллов: «Срок действия паспорта меньше заявленного срока пребывания!»</span></li>
+              <li><span class="bullet">⏱️</span><span><strong>Правило 90/180</strong> — поле автоматически показывает «✓ В норме» или красное «НАРУШЕНИЕ 90/180!», если со дня въезда прошло больше 90 дней. В этом случае внизу карточки активна красная кнопка <strong>«Отказать (нарушение 90/180)»</strong>.</span></li>
+            </ul>
+            <div class="alert-box alert-warning" style="margin-top:10px">
+              <div class="a-icon">⚠️</div>
+              <div><strong>Опоздание с подачей</strong> Если дело поступило не сегодня (в очереди есть дела возрастом 1–4 дня), в блоке «Проверки и действия» появляется красная кнопка <strong>«⚖️ Протокол КоАП (опоздание)»</strong> — ст. 18.8 / ч. 4 ст. 18.9 КоАП РФ. Составление протокола даёт +20 баллов.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">🏢</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте принимающую сторону</div>
+            <p>Правая колонка: тип (юридическое/физическое лицо), наименование, ИНН и <strong>«Статус (ФНС СМЭВ)»</strong>:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">✅</span><span><strong>«✓ Действующая»</strong> — продолжайте работу.</span></li>
+              <li><span class="bullet">❌</span><span><strong>«ЛИКВИДИРОВАНА»</strong> — красное поле и алерт «Организация ликвидирована. Основание для отказа». Внизу карточки активна красная кнопка <strong>«Отказать (ликвид. орг-я)»</strong> — формулировка: предоставление недостоверных сведений о принимающей стороне. В учебной базе ликвидирована организация <strong>ООО «Вектор»</strong>.</span></li>
+            </ul>
+            <p>Сразу под принимающей стороной — карточка <strong>«Цифровой контроль (приложение «Амина»)»</strong>; работа с ней описана в разделе 8.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">🔍</div></div>
+          <div class="step-body">
+            <div class="step-title">Запустите межведомственные проверки</div>
+            <p>Кнопка <strong>«🔍 Запустить межведомственные проверки»</strong> открывает консоль СМЭВ. Нажмите в ней <strong>«▶ Запустить веерный запрос»</strong> и подождите около 3 секунд — ответы шести ведомств приходят последовательно (подробности — раздел 11). Ловушки активируются только после запроса, поэтому шаг пропускать нельзя.</p>
+            <div class="alert-box alert-danger" style="margin-top:10px">
+              <div class="a-icon">🚨</div>
+              <div><strong>Если появился красный алерт!</strong> Нажмите <strong>«⚠️ Принять к сведению и действовать»</strong>, прочитайте текст и выполняйте предписанное действие. Кнопка «Игнорировать» стоит −100 баллов.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">📤</div></div>
+          <div class="step-body">
+            <div class="step-title">Выполните действия иммиграционного контроля</div>
+            <p>В блоке «Проверки и действия» доступны дополнительные кнопки:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">📄</span><span><strong>«Открыть электронное досье»</strong> — полное досье ИГ с историей границ (раздел 6).</span></li>
+              <li><span class="bullet">🛂</span><span><strong>«История пересечений ФСБ»</strong> — сразу открывает вкладку «История границ».</span></li>
+              <li><span class="bullet">📤</span><span><strong>«Направить рапорт в ОИК»</strong> — только для адресов с нагрузкой больше 10 человек (+50 баллов, ст. 322.3 УК РФ).</span></li>
+              <li><span class="bullet">⚖️</span><span><strong>«Протокол КоАП (опоздание)»</strong> — для дел с просроченной подачей (+20 баллов).</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num">6</div><div class="s-icon">✅</div></div>
+          <div class="step-body">
+            <div class="step-title">Примите решение и выдайте отрывную часть бланка</div>
+            <p>Внизу карточки — одна из кнопок:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">✅</span><span><strong>«Зарегистрировать / Принять решение»</strong> (зелёная) — если нарушений нет. Заполните обоснование в окне решения и подтвердите одобрение: +30 баллов, система сформирует <strong>отрывную часть бланка уведомления о прибытии</strong> с рег. номером ГС МИР вида МВД-2025-1007 (номер дела без префикса «ДЕЛО-»), сроком пребывания и отметкой о регистрации.</span></li>
+              <li><span class="bullet">❌</span><span><strong>«Отказать (ликвид. орг-я)»</strong> или <strong>«Отказать (нарушение 90/180)»</strong> (красные) — при выявленном нарушении. Обоснованный отказ даёт +20 баллов; отказ без нарушений — штраф −20.</span></li>
+            </ul>
+            <div class="alert-box alert-warning" style="margin-top:10px">
+              <div class="a-icon">⚠️</div>
+              <div><strong>Помните:</strong> одобрение при ликвидированной принимающей стороне (−50), при истекающем паспорте (−50), при критическом статусе «Амины» (−40) и при подтверждённом розыске (−100) фиксируется как ошибка. Одобрить дело миграционного учёта можно только через эту форму.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- AMINA -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="amina">
+      <div class="section-eyebrow">Раздел 8</div>
+      <div class="section-title"><span class="icon">📱</span> Цифровой контроль: приложение «Амина»</div>
+      <p class="section-desc">Новый контур учёта: у части трудовых мигрантов приложение установлено, и его данные обязательны к проверке.</p>
+
+      <p class="body-p">
+        <strong>«Амина»</strong> — приложение цифрового контроля (ГКУ «Информационный город»), введённое экспериментом в Москве и Московской области с 01.09.2025: иностранец подтверждает местом геолокации фактическое проживание по заявленному адресу. В симуляторе карточка «Амины» встроена в дело миграционного учёта, а её статус выведен отдельной колонкой в Картотеке ИГ.
+      </p>
+
+      <div class="tip-block">
+        <div class="t-icon">🎯</div>
+        <div>
+          <div class="t-title">На кого распространяется режим</div>
+          <div class="t-body">Приложение обязательно для граждан <strong>Узбекистана, Таджикистана, Киргизии, Армении, Казахстана, Грузии, Азербайджана, Молдовы и Украины</strong>, прибывших с целью <strong>«Работа»</strong>. Всем остальным карточка показывает «Установка не требуется» (прочерк). В учебной базе данные «Амины» заполнены примерно у двух третей граждан.</div>
+        </div>
+      </div>
+
+      <p class="body-p">Карточка отображает: статус приложения, установку при въезде в пункте пропуска, дату активации, последнюю геопозицию (с пометкой «N раб. дн. без данных»), совпадение геопозиции с заявленным адресом и совпадение места работы по геотреку с принимающей стороной. Возможные ситуации и правильная реакция:</p>
+
+      <table class="score-table">
+        <thead><tr><th>Ситуация</th><th>Уровень</th><th>Что означает</th><th>Правильная реакция</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Приложение не установлено</strong> / удалено с устройства</td><td><span class="severity sev-crit">Критический</span></td><td>Учёт по адресу в этом режиме возможен только через приложение</td><td>Основание для <strong>отказа или приостановки</strong>; ИГ направляется на установку</td></tr>
+          <tr><td><strong>Геолокация не поступает 6+ раб. дней</strong></td><td><span class="severity sev-crit">Критический</span></td><td>Уведомление уже направлялось (3 раб. дня), данных по-прежнему нет</td><td>Снятие с учёта <strong>по адресу ММЦ</strong>, возможно включение в реестр контролируемых лиц</td></tr>
+          <tr><td><strong>Геолокация не поступает 3–5 раб. дней</strong></td><td><span class="severity sev-high">Внимание</span></td><td>Срок самостоятельного подтверждения адреса ещё не вышел</td><td>Направить уведомление: подтвердить адрес проживания или сообщить о его смене в течение 3 раб. дней</td></tr>
+          <tr><td><strong>Геопозиция не совпадает с заявленным адресом</strong></td><td><span class="severity sev-high">Внимание</span></td><td>Типичная картина <strong>«фиктивной» регистрации</strong>: ИГ фактически проживает не по адресу</td><td>Проверить фактическое проживание, зафиксировать расхождение</td></tr>
+          <tr><td><strong>Место работы по геотреку ≠ принимающая сторона</strong></td><td><span class="severity sev-high">Внимание</span></td><td>По перемещениям ИГ работает не у заявленного работодателя</td><td>Проверить основание пребывания и разрешительные документы</td></tr>
+          <tr><td><strong>Статус «Активна», геопозиция совпадает</strong></td><td><span class="severity sev-low">Норма</span></td><td>Мониторинг в порядке</td><td>Работать по обычному маршруту</td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert-box alert-danger">
+        <div class="a-icon">🚨</div>
+        <div><strong>Связь с оценкой</strong> Одобрение дела при критическом статусе «Амины» (не установлена, удалена, геолокация не поступает 6+ дней) штрафуется на <strong>−40 баллов</strong> — «Одобрено при нарушении режима мониторинга». Корректный отказ в такой ситуации даёт +20 как обоснованный.</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODULE PATENT -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="module-patent">
+      <div class="section-eyebrow">Раздел 9</div>
+      <div class="section-title"><span class="icon">🪪</span> Модуль: Оформление патента</div>
+      <p class="section-desc">Приказ МВД №695/2020. Патент выдаётся на 1–12 месяцев. Маршрут из 5 шагов: Пакет документов → Дактилоскопия → ИНН/ФНС → Проверка чека → Выдача патента. Патентные дела оформляются только на ИГ с целью въезда «Работа».</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">📋</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте обязательный пакет документов</div>
+            <p>В блоке «Документы заявителя» — чек-лист из 7 позиций, каждая помечена галочкой или красным крестом с бейджем «Нарушение»:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">1</span><span>Заявление (заполнено)</span></li>
+              <li><span class="bullet">2</span><span>Паспорт (скан) — красный при истекающем сроке действия</span></li>
+              <li><span class="bullet">3</span><span>Полис ДМС</span></li>
+              <li><span class="bullet">4</span><span>Медицинская справка (Минздрав) — красная при ловушке <em>fake_medical</em></span></li>
+              <li><span class="bullet">5</span><span>Сертификат о знании русского языка</span></li>
+              <li><span class="bullet">6</span><span>Квитанция первого НДФЛ-платежа — красная при ловушке <em>fake_check</em></span></li>
+              <li><span class="bullet">7</span><span>Фотография 3×4</span></li>
+            </ul>
+            <div class="alert-box alert-warning" style="margin-top:10px">
+              <div class="a-icon">⚠️</div>
+              <div>Красная строка чек-листа — основание для отказа. Выдача патента с фальшивым чеком или просроченным платежом штрафуется на −50 баллов даже если всё остальное в порядке.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card amber">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">🖐️</div></div>
+          <div class="step-body">
+            <div class="step-title">Обязательная дактилоскопия (АДИС «Папилон»)</div>
+            <p>Виджет «Дактилоскопическая карта» требует отсканировать <strong>все 10 пальцев</strong>: правая рука П1–П4, ПБ и левая Л1–Л4, ЛБ. Два режима работы описаны в разделе 12. После 10/10 появится зелёная строка <em>«Дактилокарта сформирована. № АДИС: ADIS-ДЕЛО-1002-001»</em> (номер дела + суффикс) и начислятся +10 баллов.</p>
+            <div class="alert-box alert-danger" style="margin-top:10px">
+              <div class="a-icon">🚨</div>
+              <div><strong>Критически важно!</strong> Кнопка «Выдать патент» заблокирована, пока дактилоскопия не завершена. Если при сканировании <strong>первого пальца (П1)</strong> появляется красный крест и «БИОМЕТРИЧЕСКИЙ АЛЕРТ» — заявитель сменил личность: обработайте алерт и оформляйте отказ, а не выдачу.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">💰</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте финансовый контроль (НДФЛ)</div>
+            <p>Таблица «Авансовые платежи из ФНС» показывает 4 месяца оплат с реквизитами квитанций, ИНН, суммой и периодом. Три статуса:</p>
+            <ul class="substep-list">
+              <li><span class="bullet" style="background:var(--grn-lt);color:var(--green)">✓</span><span><strong>«✓ Подтверждён»</strong> (зелёный бейдж) — платёж верифицирован ФНС через СМЭВ.</span></li>
+              <li><span class="bullet" style="background:var(--amb-lt);color:var(--amber)">⚠️</span><span><strong>«Просрочен»</strong> (жёлтая строка) — платёж внесён позже срока; патент аннулируется со дня просрочки.</span></li>
+              <li><span class="bullet" style="background:var(--red-lt);color:var(--red)">❌</span><span><strong>«Не подтверждён»</strong> (красная строка) — фиктивный чек: квитанция не найдена в ФНС. Отказ в выдаче + рапорт.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">🛡️</div></div>
+          <div class="step-body">
+            <div class="step-title">Запустите проверки безопасности</div>
+            <p>Кнопка <strong>«Проверки безопасности (ИБД-Р/ФСБ)»</strong> открывает ту же консоль СМЭВ, что и в других модулях. Выполните веерный запрос: без отметки «Проверки пройдены» кнопка выдачи остаётся заблокированной. При ловушках «розыск» или «ФСБ» здесь же сработают критические алерты (раздел 14).</p>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">🪪</div></div>
+          <div class="step-body">
+            <div class="step-title">Выдайте патент или откажите</div>
+            <p>Кнопка <strong>«🪪 Выдать патент (генерация бланка)»</strong> активна только при двух условиях: дактилоскопия 10/10 <em>и</em> выполненные проверки. Под кнопкой есть подсказка, чего именно не хватает. При нажатии:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">✅</span><span><strong>Чеки в порядке</strong> — формируется <strong>бланк патента</strong>: ФИО, гражданство, паспорт, ИНН, серия/номер, срок действия (12 месяцев), субъект РФ, отметки «СМЭВ ФНС: ✓ Подтверждено» и «АДИС Папилон: ✓ Зарегистрирован», справа — QR-код патента. Начисляется +30 баллов.</span></li>
+              <li><span class="bullet">❌</span><span><strong>Фальшивый чек</strong> — −50 баллов («Выдача патента при наличии неподтверждённого чека НДФЛ»), бланк не формируется.</span></li>
+              <li><span class="bullet">⚠️</span><span><strong>Просроченный платёж</strong> — −50 баллов, патент автоматически аннулирован.</span></li>
+              <li><span class="bullet">🚫</span><span><strong>Отказ</strong> — красная кнопка «Отказать в выдаче» под карточкой. Через неё доступен только отказ: одобрить патент через общую форму решения нельзя — «Для данного типа дела одобрение оформляется в профильном разделе».</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODULE RVP -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="module-rvp">
+      <div class="section-eyebrow">Раздел 10</div>
+      <div class="section-title"><span class="icon">📄</span> Модуль: РВП и ВНЖ</div>
+      <p class="section-desc">Приказы МВД №407/2020 (РВП) и №417/2020 (ВНЖ). Срок рассмотрения РВП — до 60 суток, ВНЖ — до 4 месяцев. Стадии: Зарегистрировано → На проверке → Подготовка решения → На подписи → Одобрено/Отказано.</p>
+
+      <div class="steps-list">
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">📁</div></div>
+          <div class="step-body">
+            <div class="step-title">Проверьте учётное дело и основания подачи</div>
+            <p>В верхней части — индикатор стадий, в карточке «Досье заявителя» — паспорт (красный при истекающем сроке), дата въезда, ИНН. Выберите <strong>«Основание подачи»</strong> — список зависит от типа дела:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">РВП</span><span>В пределах квоты · Брак с гражданином РФ · Рождён на территории РСФСР · Участник Госпрограммы переселения.</span></li>
+              <li><span class="bullet">ВНЖ</span><span>Наличие РВП · Носитель русского языка (НРЯ) · ВКС (высококвалифицированный специалист) · Гражданин Беларуси / Казахстана.</span></li>
+            </ul>
+            <p>Для <strong>ВНЖ</strong> дополнительно проверьте поле <strong>«Доход (справка 2-НДФЛ)»</strong>: при вводе суммы система сравнивает её с порогом <strong>216 000 руб./год</strong> (прожиточный минимум Москвы × 12). Доход ниже порога — предупреждение и основание для отказа/доработки. В учебной базе у «ловушки» <em>low_income</em> предзаполнено всего 8 000 руб.</p>
+          </div>
+        </div>
+
+        <div class="step-card amber">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">🖐️</div></div>
+          <div class="step-body">
+            <div class="step-title">Выполните дактилоскопию</div>
+            <p>Виджет АДИС «Папилон» тот же, что и в патенте (раздел 12). Дактилоскопия обязательна <strong>именно для одобрения</strong>: попытка направить «Выдать разрешение» без 10/10 пальцев — критический штраф −100 баллов. Отказ без биометрии нарушением не считается (снимать отпечатки у отказника не требуется).</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">🛡️</div></div>
+          <div class="step-body">
+            <div class="step-title">Запустите веерный запрос (СМЭВ)</div>
+            <p>Консоль проверок встроена прямо в карточку дела. Кнопка <strong>«▶ Запустить веерный запрос (СМЭВ)»</strong> рассылает запросы в 6 ведомств (+5 баллов); ответы приходят последовательно около 3 секунд. Выполнение запроса переводит дело на стадию «Подготовка решения».</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">4</div><div class="s-icon">📊</div></div>
+          <div class="step-body">
+            <div class="step-title">Проанализируйте результаты</div>
+            <p>Каждая строка консоли: ведомство, тип проверки, дата ответа, статус и кнопка <strong>«Лог»</strong> для нечистых ответов. Возможные статусы:</p>
+            <ul class="substep-list">
+              <li><span class="bullet" style="background:var(--grn-lt);color:var(--green)">✓</span><span><strong>«✓ Очищено»</strong> (зелёный) — нарушений не выявлено.</span></li>
+              <li><span class="bullet" style="background:var(--red-lt);color:var(--red)">🚨</span><span><strong>«Алерт!»</strong> (красный) — совпадение выявлено: розыск, решение ФСБ, фиктивная медсправка. Откройте «Лог» и прочитайте детали.</span></li>
+              <li><span class="bullet" style="background:var(--amb-lt);color:var(--amber)">⚠️</span><span><strong>«Предупреждение»</strong> (жёлтый) — неточности, требующие внимания.</span></li>
+            </ul>
+            <div class="alert-box alert-warning" style="margin-top:10px">
+              <div class="a-icon">⚠️</div>
+              <div>Алерт «розыск» и «ФСБ» сопровождается красным всплывающим окном — см. раздел 14. Алерт Минздрава (фальшивая справка) появляется без попапа: статус «Алерт!» и кнопка «Лог» с текстом «Бланк №44521: выдан другому лицу. Заявитель состоит на учёте в наркологическом диспансере».</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">5</div><div class="s-icon">📝</div></div>
+          <div class="step-body">
+            <div class="step-title">Сформируйте проект решения</div>
+            <p>В блоке «Формирование решения» выберите <strong>«Проект решения»</strong> и заполните <strong>«Основание»</strong> (номер документа, статья):</p>
+            <ul class="substep-list">
+              <li><span class="bullet">✅</span><span><strong>Выдать разрешение</strong> — только при полностью чистых проверках и выполненной дактилоскопии (+50).</span></li>
+              <li><span class="bullet">1</span><span><strong>Отказать — недостаточность документов</strong>.</span></li>
+              <li><span class="bullet">2</span><span><strong>Отказать — ст. 7/9 ФЗ-115 (криминал)</strong> — правильная статья при совпадении в ИБД-Р (розыск).</span></li>
+              <li><span class="bullet">3</span><span><strong>Отказать — медицинские основания (п.10 ст.7)</strong> — при фальшивой медсправке.</span></li>
+              <li><span class="bullet">4</span><span><strong>Отказать — решение ФСБ (п.1 ст.9)</strong> — при коде 2.1 «нежелательность пребывания»; в основание впишите номер сообщения (ФСБ-2025-0047).</span></li>
+              <li><span class="bullet">5</span><span><strong>Отказать — подложные документы (п.4 ст.7)</strong> — при биометрическом совпадении (смена личности).</span></li>
+            </ul>
+            <p>Система проверяет соответствие статьи: отказ «по не той статье» — −20 баллов, отказ при чистых проверках — −20 («Необоснованный отказ»), правильная статья — +50.</p>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num">6</div><div class="s-icon">✍️</div></div>
+          <div class="step-body">
+            <div class="step-title">Направьте на подпись начальнику (УКЭП)</div>
+            <p>Кнопка <strong>«📤 Направить на подпись начальнику (УКЭП)»</strong> отправляет дело на стадию «На подписи». Помните три запрета:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🚫</span><span>Решение без выполненного веерного запроса — −15 баллов, отправка блокируется.</span></li>
+              <li><span class="bullet">🚫</span><span>Одобрение без дактилоскопии — <strong>−100 баллов</strong>, критическое нарушение.</span></li>
+              <li><span class="bullet">🚫</span><span>Одобрение при активных алертах безопасности — <strong>−100 баллов</strong>. При «красном» ответе ведомства — только отказ.</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CHECKS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="checks">
+      <div class="section-eyebrow">Раздел 11</div>
+      <div class="section-title"><span class="icon">🔍</span> Межведомственные проверки (СМЭВ)</div>
+      <p class="section-desc">Единая консоль из шести ведомств для всех типов дел. Ответы — имитация, ловушки срабатывают только после запроса.</p>
+
+      <div class="tip-block">
+        <div class="t-icon">🏛️</div>
+        <div>
+          <div class="t-title">Как работают проверки в симуляторе</div>
+          <div class="t-body">Никаких реальных внешних запросов не отправляется. После нажатия «Запустить веерный запрос» ответы приходят последовательно (~3 секунды): ИБД-Р → ИБД-Ф → ФСБ → Минздрав → ФССП → ФНС. Результаты зависят от профиля гражданина: скрытые «ловушки» активируются именно в этот момент. Пропуск проверки — типичная причина пропуска нарушителя. Каждый выполненный веерный запрос даёт +5 баллов.</div>
+        </div>
+      </div>
+
+      <table class="score-table">
+        <thead><tr><th>Ведомство</th><th>Тип проверки</th><th>Что проверяет</th><th>Возможные результаты</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ИБД-Р МВД</strong></td><td>Розыск</td><td>Нахождение в федеральном розыске</td><td>Очищено / Алерт: «Совпадение 95%» с разыскиваемым лицом (в учебном кейсе — кража, ст. 158 УК РФ)</td></tr>
+          <tr><td><strong>ИБД-Ф МВД</strong></td><td>Криминал</td><td>Криминальный учёт, судимости</td><td>Очищено / Совпадение</td></tr>
+          <tr><td><strong>ФСБ России</strong></td><td>Нежелательность / запрет</td><td>Запрет въезда, нежелательность пребывания</td><td>Очищено / Алерт: «Код ответа: 2.1», гриф ДСП, доступен только номер документа ФСБ-2025-0047</td></tr>
+          <tr><td><strong>Минздрав</strong></td><td>Медицина</td><td>Подлинность медицинских сертификатов, опасные заболевания</td><td>Очищено / Алерт: «Бланк №44521: выдан другому лицу», учёт в наркодиспансере</td></tr>
+          <tr><td><strong>ФССП</strong></td><td>Долги</td><td>Исполнительные производства, задолженности</td><td>Очищено / Предупреждение</td></tr>
+          <tr><td><strong>ФНС</strong></td><td>Налоги / ИНН</td><td>Налоговый учёт, статус принимающей стороны, НДФЛ-платежи</td><td>Очищено / Ликвидирована организация / Платёж не подтверждён</td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert-box alert-info">
+        <div class="a-icon">ℹ️</div>
+        <div><strong>Где открывается консоль</strong> В деле миграционного учёта — через кнопку «Запустить межведомственные проверки» (модальное окно), в патенте — «Проверки безопасности (ИБД-Р/ФСБ)», в РВП/ВНЖ — консоль встроена в карточку. Результат по делу сохраняется: отметки «Проверки завершены — нарушений не выявлено» или «Выявлены совпадения!».</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- BIOMETRIC -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="biometric">
+      <div class="section-eyebrow">Раздел 12</div>
+      <div class="section-title"><span class="icon">🖐️</span> Дактилоскопия (АДИС «Папилон»)</div>
+      <p class="section-desc">Дактилоскопическая регистрация обязательна при выдаче патента и одобрении РВП/ВНЖ.</p>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div></div>
+          <div class="step-body">
+            <div class="step-title">Запустите сканирование</div>
+            <p>Два способа: <strong>кликать по каждому из 10 окошек</strong> (П1–П4, ПБ — правая рука; Л1–Л4, ЛБ — левая; каждое сканируется ~0,6 секунды) или нажать <strong>«▶ Запустить полное сканирование»</strong> — пальцы обрабатываются автоматически. Отсканированный палец показывает <em>реальное изображение отпечатка</em> из учебной базы (файлы WebP), а не абстрактную иконку.</p>
+            <p>Под виджетом — строка диагностики: «База отпечатков: 64 карты · карта ИГ: FP-004 (подобрана автоматически)». Если база не импортирована, там будет подсказка «выполните tools/import_fingerprints.py и обновите страницу (Ctrl+F5)» — сканирование при этом работает, но оттиски отображаются значком.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">2</div></div>
+          <div class="step-body">
+            <div class="step-title">Контролируйте прогресс</div>
+            <p>Прогресс-бар и счётчик <strong>0/10</strong> показывают готовность. Счёт 10/10 означает: дело помечено «дактилоскопия выполнена», начисляется <strong>+10 баллов</strong>, система присваивает номер <strong>ADIS-ДЕЛО-1002-001</strong> (номер дела + суффикс), и кнопка выдачи/одобрения разблокируется.</p>
+          </div>
+        </div>
+        <div class="step-card danger">
+          <div class="step-num-col"><div class="step-num">3</div></div>
+          <div class="step-body">
+            <div class="step-title">Реагируйте на биометрический алерт</div>
+            <p>Если заявитель — «двойник» (ловушка <em>biometric_dup</em>), <strong>первый палец П1</strong> сканируется с ошибкой: красный крест в окошке и модальное окно «БИОМЕТРИЧЕСКИЙ АЛЕРТ — АДИС «ПАПИЛОН»» с текстом о 100% совпадении отпечатков с гражданином <strong>Гасановым М.Р.</strong>, которому запрещено пересечение границы РФ. Правильная последовательность:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">1</span><span>Прочитайте текст алерта и нажмите «⚠️ Принять к сведению и действовать» (+100 баллов, материалы передаются в дознание по ст. 327 УК РФ).</span></li>
+              <li><span class="bullet">2</span><span>Оформите отказ по основанию <strong>«подложные документы (п.4 ст.7 ФЗ-115)»</strong> — в РВП/ВНЖ выберите соответствующий проект решения.</span></li>
+              <li><span class="bullet">3</span><span>В поле основания укажите номер биометрического совпадения АДИС.</span></li>
+            </ul>
+            <p><strong>Нельзя:</strong> проигнорировать алерт (−100), продолжить выдачу документа или пройти мимо дактилоскопии вовсе (при одобрении — −100).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- DECISIONS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="decisions">
+      <div class="section-eyebrow">Раздел 13</div>
+      <div class="section-title"><span class="icon">✍️</span> Принятие решений</div>
+      <p class="section-desc">Правила выбора решения и корректных оснований по ФЗ-115.</p>
+
+      <div class="tip-block">
+        <div class="t-icon">⚖️</div>
+        <div>
+          <div class="t-title">Ключевые принципы</div>
+          <div class="t-body">Форма «Принятие решения» (с обоснованием) одобряет только <strong>дела миграционного учёта</strong>; для патента есть профильная кнопка «Выдать патент» (через общую форму — только отказ), для РВП/ВНЖ — проект решения с направлением на УКЭП. Нельзя одобрить при активных красных алертах. Нельзя отказать без выявленных нарушений — необоснованный отказ тоже ошибка. Отказ должен соответствовать нарушению: система сверяет выбранную статью с типом ловушки.</div>
+        </div>
+      </div>
+
+      <table class="score-table">
+        <thead><tr><th>Ситуация</th><th>Правильное решение</th><th>Статья / Основание</th></tr></thead>
+        <tbody>
+          <tr><td>Все проверки «Очищено», документы в порядке</td><td class="pts-pos">✅ Одобрить</td><td>—</td></tr>
+          <tr><td>Ликвидированная принимающая сторона (ООО «Вектор»)</td><td class="pts-neg">❌ Отказать</td><td>Недостоверные сведения о принимающей стороне</td></tr>
+          <tr><td>Совпадение в ИБД-Р (лицо в розыске)</td><td class="pts-neg">❌ Обработать алерт + отказ + уведомить дежурную часть</td><td>Ст. 7 / ст. 9 ФЗ-115; в кейсе — ст. 158 УК РФ</td></tr>
+          <tr><td>Решение ФСБ о нежелательности (код 2.1)</td><td class="pts-neg">❌ Отказать (гриф ДСП)</td><td>Пп.1 п.1 ст.9 ФЗ-115, номер ФСБ-2025-0047</td></tr>
+          <tr><td>Фальшивая медицинская справка (бланк выдан другому лицу)</td><td class="pts-neg">❌ Отказать</td><td>Пп.10 п.1 ст.7 ФЗ-115 (медицинские основания)</td></tr>
+          <tr><td>Биометрическое совпадение (смена личности)</td><td class="pts-neg">❌ Отказать + материалы в дознание</td><td>Пп.4 п.1 ст.7 ФЗ-115 + ст.327 УК РФ</td></tr>
+          <tr><td>Истекающий паспорт (меньше срока учёта)</td><td class="pts-neg">❌ Отказать в регистрации</td><td>Срок действия документа меньше срока пребывания</td></tr>
+          <tr><td>Нарушение правила 90/180</td><td class="pts-neg">❌ Отказать + протокол КоАП</td><td>Ст. 18.8 / ч.4 ст. 18.9 КоАП РФ</td></tr>
+          <tr><td>Фальшивый чек НДФЛ</td><td class="pts-neg">❌ Не выдавать патент + рапорт</td><td>Платёж не подтверждён ФНС</td></tr>
+          <tr><td>Просроченный НДФЛ-платёж</td><td class="pts-neg">❌ Аннулирование патента</td><td>Автоматическое аннулирование со дня просрочки</td></tr>
+          <tr><td>«Амина»: не установлена / удалена / геолокация 6+ дней</td><td class="pts-neg">❌ Отказ или приостановка</td><td>Нарушение режима цифрового контроля; снятие с учёта по адресу ММЦ</td></tr>
+          <tr><td>«Амина»: геолокация 3–5 дней</td><td class="pts-pos">⚠️ Уведомить ИГ</td><td>Подтвердить адрес или сообщить о смене в течение 3 раб. дней</td></tr>
+          <tr><td>Резиновая квартира (&gt;10 ИГ на адресе)</td><td class="pts-pos">✅ Одобрить + рапорт в ОИК</td><td>Ст. 322.3 УК РФ (информирование)</td></tr>
+          <tr><td>ВНЖ: доход ниже 216 000 руб./год</td><td class="pts-neg">❌ Отказать / вернуть на доработку</td><td>Доход ниже прожиточного минимума × 12</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ALERTS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="alerts">
+      <div class="section-eyebrow">Раздел 14</div>
+      <div class="section-title"><span class="icon">🚨</span> Критические алерты системы</div>
+      <p class="section-desc">Красные всплывающие окна требуют немедленного действия. Игнорирование = провал.</p>
+
+      <div class="alert-box alert-danger">
+        <div class="a-icon">🚨</div>
+        <div><strong>Правило первого приоритета</strong> При появлении красного модального окна всегда нажимайте «⚠️ Принять к сведению и действовать». Кнопка «Игнорировать» стоит −100 баллов и фиксируется в отчёте как выбранный курсант путь («ignored»). После обработки алерта дело автоматически переводится в статус «Отказано».</div>
+      </div>
+
+      <div class="steps-list" style="margin-top:16px">
+        <div class="step-card danger">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ИБД</div><div class="s-icon">🔫</div></div>
+          <div class="step-body">
+            <div class="step-title">Алерт: «ОБНАРУЖЕНО СОВПАДЕНИЕ В ИБД-Р!»</div>
+            <p>При веерном запросе ИБД-Р МВД выявлено совпадение 95% с лицом, находящимся в <strong>федеральном розыске</strong> (в кейсе — кража, ст. 158 УК РФ, инициатор ГУ МВД России). Над текстом предупреждение: «заявитель возможно числится в федеральном розыске — немедленно проверьте через консоль проверок».</p>
+            <p class="correct" style="color:var(--green);font-weight:600">✅ Правильно: нажать «Принять к сведению и действовать» — +100 баллов, «Правильное действие! Дежурная часть уведомлена», дело отклонено.</p>
+            <p class="wrong" style="color:var(--red);font-weight:600">❌ Ошибка: нажать «Игнорировать» (−100) или, не дождавшись проверки, одобрить документ лицу в розыске (−100).</p>
+          </div>
+        </div>
+
+        <div class="step-card danger">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">БИО</div><div class="s-icon">🖐️</div></div>
+          <div class="step-body">
+            <div class="step-title">Алерт: «БИОМЕТРИЧЕСКИЙ АЛЕРТ — АДИС «ПАПИЛОН»!»</div>
+            <p>При сканировании (первый палец П1) обнаружено 100% совпадение отпечатков с гражданином <strong>Гасановым М.Р.</strong>, которому запрещено пересечение границы РФ. Классическая смена личности.</p>
+            <p class="correct" style="color:var(--green);font-weight:600">✅ Правильно: «Принять к сведению и действовать» — +100 баллов, материалы переданы в дознание (ст. 327 УК РФ); затем отказ по пп.4 п.1 ст.7 ФЗ-115 с указанием номера совпадения АДИС.</p>
+            <p class="wrong" style="color:var(--red);font-weight:600">❌ Ошибка: пропустить дактилоскопию вовсе, проигнорировать алерт или одобрить документ после него — −100 баллов.</p>
+          </div>
+        </div>
+
+        <div class="step-card danger">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ФСБ</div><div class="s-icon">🔒</div></div>
+          <div class="step-body">
+            <div class="step-title">Алерт: «ОТВЕТ ФСБ РОССИИ — НЕЖЕЛАТЕЛЬНОСТЬ ПРЕБЫВАНИЯ»</div>
+            <p>Код ответа <strong>2.1</strong> — решение о нежелательности пребывания в РФ, документ засекречен (гриф ДСП). Доступен только номер сообщения: <strong>ФСБ-2025-0047</strong>.</p>
+            <p class="correct" style="color:var(--green);font-weight:600">✅ Правильно: «Принять к сведению и действовать» — +50 баллов; отказ по пп.1 п.1 ст.9 ФЗ-115, в основании — номер сообщения ФСБ.</p>
+            <p class="wrong" style="color:var(--red);font-weight:600">❌ Ошибка: списать на системную ошибку и одобрить «важному специалисту» (−100 при одобрении с алертом), отказать по другому основанию (−20 за неверную статью).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCORING -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="scoring">
+      <div class="section-eyebrow">Раздел 15</div>
+      <div class="section-title"><span class="icon">🏆</span> Система оценки (баллы)</div>
+      <p class="section-desc">Старт — 100 баллов, целевой максимум — 150, ниже нуля счётчик не опускается. Оценка выставляется по итоговому значению.</p>
+
+      <div class="grade-cards">
+        <div class="grade-card g5">
+          <div class="grade-num">5</div>
+          <div class="grade-label">Отлично</div>
+          <div class="grade-pts">≥ 120 баллов</div>
+        </div>
+        <div class="grade-card g4">
+          <div class="grade-num">4</div>
+          <div class="grade-label">Хорошо</div>
+          <div class="grade-pts">90–119 баллов</div>
+        </div>
+        <div class="grade-card g3">
+          <div class="grade-num">3</div>
+          <div class="grade-label">Удовл.</div>
+          <div class="grade-pts">70–89 баллов</div>
+        </div>
+        <div class="grade-card g2">
+          <div class="grade-num">2</div>
+          <div class="grade-label">Неудовл.</div>
+          <div class="grade-pts">&lt; 70 баллов</div>
+        </div>
+      </div>
+
+      <table class="score-table">
+        <thead><tr><th>Действие курсанта</th><th>Баллы</th><th>Критичность</th><th>Комментарий</th></tr></thead>
+        <tbody>
+          <tr><td>Обработан алерт ИБД-Р (лицо в розыске заблокировано)</td><td class="pts-pos">+100</td><td><span class="severity sev-low">Успех</span></td><td>Дежурная часть уведомлена, дело отклонено</td></tr>
+          <tr><td>Обработан биометрический алерт (смена личности выявлена)</td><td class="pts-pos">+100</td><td><span class="severity sev-low">Успех</span></td><td>Материалы переданы в дознание (ст. 327 УК РФ)</td></tr>
+          <tr><td>Обработан алерт ФСБ (корректный отказ)</td><td class="pts-pos">+50</td><td><span class="severity sev-low">Успех</span></td><td>Отказ по пп.1 п.1 ст.9 ФЗ-115</td></tr>
+          <tr><td>Направлен рапорт в ОИК по массовому адресу</td><td class="pts-pos">+50</td><td><span class="severity sev-low">Успех</span></td><td>Ст. 322.3 УК РФ, фиктивная регистрация</td></tr>
+          <tr><td>Корректное одобрение РВП/ВНЖ</td><td class="pts-pos">+50</td><td><span class="severity sev-low">Успех</span></td><td>Чистые проверки + дактилоскопия</td></tr>
+          <tr><td>Правильно выбрана статья отказа</td><td class="pts-pos">+50</td><td><span class="severity sev-low">Успех</span></td><td>Статья соответствует типу ловушки</td></tr>
+          <tr><td>Одобрено дело миграционного учёта</td><td class="pts-pos">+30</td><td><span class="severity sev-low">Успех</span></td><td>Формируется отрывная часть бланка</td></tr>
+          <tr><td>Корректная выдача патента</td><td class="pts-pos">+30</td><td><span class="severity sev-low">Успех</span></td><td>Бланк с QR-кодом</td></tr>
+          <tr><td>Корректный отказ РВП/ВНЖ (без ловушки)</td><td class="pts-pos">+30</td><td><span class="severity sev-low">Успех</span></td><td>По свободной статье при чистых проверках</td></tr>
+          <tr><td>Обоснованный отказ по миграционному учёту</td><td class="pts-pos">+20</td><td><span class="severity sev-low">Успех</span></td><td>При подтверждённом нарушении</td></tr>
+          <tr><td>Составлен протокол КоАП (опоздание с подачей)</td><td class="pts-pos">+20</td><td><span class="severity sev-low">Успех</span></td><td>Ст. 18.8 / ч.4 ст. 18.9 КоАП РФ</td></tr>
+          <tr><td>Успешная дактилоскопическая регистрация (10/10)</td><td class="pts-pos">+10</td><td><span class="severity sev-low">Успех</span></td><td>Присвоен номер АДИС</td></tr>
+          <tr><td>Выполнен веерный запрос СМЭВ</td><td class="pts-pos">+5</td><td><span class="severity sev-low">Успех</span></td><td>Консоль проверок, 6 ведомств</td></tr>
+          <tr><td>Указан срок пребывания больше срока паспорта</td><td class="pts-neg">−5</td><td><span class="severity sev-low">Низкая</span></td><td>Предупреждение при вводе даты</td></tr>
+          <tr><td>Одобрение без рапорта в ОИК по «резиновой квартире»</td><td class="pts-neg">−10</td><td><span class="severity sev-high">Средняя</span></td><td>Рапорт обязателен при адресе с нагрузкой &gt;10</td></tr>
+          <tr><td>Решение по РВП/ВНЖ без межведомственных проверок</td><td class="pts-neg">−15</td><td><span class="severity sev-high">Средняя</span></td><td>Отправка на УКЭП блокируется</td></tr>
+          <tr><td>Необоснованный отказ (нарушений нет)</td><td class="pts-neg">−20</td><td><span class="severity sev-high">Средняя</span></td><td>Миграционный учёт и чистые проверки РВП/ВНЖ</td></tr>
+          <tr><td>Отказ по неверной статье (не та ловушка)</td><td class="pts-neg">−20</td><td><span class="severity sev-high">Средняя</span></td><td>Система сверяет статью с типом нарушения</td></tr>
+          <tr><td>Одобрение при критическом статусе «Амины»</td><td class="pts-neg">−40</td><td><span class="severity sev-high">Высокая</span></td><td>Не установлена / удалена / геолокация 6+ дней</td></tr>
+          <tr><td>Одобрение при ликвидированной принимающей стороне</td><td class="pts-neg">−50</td><td><span class="severity sev-high">Высокая</span></td><td>Аннулирование на этапе аудита</td></tr>
+          <tr><td>Одобрена регистрация при истекающем паспорте</td><td class="pts-neg">−50</td><td><span class="severity sev-high">Высокая</span></td><td>Срок паспорта меньше срока учёта</td></tr>
+          <tr><td>Выдача патента при фальшивом чеке НДФЛ</td><td class="pts-neg">−50</td><td><span class="severity sev-high">Высокая</span></td><td>Чек не подтверждён ФНС</td></tr>
+          <tr><td>Выдача патента при просроченном платеже</td><td class="pts-neg">−50</td><td><span class="severity sev-high">Высокая</span></td><td>Патент автоматически аннулирован</td></tr>
+          <tr><td>Одобрение документа лицу в розыске</td><td class="pts-neg">−100</td><td><span class="severity sev-crit">Критическая</span></td><td>Автоматический провал</td></tr>
+          <tr><td>Одобрение РВП/ВНЖ без дактилоскопии</td><td class="pts-neg">−100</td><td><span class="severity sev-crit">Критическая</span></td><td>Автоматический провал</td></tr>
+          <tr><td>Одобрение при активных критических алертах</td><td class="pts-neg">−100</td><td><span class="severity sev-crit">Критическая</span></td><td>Автоматический провал</td></tr>
+          <tr><td>Игнорирование критического алерта («Игнорировать»)</td><td class="pts-neg">−100</td><td><span class="severity sev-crit">Критическая</span></td><td>«Экзамен заблокирован»</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- DATA -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="data">
+      <div class="section-eyebrow">Раздел 16</div>
+      <div class="section-title"><span class="icon">🗂️</span> Учебные данные и ловушки</div>
+      <p class="section-desc">Из чего состоит база, какие скрытые нарушения в ней заложены и как пополнять материалы.</p>
+
+      <p class="body-p">
+        Все четыре очереди (миграционный учёт, патент, РВП, ВНЖ) работают с единой базой <strong>600 синтетических иностранных граждан</strong> (файл <code>data/persons/foreign_citizens.json</code>). Записи <strong>IG-001…IG-010</strong> — «сценарные»: у каждой характерная учебная история. Ловушки распределены по всей базе: по 10–13 записей на каждый тип (всего 66 «проблемных» граждан). У 391 записи заполнены данные «Амины» (351 «активна», 27 без геолокации, 9 «удалена», 4 «не установлена»). Дополнительно в базе 5 адресов (нагрузка от 1 до 48 человек) и 4 принимающие стороны.
+      </p>
+
+      <table class="score-table">
+        <thead><tr><th>Ловушка (ID)</th><th>Серьёзность</th><th>Где проявляется</th><th>Правильная реакция</th></tr></thead>
+        <tbody>
+          <tr><td><strong>fake_check</strong> — фальшивый чек НДФЛ</td><td><span class="severity sev-high">Средняя</span></td><td>Чек-лист патента (красный крест) и таблица платежей: статус «Не подтверждён»</td><td>Отказ в выдаче патента, −50 за выдачу</td></tr>
+          <tr><td><strong>wanted</strong> — лицо в розыске</td><td><span class="severity sev-crit">Критическая</span></td><td>Красное предупреждение в деле + алерт после веерного запроса ИБД-Р</td><td>Обработать алерт (+100), отказ</td></tr>
+          <tr><td><strong>biometric_dup</strong> — биометрический капкан</td><td><span class="severity sev-crit">Критическая</span></td><td>Палец П1 красный при сканировании + алерт АДИС; в досье — депортация и запрет 5 лет</td><td>Обработать алерт (+100), отказ по п.4 ст.7</td></tr>
+          <tr><td><strong>rubber_apt</strong> — резиновая квартира</td><td><span class="severity sev-high">Средняя</span></td><td>Адрес с нагрузкой &gt;10 ИГ (в очереди — 48 и 12 человек)</td><td>Одобрить + рапорт в ОИК (+50)</td></tr>
+          <tr><td><strong>expired_passport</strong> — истекающий паспорт</td><td><span class="severity sev-low">Низкая</span></td><td>Красные поля паспорта в деле и досье</td><td>Отказ в регистрации</td></tr>
+          <tr><td><strong>fsb_ban</strong> — решение ФСБ о нежелательности</td><td><span class="severity sev-crit">Критическая</span></td><td>Алерт после запроса ФСБ (код 2.1, ДСП, ФСБ-2025-0047)</td><td>Обработать алерт (+50), отказ по п.1 ст.9</td></tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <div class="t-icon">🎭</div>
+        <div>
+          <div class="t-title">«Сценарные» записи для разбора на занятии</div>
+          <div class="t-body"><strong>IG-002</strong> Джалилов С.М. — фальшивый чек НДФЛ; <strong>IG-004</strong> Алиев М.Г. — федеральный розыск; <strong>IG-005</strong> Нгуен Т.Х. — истекающий паспорт; <strong>IG-006</strong> Гасанов М.Р. — биометрический «двойник» (его отпечатки совпадают с картой FP-004 записи IG-004, в досье — депортация 15.07.2023 с запретом въезда на 5 лет); <strong>IG-009</strong> Смит Джон У. — решение ФСБ о нежелательности; <strong>IG-010</strong> Ахмедова З.Т. — резиновая квартира. Из принимающих сторон организация <strong>ООО «Вектор» ликвидирована</strong> — это ловушка для кейсов учёта.</div>
+        </div>
+      </div>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ИНС</div><div class="s-icon">🧰</div></div>
+          <div class="step-body">
+            <div class="step-title">Инструменты наполнения (tools/)</div>
+            <ul class="substep-list">
+              <li><span class="bullet">1</span><span><strong>generate_people.py</strong> — пересоздание базы: 10 сценарных записей + синтетика до 600 человек.</span></li>
+              <li><span class="bullet">2</span><span><strong>import_fingerprints.py</strong> — импорт дактилокарт АДИС «Папилон» из папок вида DK-2021-xxxx (10 PNG в каждой, конвертация в WebP). Папка становится ID карты (поле fp); «двойники» автоматически получают отпечатки чужой записи.</span></li>
+              <li><span class="bullet">3</span><span><strong>import_socofing.py</strong> — альтернативный импорт набора SOCOFing в исходном виде.</span></li>
+              <li><span class="bullet">4</span><span><strong>import_photos.py</strong> — импорт фотографий (можно с подпапками male/ и female/); без файлов отображается силуэт.</span></li>
+              <li><span class="bullet">5</span><span><strong>validate.py</strong> — проверка целостности, в том числе что ловушки в данных известны справочнику <code>scenarios/traps/traps.json</code>.</span></li>
+            </ul>
+            <p>После любых правок данных выполните сборку: <strong>python tools/build_manifest.py && python tools/bundle_for_file.py</strong> (раздел 2).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-box alert-info">
+        <div class="a-icon">ℹ️</div>
+        <div><strong>Лицензии материалов</strong> Отпечатки SOCOFing (Sokoto Coventry Fingerprint Dataset) распространяются по лицензии CC BY 4.0 — требуется указание авторства (см. docs/CREDITS.md). Лицензию на синтетические фотографии проверьте по условиям выбранного генератора. Правила «Амины» смоделированы упрощённо по открытым публикациям.</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CASES -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="cases">
+      <div class="section-eyebrow">Раздел 17</div>
+      <div class="section-title"><span class="icon">🎭</span> Разбор типовых кейсов</div>
+      <p class="section-desc">Нажмите на кейс, чтобы раскрыть разбор: суть, задача, правильные действия и типичные ошибки.</p>
+
+      <div class="scenario-list">
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">✅</div>
+            <div class="scenario-name">Кейс №1: «Идеальный заявитель»</div>
+            <span class="scenario-badge tag-basic">Базовый</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> чистый гражданин без ловушек, «Амина» активна, геопозиция совпадает, все проверки «Очищено». В очереди такие дела составляют примерно две трети.</p>
+            <p><strong>Задача:</strong> пройти стандартный маршрут без ошибок: проверить ИГ и документы → адрес → принимающую сторону → веерный запрос → (для патента/РВП дактилоскопия) → одобрение.</p>
+            <ul class="action-list">
+              <li>Не забудьте про +5 за веерный запрос и +30/+50 за корректное одобрение.</li>
+              <li>Для миграционного учёта система сформирует отрывную часть бланка уведомления.</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> отказ «на всякий случай» — −20 за необоснованный отказ.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">📅</div>
+            <div class="scenario-name">Кейс №2: «Опоздание с уведомлением»</div>
+            <span class="scenario-badge tag-basic">Базовый</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> дело поступило не сегодня (возраст 1–4 дня). Строка жёлтая или красная, на дашборде — уведомление о просрочке.</p>
+            <p><strong>Задача:</strong> заметить возраст дела и применить меры административного воздействия.</p>
+            <ul class="action-list">
+              <li>Нажмите кнопку «⚖️ Протокол КоАП (опоздание)» — ст. 18.8 / ч.4 ст. 18.9 КоАП РФ (+20).</li>
+              <li>Далее оформляйте дело по обычному маршруту: сам факт опоздания не запрещает регистрацию.</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> пропустить кнопку протокола — потеря +20 баллов и фиксация «не применены меры» в отчёте.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">💰</div>
+            <div class="scenario-name">Кейс №3: «Фальшивый чек НДФЛ» (IG-002)</div>
+            <span class="scenario-badge tag-advanced">Средний</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> Джалилов С.М. подаёт на патент. В чек-листе документов «Квитанция первого НДФЛ-платежа» помечена красным, в таблице «Авансовые платежи из ФНС» один месяц показывает статус «Не подтверждён» (красная строка).</p>
+            <ul class="action-list">
+              <li>Прочитайте чек-лист внимательно, а не «по диагонали».</li>
+              <li>Не выдавайте патент: красная кнопка «Отказать в выдаче» с обоснованием «платёж не подтверждён ФНС».</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> выдать патент после дактилоскопии и проверок, не посмотрев на статус платежа — −50 баллов.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">🔫</div>
+            <div class="scenario-name">Кейс №4: «Совпадение по ИБД-Р» (розыск)</div>
+            <span class="scenario-badge" style="background:var(--red-lt);color:var(--red)">Критический</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> Алиев М.Г. (IG-004) уже в карточке дела помечен алертом «АЛЕРТ ИБД-Р!». После веерного запроса приходит красное окно: совпадение 95% с лицом в федеральном розыске (ст. 158 УК РФ).</p>
+            <ul class="action-list">
+              <li>Нажмите «⚠️ Принять к сведению и действовать» (+100) — дежурная часть уведомлена, дело отклонено.</li>
+              <li>Для РВП/ВНЖ при оформлении отказа выберите статью «ст. 7/9 ФЗ-115 (криминал)».</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> нажать «Игнорировать» (−100) или одобрить документ (−100) — автоматический провал.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">🏢</div>
+            <div class="scenario-name">Кейс №5: «Ликвидированное юрлицо»</div>
+            <span class="scenario-badge tag-advanced">Средний</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> дело оформлено на ООО «Вектор». Поле «Статус (ФНС СМЭВ)» — красное «ЛИКВИДИРОВАНА», под ним алерт об ошибке СМЭВ ФНС.</p>
+            <ul class="action-list">
+              <li>Внизу карточки активна красная кнопка «Отказать (ликвид. орг-я)».</li>
+              <li>Основание: предоставление недостоверных сведений о принимающей стороне.</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> одобрить регистрацию — −50 баллов, «Одобрено при ликвидированной принимающей организации».</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">🏘️</div>
+            <div class="scenario-name">Кейс №6: «Резиновая квартира»</div>
+            <span class="scenario-badge tag-advanced">Средний</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> под адресом выводится красное предупреждение: «По данному адресу уже зарегистрировано 48 граждан» (в учебной базе есть адреса с 48 и 12 ИГ).</p>
+            <ul class="action-list">
+              <li>Одобрите учёт — формально документы в порядке, оснований для отказа нет.</li>
+              <li>Обязательно нажмите «📤 Направить рапорт в ОИК» (+50, ст. 322.3 УК РФ).</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> отказать в учёте (неправомерно) или одобрить без рапорта (−10).</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">🎭</div>
+            <div class="scenario-name">Кейс №7: «Смена личности» (биометрический капкан)</div>
+            <span class="scenario-badge" style="background:var(--red-lt);color:var(--red)">Критический</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> Гасанов М.Р. (IG-006) подаёт на РВП, документы чистые. Но его карта отпечатков — чужая (FP-004): при сканировании первый палец П1 даёт красный крест и алерт «100% совпадение с Гасановым М.Р., которому запрещено пересечение границы». В досье, на вкладке «Адм. практика», — депортация 2023 года и запрет на 5 лет.</p>
+            <ul class="action-list">
+              <li>Прочитайте алерт, нажмите «Принять к сведению и действовать» (+100, ст. 327 УК РФ).</li>
+              <li>В проекте решения выберите «Отказать — подложные документы (п.4 ст.7 ФЗ-115)».</li>
+              <li>В основании укажите номер биометрического совпадения АДИС.</li>
+            </ul>
+            <p><span class="wrong">❌ Ошибка:</span> пропустить дактилоскопию и «выдать разрешение» — −100 за одобрение без биометрии; проигнорировать алерт — тоже −100.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">🔒</div>
+            <div class="scenario-name">Кейс №8: «Угроза национальной безопасности» (ФСБ)</div>
+            <span class="scenario-badge" style="background:var(--red-lt);color:var(--red)">Критический</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> Смит Джон У. (IG-009), формально идеальный ВКС-кандидат на ВНЖ. Ответ ФСБ: «Код ответа: 2.1 — Решение о нежелательности пребывания. Гриф: ДСП», доступен только номер ФСБ-2025-0047.</p>
+            <ul class="action-list">
+              <li>Откройте «Лог» в строке ФСБ для просмотра деталей.</li>
+              <li>Нажмите «Принять к сведению и действовать» (+50), затем выберите проект «Отказать — решение ФСБ (п.1 ст.9)».</li>
+              <li>В поле основания укажите номер сообщения ФСБ.</li>
+            </ul>
+            <p><span class="wrong">❌ Ошибка:</span> «решить, что это системная ошибка, и одобрить важному специалисту» — −100 за одобрение с алертом.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">📱</div>
+            <div class="scenario-name">Кейс №9: «Амина» не установлена / молчит»</div>
+            <span class="scenario-badge tag-advanced">Средний</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> трудовой мигрант из «списка девяти стран» для постановки на учёт. Карточка «Амины» показывает: «Не установлена» или «Удалена с устройства» (критический уровень), либо «Геолокация не поступает N раб. дн.» — при 3–5 днях это предупреждение, при 6 и более — критическая ситуация (снятие с учёта по адресу ММЦ, реестр контролируемых лиц).</p>
+            <ul class="action-list">
+              <li>Критический статус — отказ или приостановка: «учёт по адресу возможен только через приложение».</li>
+              <li>3–5 дней без геолокации — направьте уведомление: подтвердить адрес или сообщить о смене в течение 3 раб. дней.</li>
+              <li>Обратите внимание на расхождения «геопозиция ≠ адрес» и «место работы ≠ принимающая сторона» — признаки фиктивной регистрации.</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> одобрить учёт, не посмотрев на карточку «Амины», — −40 баллов.</p>
+          </div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-header" onclick="toggleScenario(this)">
+            <div class="scenario-icon">💸</div>
+            <div class="scenario-name">Кейс №10: «ВНЖ с низким доходом»</div>
+            <span class="scenario-badge tag-advanced">Средний</span>
+            <div class="scenario-toggle">▼</div>
+          </div>
+          <div class="scenario-body">
+            <p><strong>Суть:</strong> заявление на ВНЖ, в поле «Доход (справка 2-НДФЛ)» предзаполнено 8 000 руб. Подсказка под полем: прожиточный минимум Москвы × 12 = 216 000 руб./год.</p>
+            <ul class="action-list">
+              <li>При вводе суммы система сразу предупреждает: «Доход ниже прожиточного минимума × 12 мес.!»</li>
+              <li>Одобрение невозможно по существу — оформляйте отказ по недостаточности дохода/документов.</li>
+            </ul>
+            <p><span class="wrong">❌ Типичная ошибка:</span> проигнорировать сумму и выдать разрешение — корректность оценивается платформой по типу дела и ловушки.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- REPORTS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="reports">
+      <div class="section-eyebrow">Раздел 18</div>
+      <div class="section-title"><span class="icon">📤</span> Отчёты и экспорт JSON</div>
+      <p class="section-desc">Кнопка «Отчёт» в шапке доступна в любой момент. Отчёт выгружается в JSON для внешней платформы проверки.</p>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">1</div><div class="s-icon">📊</div></div>
+          <div class="step-body">
+            <div class="step-title">Откройте итоговое окно сессии</div>
+            <p>Кнопка <strong>«Отчёт»</strong> в топбаре (или «Завершить сессию» в АРМ) открывает модальное окно: ФИО курсанта, взвод, ID сессии, итоговая оценка (2–5) и баллы, счётчики <strong>правильных действий</strong>, <strong>штрафных событий</strong> и минут работы, журнал последних 10 действий с подсветкой успехов и штрафов, итоговый вердикт системы.</p>
+            <p>Раздел бокового меню <strong>«Отчёты»</strong> показывает статистику по типам дел (миграционный учёт / патент / РВП / ВНЖ с процентами), итоги сессии и кнопку «Полный отчёт».</p>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num">2</div><div class="s-icon">⬇️</div></div>
+          <div class="step-body">
+            <div class="step-title">Скачайте отчёт (JSON)</div>
+            <p>Кнопка <strong>«Скачать отчёт (JSON)»</strong> сохраняет файл с именем <code>fis-gmu-report_Иванов_Иван_SIM-MG2X9Q-K4T8F.json</code> (ФИО и ID сессии подставляются автоматически). Если сессия не начата, экспорт заблокирован. Внутри — единая структура (schemaVersion 1.0), одинаковая для всех курсантов:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🪪</span><span><strong>token и контрольные метки</strong> — сам токен доступа, печати renderSeq/syncTag (хеши от токена) и метка браузера uiInstance: платформа видит, не подменён ли исполнитель.</span></li>
+              <li><span class="bullet">👤</span><span><strong>cadet</strong> — ФИО, взвод, роль, модуль; <strong>session</strong> — ID сессии, время начала, выгрузки и длительность.</span></li>
+              <li><span class="bullet">🏆</span><span><strong>result</strong> — баллы, максимум (maxScore = 150), оценка; <strong>stats</strong> — дел всего/обработано, событий, правильных/ошибочных действий, критических ошибок (штрафы ≤ −50).</span></li>
+              <li><span class="bullet">📁</span><span><strong>cases</strong> — все дела с типом, статусом, решением, флагами дактилоскопии и проверок; <strong>events</strong> — полный журнал событий.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num">3</div><div class="s-icon">🧾</div></div>
+          <div class="step-body">
+            <div class="step-title">Как платформа использует отчёт</div>
+            <p>Каждое событие журнала содержит машиночитаемые поля: категорию (<code>AUTH | NAV | CASE | SCORE | DECISION | CHECK | BIOMETRICS | ALERT | ACTION | SYSTEM</code>), дельту баллов, балл после события, признак правильности действия (<code>correct: true/false/null</code>), тип дела и тип ловушки. Благодаря единой схеме файлы от <strong>100+ курсантов обрабатываются пакетно</strong>: платформа строит тепловые карты ошибок по категориям и типам ловушек, сводные таблицы по взводам и списки критических нарушений. Отчёт можно выгрузить несколько раз за сессию — он отражает состояние на момент выгрузки.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- INSTRUCTOR -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="instructor">
+      <div class="section-eyebrow">Раздел 19</div>
+      <div class="section-title"><span class="icon">🎓</span> АРМ Преподавателя</div>
+      <p class="section-desc">Вход — карточка модуля «АРМ Преподавателя» или роль «Преподаватель». Четыре вкладки: Мониторинг · Генератор · Пресеты · Итоговый отчёт.</p>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">МОН</div><div class="s-icon">📡</div></div>
+          <div class="step-body">
+            <div class="step-title">Вкладка «Мониторинг взвода»</div>
+            <p>Live-дашборд по составу взвода из <code>scenarios/roster/cadets.json</code> (в поставке 6 курсантов: Иванов А.В., Петров С.П., Сидорова М.К., Козлов Д.Н., Новикова Е.А., Морозов И.С.). По каждому: обработано дел из 15, ошибки по типам <strong>(Н/В/К — низкие / высокие / критические)</strong>, текущий балл с оценкой, текущее дело, индикатор онлайн.</p>
+            <p>Кнопки: <strong>«Подкинуть кейс»</strong> — направить курсанту следующее дело; <strong>«⏹ Завершить сессию»</strong> — открыть итоговый отчёт по сессии.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ГЕН</div><div class="s-icon">⚙️</div></div>
+          <div class="step-body">
+            <div class="step-title">Вкладка «Генератор кейсов» (Вариант А)</div>
+            <p>Стохастический генератор: пять ползунков задают «климат» сессии. Значения по умолчанию хранятся в <code>scenarios/quests/generator_sliders.json</code>:</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🔫</span><span><strong>Криминальная нагрузка (ИБД-Р/ФСБ)</strong> — по умолчанию 20%; рекомендуется 15–20%.</span></li>
+              <li><span class="bullet">💰</span><span><strong>Финансовые махинации (НДФЛ)</strong> — по умолчанию 30%; фальшивые и просроченные чеки.</span></li>
+              <li><span class="bullet">🏥</span><span><strong>Медицинский брак и подлоги</strong> — по умолчанию 15%; «справка куплена в переходе» — несовпадение номера в СМЭВ.</span></li>
+              <li><span class="bullet">⚡</span><span><strong>Технические сбои (СМЭВ)</strong> — по умолчанию 10%; обрывы связи с ФНС/ЗАГС, курсант действует по резервному каналу.</span></li>
+              <li><span class="bullet">⏱️</span><span><strong>Ускорение времени (таймер)</strong> — ×1–×5; на экзамене ставьте ×3–×5.</span></li>
+            </ul>
+            <p>Кнопка <strong>«✅ Применить настройки к сессии»</strong> активирует значения.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ПРС</div><div class="s-icon">🎬</div></div>
+          <div class="step-body">
+            <div class="step-title">Вкладка «Пресеты» (Вариант Б) и мануальный режим (Вариант В)</div>
+            <p>Готовые тематические пакеты одной кнопкой (<code>scenarios/presets/presets.json</code>):</p>
+            <ul class="substep-list">
+              <li><span class="bullet">🏗️</span><span><strong>«Рейд на стройке»</strong> — 40% просроченных сроков (КоАП), 30% резиновых квартир, поток граждан СНГ.</span></li>
+              <li><span class="bullet">🕵️</span><span><strong>«Операция Розыск»</strong> — 3–4 опасных преступника с поддельными паспортами: проверка биометрии.</span></li>
+              <li><span class="bullet">🌍</span><span><strong>«Дальнее зарубежье»</strong> — визовые иностранцы: квоты, приглашения, сложные документальные цепочки.</span></li>
+              <li><span class="bullet">📝</span><span><strong>«Экзамен / Аттестация»</strong> — 20 дел, все виды нарушений, таймер ×3, результаты в ведомость.</span></li>
+            </ul>
+            <p>Ниже — <strong>«Мануальный режим»</strong>: выберите курсанта и тип ловушки из справочника (6 типов, раздел 16) и нажмите <strong>«🎯 Подкинуть ловушку курсанту»</strong>. Действие фиксируется в журнале аудита как «МАНУАЛЬНЫЙ КЕЙС».</p>
+          </div>
+        </div>
+
+        <div class="step-card success">
+          <div class="step-num-col"><div class="step-num" style="font-size:12px">ОТЧ</div><div class="s-icon">📊</div></div>
+          <div class="step-body">
+            <div class="step-title">Вкладка «Итоговый отчёт»</div>
+            <p><strong>Сводная ведомость взвода</strong>: ФИО, обработано дел, ошибки Н/В/К, итоговый балл, оценка и кнопка «Подробно» — хронология действий курсанта (таймлайн с успехами и штрафами) и разбивка ошибок по критичности. Кнопка «Экспорт» выводит ведомость на печать.</p>
+            <p><strong>Аналитика ошибок взвода</strong> подсказывает темы для повторения: например, какой процент взвода не справился с проверкой правила 90/180, кто пропускает фальшивые медсправки, и какую тему стоит вынести на следующую лекцию (в учебной сборке — «Финансовый контроль патентов (НДФЛ)»).</p>
+            <div class="alert-box alert-info" style="margin-top:10px">
+              <div class="a-icon">💡</div>
+              <div>Состав взвода, пресеты и ползунки редактируются в JSON-файлах папки <code>scenarios/</code>; после правки выполните <strong>build_manifest.py</strong> и <strong>bundle_for_file.py</strong>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- AUDIT -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="audit">
+      <div class="section-eyebrow">Раздел 20</div>
+      <div class="section-title"><span class="icon">🔒</span> Журнал аудита</div>
+      <p class="section-desc">Все действия фиксируются автоматически и попадают в JSON-отчёт.</p>
+
+      <div class="tip-block">
+        <div class="t-icon">📋</div>
+        <div>
+          <div class="t-title">Что фиксируется в журнале</div>
+          <div class="t-body">Вход в систему (ВХОД с ролью и модулем), навигация по разделам, открытие и создание дел, запуск веерных запросов, решения и отказы, начисление баллов (УСПЕХ/ШТРАФ), обработка алертов, рапорты в ОИК, протоколы КоАП, настройки генератора и пресеты АРМ, экспорт отчёта. Каждая запись содержит точное время, тип события, описание и ID дела.</div>
+        </div>
+      </div>
+
+      <p class="body-p">
+        Журнал доступен в разделе <strong>«🔒 Журнал аудита»</strong> бокового меню: таблица «Время / Событие / Описание / Дело», записи идут новыми сверху; успехи помечены зелёным, штрафы — красным. Параллельно с экранным журналом ведётся структурированный <strong>EVENT_LOG</strong>: каждая запись дублируется в машиночитаемом виде с категорией (AUTH, NAV, CASE, SCORE, DECISION, CHECK, BIOMETRICS, ALERT, ACTION, SYSTEM), дельтой баллов, признаком правильности действия и типом дела/ловушки — именно он выгружается в JSON-отчёт для платформы проверки (раздел 18).
+      </p>
+      <p class="body-p">
+        Используйте журнал для самоанализа: последовательность записей показывает, на каком шаге были потеряны баллы — пропущенная проверка, необработанный алерт или неверная статья отказа.
+      </p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FAQ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="section" id="faq">
+      <div class="section-eyebrow">Раздел 21</div>
+      <div class="section-title"><span class="icon">❓</span> Частые вопросы</div>
+
+      <div class="steps-list">
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Сохраняются ли данные после закрытия браузера?</div>
+            <p>Учебная сессия — нет: дела, баллы и журнал живут в памяти страницы и сбрасываются при перезагрузке (это сделано намеренно — каждая сессия «с чистого листа»). При этом токен доступа хранится в sessionStorage до закрытия вкладки (перезагрузка F5 его сохранит), а метка браузера (uiInstance) — в localStorage: она попадает в JSON-отчёт и позволяет платформе обнаруживать подмену исполнителя. Файлы базы <code>data/*.json</code> симулятор не изменяет.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Почему кнопка «Выдать патент» заблокирована?</div>
+            <p>Нужны два условия одновременно: <strong>(1)</strong> дактилоскопия 10/10, <strong>(2)</strong> выполненные проверки безопасности (ИБД-Р/ФСБ). Под кнопкой есть подсказка, какого условия не хватает. То же правило действует для одобрения РВП/ВНЖ — с той разницей, что попытка одобрить без дактилоскопии ещё и штрафуется на −100.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Почему общая форма «Принятие решения» не одобряет патент и РВП/ВНЖ?</div>
+            <p>Так задумано: через общую форму одобряются только <strong>дела миграционного учёта</strong>. Для патента предусмотрена профильная кнопка «Выдать патент» (а через общую форму — только отказ), для РВП/ВНЖ — блок «Формирование решения» с проектом и направлением на УКЭП начальника. Система пояснит: «Для данного типа дела одобрение оформляется в профильном разделе».</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Можно ли отменить принятое решение?</div>
+            <p>Нет, как и в реальной системе: решение после подтверждения не отменяется. Это тренирует внимательность перед финальной кнопкой. Отказ по делу не мешает создать новое дело по тому же гражданину.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Под пальцами не видно отпечатков: «База отпечатков не загружена»</div>
+            <p>Импортируйте дактилокарты: <strong>python tools/import_fingerprints.py &lt;папка с DK-2021-xxxx&gt;</strong> (или <strong>import_socofing.py</strong> для SOCOFing) и обновите страницу <kbd>Ctrl</kbd>+<kbd>F5</kbd>. Без базы сканирование работает и дело можно завершить, но оттиски отображаются значком, и учебный эффект сравнения отпечатков теряется. «Двойники» получают отпечатки чужой записи автоматически.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Вместо фотографий — силуэт</div>
+            <p>Фотографии импортируются отдельно: <strong>python tools/import_photos.py &lt;папка&gt;</strong> (можно с подпапками <code>male/</code> и <code>female/</code>). Без файлов система показывает нейтральный силуэт — на оценку это не влияет.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">«Не удалось загрузить симулятор: …» при открытии страницы</div>
+            <p>Браузер не смог прочитать данные или скрипты. Запустите <strong>start.bat / start.sh</strong> (нужен Python 3, адрес http://localhost:8080) либо выполните <strong>python tools/bundle_for_file.py</strong> — команда соберёт автономный пакет <code>dist/data_bundle/data.js</code> для запуска двойным щелчком — и обновите страницу с очисткой кэша.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Как быстро найти нужное дело или гражданина?</div>
+            <p>В «Очереди дел» — поиск по ФИО, паспорту и гражданству плюс фильтр по типу услуги (условия применяются совместно). В «Картотеке ИГ» — поиск по всем 600 записям (ID, ФИО на русском и латинице, паспорт, гражданство) с пагинацией по 50 строк.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Часы идут, а сроки по делам не меняются — так и задумано?</div>
+            <p>Да. Часы в шапке показывают реальное время для хронометража, но все расчёты по гражданам (правило 90/180, истечение паспорта, геолокация «Амины») выполняются от опорной даты сценария <strong>20.12.2025</strong> (параметр <code>sim_today</code> в config.json). Поэтому кейсы работают одинаково в любой день занятий.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num-col"><div class="step-num" style="font-size:18px">Q</div></div>
+          <div class="step-body">
+            <div class="step-title">Чем реально различаются роли?</div>
+            <p>Роль фиксируется в шапке, журнале аудита и JSON-отчёте — преподаватель видит, кем обработан кейс. В учебной версии интерфейсных ограничений минимум: все разделы доступны, чтобы курсант мог пройти полный цикл. Строгая ролевая модель ограничивает контур экзамена (exam) — доступ к нему настраивается преподавателем.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-box alert-success" style="margin-top:20px">
+        <div class="a-icon">🏆</div>
+        <div><strong>Совет для максимальной оценки</strong> Не торопитесь: прочитайте все поля и карточку «Амины». Всегда запускайте веерный запрос до решения. Доводите дактилоскопию до 10/10. Реагируйте на каждый критический алерт — «Принять к сведению и действовать». Помните про рапорт в ОИК при массовых адресах и протокол КоАП при опоздании. И никогда не нажимайте «Игнорировать».</div>
+      </div>
+
+      <!-- ── SHORTCUTS ── -->
+      <section class="section" style="margin-bottom:0">
+        <div class="section-title"><span class="icon">⌨️</span> Горячие клавиши</div>
+        <div style="background:var(--white);border:1.5px solid var(--line);border-radius:var(--r);padding:16px 24px;box-shadow:var(--shadow)">
+          <div class="shortcut-row"><span class="kbd">Esc</span><span>Закрыть все открытые модальные окна</span></div>
+          <div class="shortcut-row"><span class="kbd">F11</span><span>Полноэкранный режим браузера</span></div>
+          <div class="shortcut-row"><span class="kbd">F5</span><span>Перезапуск сессии (сброс дел, баллов и журнала; токен сохраняется)</span></div>
+          <div class="shortcut-row"><span class="kbd">Ctrl + F5</span><span>Обновление после пересборки данных (сброс кэша)</span></div>
+          <div class="shortcut-row"><span class="kbd">Ctrl + P</span><span>Распечатать бланк/ведомость или это руководство</span></div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+</div>
+
+<footer class="footer">
+  🛡️ ФИС ГМУ (ИС ГМУ) — Учебно-тренировочный симулятор сервисов миграционного учёта · Цифропол ИСОД МВД России · Версия 1.0 · 2026 · Все данные вымышленные
+</footer>
+
+<script>
+  // ── ACTIVE NAV ────────────────────────────────
+  function setActive(el) {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── SCENARIO TOGGLE ───────────────────────────
+  function toggleScenario(header) {
+    const body = header.nextElementSibling;
+    const toggle = header.querySelector('.scenario-toggle');
+    body.classList.toggle('open');
+    toggle.classList.toggle('open');
+  }
+
+  // ── READING PROGRESS ──────────────────────────
+  window.addEventListener('scroll', () => {
+    const el = document.getElementById('rpf');
+    if (!el) return;
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    el.style.width = pct + '%';
+  });
+
+  // ── SCROLL SPY ────────────────────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

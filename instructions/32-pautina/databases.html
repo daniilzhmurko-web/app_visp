@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Базы данных — учебный тренажёр ЦАФАП</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<style>
+:root{--blue:#1565C0;--blue-d:#0D47A1;--bg:#F1F5FB;--card:#fff;--line:#DDE5F0;--text:#1A2332;--text2:#5C6B82;--green:#2E7D32;--red:#C62828;--amber:#E65100}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;font-size:13px}
+header{background:linear-gradient(90deg,var(--blue-d),var(--blue));color:#fff;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-shrink:0}
+header img{height:34px;width:auto;display:block}
+header h1{font-size:15px;font-weight:700;flex:1}
+header a{color:#fff;text-decoration:none;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:6px;font-size:12px}
+header a:hover{background:rgba(255,255,255,.28)}
+.wrap{flex:1;display:flex;min-height:0}
+aside{width:280px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;flex-shrink:0;padding:10px 0}
+.db{padding:4px 0}
+.db-h{padding:8px 16px;font-weight:700;font-size:12.5px;display:flex;align-items:center;gap:8px;color:var(--blue-d)}
+.db-d{padding:0 16px 6px 40px;font-size:11px;color:var(--text2);line-height:1.35}
+.tb{display:flex;justify-content:space-between;align-items:center;padding:6px 16px 6px 40px;cursor:pointer;font-size:12.5px;border-left:3px solid transparent}
+.tb:hover{background:#EEF4FC}.tb.on{background:#E3EEFB;border-left-color:var(--blue);font-weight:600}
+.cnt{font-size:11px;color:var(--text2);background:#EDF1F7;border-radius:10px;padding:1px 8px}
+main{flex:1;display:flex;flex-direction:column;min-width:0;padding:14px 18px;gap:10px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h2{font-size:16px}
+.badge{font-size:10.5px;background:#FFF3E0;color:var(--amber);border:1px solid #FFE0B2;border-radius:10px;padding:2px 9px}
+input.q{flex:1;min-width:220px;max-width:460px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;font-size:13px}
+input.q:focus{outline:2px solid #90CAF9;border-color:var(--blue)}
+button{border:none;border-radius:7px;padding:8px 13px;font-size:12.5px;cursor:pointer;background:var(--blue);color:#fff}
+button.s{background:#E8EEF7;color:var(--text)}button:disabled{opacity:.4;cursor:default}
+.meta{font-size:11.5px;color:var(--text2);line-height:1.5}
+.box{background:var(--card);border:1px solid var(--line);border-radius:9px;overflow:auto;flex:1;min-height:0}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th{position:sticky;top:0;background:#F6F9FD;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);z-index:1}
+td{padding:6px 10px;border-bottom:1px solid #EEF2F8;vertical-align:middle;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:hover td{background:#F8FBFF}
+.plate{display:inline-block;background:#fff;border:1.5px solid #222;border-radius:3px;padding:1px 6px;font:700 12px 'Courier New',monospace;letter-spacing:.5px}
+.mono{font-family:'Courier New',monospace;font-size:11.5px}
+.ok{color:var(--green)}.bad{color:var(--red);font-weight:600}.warn{color:var(--amber)}
+.thumb{width:112px;height:63px;object-fit:cover;border-radius:4px;cursor:zoom-in;background:#0b0e14;display:block}
+.pager{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:50;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:zoom-out}
+#lightbox img{max-width:92vw;max-height:84vh;border-radius:6px}
+#lightbox .cap{color:#dde;font:12px 'Courier New',monospace}
+.empty{padding:40px;text-align:center;color:var(--text2)}
+@media(max-width:800px){aside{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/img/logo-cafan-sm.png" alt="ЦАФАН">
+  <h1><i class="fas fa-database"></i> Учебные базы данных тренажёра</h1>
+  <a href="index.html"><i class="fas fa-arrow-left"></i> К тренажёру</a>
+</header>
+<div class="wrap">
+  <aside id="side"></aside>
+  <main>
+    <div class="top">
+      <h2 id="ttl">—</h2><span class="badge"><i class="fas fa-flask"></i> синтетические данные</span>
+      <input class="q" id="q" placeholder="Поиск по таблице: номер, ФИО, VIN, УИН…" autocomplete="off">
+      <button class="s" onclick="exportCsv()"><i class="fas fa-file-csv"></i> CSV</button>
+    </div>
+    <div class="meta" id="meta"></div>
+    <div class="box"><table id="tbl"></table><div class="empty" id="empty" style="display:none">Ничего не найдено</div></div>
+    <div class="pager"><button class="s" id="prev" onclick="go(-1)"><i class="fas fa-chevron-left"></i></button><span id="pg"></span><button class="s" id="next" onclick="go(1)"><i class="fas fa-chevron-right"></i></button><span style="margin-left:auto" id="tot"></span></div>
+  </main>
+</div>
+<div id="lightbox" onclick="this.style.display='none'"><img id="lbimg" alt=""><div class="cap" id="lbcap"></div></div>
+
+<script src="js/db/db.js"></script>
+<script src="data/nsi.js"></script>
+<script src="data/fvf_complexes.js"></script>
+<script src="data/fis_gibdd_m.js"></script>
+<script src="data/gis_gmp.js"></script>
+<script src="data/fssp.js"></script>
+<script src="data/fixations.js"></script>
+<script src="data/photos.js"></script>
+<script>
+(function(){
+  const ORDER=['fis_gibdd_m','fixations','gis_gmp','fssp','fvf_complexes','nsi','photos'];
+  const ICON={photos:'fa-image',fis_gibdd_m:'fa-id-card',fixations:'fa-camera',gis_gmp:'fa-ruble-sign',fssp:'fa-gavel',fvf_complexes:'fa-video',nsi:'fa-book'};
+  const TN={owners:'Владельцы',licenses:'Водительские удостоверения',vehicles:'Транспортные средства',wanted:'Розыск',restrictions:'Ограничения',charges:'Начисления',proceedings:'Исполнительные производства',complexes:'Комплексы ФВФ',fixations:'Фиксации (снимки)',regions:'Регионы',koap_articles:'Статьи КоАП',colors:'Цвета',body_types:'Типы кузовов',vehicle_models:'Марки и модели',plate_letters:'Буквы номеров',fvf_types:'Типы комплексов',payment_status:'Статусы оплаты'};
+  const COLRU={id:'ID',kind:'Тип',fam:'Фамилия',im:'Имя',ot:'Отчество',sex:'Пол',born:'Дата рожд.',passport:'Паспорт',inn:'ИНН',phone:'Телефон',addr:'Адрес',zip:'Индекс',region:'Регион',scenario:'Сценар.',ownerId:'Владелец',number:'Номер',categories:'Категории',issued:'Выдано',expires:'Действует до',status:'Статус',plate:'Госномер',vin:'VIN',make:'Марка',model:'Модель',body:'Кузов',category:'Кат.',year:'Год',color:'Цвет',power:'Мощн.',sts:'СТС',pts:'ПТС',regDate:'Дата рег.',regStatus:'Учёт',osago:'ОСАГО',techInspectionUntil:'ТО до',wanted:'Розыск',restricted:'Огранич.',vehicleId:'ТС',reason:'Причина',dateAdded:'Дата',lastSeen:'Последнее наблюдение',brand:'ТС',type:'Тип',authority:'Орган',basis:'Основание',date:'Дата',file:'Снимок',ocrPlate:'OCR прочитал',ocrConf:'OCR %',camId:'Камера',article:'Статья',speed:'Скорость',limit:'Лимит',lane:'Полоса',scene:'Сцена',uin:'УИН',decisionNo:'Постановление',amount:'Штраф',amountDue:'К оплате',paidAt:'Оплачено',payDeadline:'Срок оплаты',ipNo:'№ ИП',debt:'Долг',stage:'Стадия',bailiff:'Пристав',started:'Начато',district:'Округ',lat:'Широта',lon:'Долгота',modelFull:'Модель (полн.)',poverkaNo:'Поверка №',poverkaUntil:'Поверка до',stc:'СТС комплекса',violations24h:'Нарушений/24ч',speedLimit:'Огр. скорости',lanes:'Полос',installedAt:'Установлен',name:'Название',code:'Код',fine:'Штраф',speed_:'Скорость',overMin:'Превыш. от',overMax:'Превыш. до',hex:'HEX',wmi:'WMI',yearFrom:'С',yearTo:'По',accuracy:'Точность',kind_:'Назначение'};
+  const PAGE=50;
+  let cur={db:null,t:null},rows=[],view=[],page=0,haystack=null;
+  const $=id=>document.getElementById(id);
+  function side(){
+    $('side').innerHTML=ORDER.filter(n=>CAFAP_DB.has(n)).map(n=>{const m=CAFAP_DB.meta(n);
+      return `<div class="db"><div class="db-h"><i class="fas ${ICON[n]||'fa-database'}"></i>${m.name}</div><div class="db-d">${m.description}</div>`+
+      CAFAP_DB.tables(n).map(t=>`<div class="tb" data-db="${n}" data-t="${t}"><span>${TN[t]||t}</span><span class="cnt">${CAFAP_DB.rows(n,t).length.toLocaleString('ru')}</span></div>`).join('')+'</div>';}).join('');
+    $('side').onclick=e=>{const el=e.target.closest('.tb');if(el)open(el.dataset.db,el.dataset.t);};
+  }
+  function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+  function cell(k,v){
+    if(v===null||v===undefined||v==='')return '<span style="color:#aab">—</span>';
+    if(k==='plate'||k==='ocrPlate')return `<span class="plate">${esc(v)}</span>`;
+    if(k==='file')return `<img class="thumb" loading="lazy" src="${esc(v)}" alt="" onclick="lb('${esc(v)}','${esc(v)}')">`;
+    if(k==='scene')return `<span class="mono">${esc(v.light)}/${esc(v.weather)}/${esc(v.road)}/${esc(v.plateCond)}</span>`;
+    if(k==='osago')return v.status==='valid'?`<span class="ok">до ${esc(v.until)}</span>`:v.status==='none'?'<span class="bad">нет</span>':`<span class="bad">истёк ${esc(v.until)}</span>`;
+    if(k==='wanted'||k==='restricted'||k==='scenario')return v?'<span class="bad">да</span>':'нет';
+    if(k==='status'){const m={valid:'ok',wanted:'bad',found:'ok',closed:'',active:'warn',lifted:'',paid_full:'ok',paid_half:'ok',unpaid:'warn',overdue:'bad',online:'ok',warning:'warn',offline:'bad',deprived:'bad',expired:'warn',suspended:'warn'};return `<span class="${m[v]||''}">${esc(v)}</span>`;}
+    if(k==='regStatus')return `<span class="${v==='registered'?'ok':'warn'}">${esc(v)}</span>`;
+    if(k==='ocrConf')return `<span class="${v>=85?'ok':v>=65?'warn':'bad'}">${v}</span>`;
+    if(Array.isArray(v))return esc(v.join(', '));
+    if(typeof v==='object')return `<span class="mono">${esc(JSON.stringify(v))}</span>`;
+    if(/^(vin|uin|sts|pts|passport|inn|ipNo|number|decisionNo)$/.test(k))return `<span class="mono">${esc(v)}</span>`;
+    return esc(v);
+  }
+  function open(db,t){
+    cur={db,t};rows=CAFAP_DB.rows(db,t);haystack=null;page=0;$('q').value='';
+    document.querySelectorAll('.tb').forEach(e=>e.classList.toggle('on',e.dataset.db===db&&e.dataset.t===t));
+    const m=CAFAP_DB.meta(db);
+    $('ttl').textContent=m.name+' · '+(TN[t]||t);
+    $('meta').innerHTML=`${m.description}. Сгенерировано ${m.generatedAt} (<code>${m.generatedBy}</code>, seed ${m.seed}). Файл: <code>data/${db}.js</code>`;
+    filter();
+  }
+  function filter(){
+    const q=CAFAP_DB.normText($('q').value);
+    if(!q){view=rows;}
+    else{
+      if(!haystack)haystack=rows.map(r=>CAFAP_DB.normText(JSON.stringify(r)));
+      const qp=CAFAP_DB.normPlate($('q').value).toLowerCase();
+      view=rows.filter((r,i)=>haystack[i].includes(q)||(qp.length>=3&&haystack[i].includes(qp)));
+    }
+    page=0;render();
+  }
+  function render(){
+    const cols=rows.length?Object.keys(rows[0]):[];
+    const start=page*PAGE,slice=view.slice(start,start+PAGE);
+    $('tbl').innerHTML='<thead><tr>'+cols.map(c=>`<th>${COLRU[c]||c}</th>`).join('')+'</tr></thead><tbody>'+
+      slice.map(r=>'<tr>'+cols.map(c=>`<td>${cell(c,r[c])}</td>`).join('')+'</tr>').join('')+'</tbody>';
+    $('empty').style.display=view.length?'none':'block';
+    const pages=Math.max(1,Math.ceil(view.length/PAGE));
+    $('pg').textContent=`стр. ${page+1} из ${pages}`;$('prev').disabled=page<=0;$('next').disabled=page>=pages-1;
+    $('tot').textContent=`Показано ${view.length.toLocaleString('ru')} из ${rows.length.toLocaleString('ru')}`;
+  }
+  window.go=d=>{page+=d;render();$('tbl').parentElement.scrollTop=0;};
+  window.lb=(src,cap)=>{$('lbimg').src=src;$('lbcap').textContent=cap;$('lightbox').style.display='flex';};
+  window.exportCsv=()=>{
+    if(!view.length)return;const cols=Object.keys(rows[0]);
+    const q=s=>'"'+String(s===undefined||s===null?'':typeof s==='object'?JSON.stringify(s):s).replace(/"/g,'""')+'"';
+    const csv='\ufeff'+cols.join(';')+'\n'+view.map(r=>cols.map(c=>q(r[c])).join(';')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=cur.db+'_'+cur.t+'.csv';a.click();
+  };
+  $('q').addEventListener('input',()=>{clearTimeout(window._qt);window._qt=setTimeout(filter,160);});
+  side();
+  const hash=location.hash.replace('#','').split('.');
+  if(hash[0]&&CAFAP_DB.has(hash[0])&&CAFAP_DB.tables(hash[0]).includes(hash[1]))open(hash[0],hash[1]);else open('fis_gibdd_m','vehicles');
+})();
+</script>
+</body>
+</html>

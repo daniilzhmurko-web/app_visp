@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Инструкция — ЦИАДИС-МВД Тренажёр</title>
+<link rel="stylesheet" href="../assets/vendor/fontawesome/css/all.min.css">
+<style>
+:root{--blue:#003F8A;--blue2:#1565a8;--bg:#F4F7FB;--text:#1A1A2E;--text2:#4A5568;--muted:#8795A9;--border:#E2E8F4;--green:#00875A;--orange:#C96B00;--red:#C0392B;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+header{background:linear-gradient(135deg,#002966,#003F8A 55%,#1565a8);color:#fff;padding:34px 24px 38px;text-align:center}
+header img{height:64px;max-width:92%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+header h1{font-size:32px;margin:14px 0 6px;font-weight:800}header p{color:#fff;font-size:16px;text-shadow:0 1px 3px rgba(0,0,0,.35);max-width:680px;margin:0 auto 16px}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.chips span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:28px;max-width:1220px;margin:0 auto;padding:30px 20px 70px;align-items:start}
+.toc{position:sticky;top:16px;background:#fff;border-radius:var(--r);box-shadow:0 4px 20px rgba(0,63,138,.08);overflow:hidden;font-size:13px;max-height:calc(100vh - 32px);overflow-y:auto}
+.toc h4{background:var(--blue);color:#fff;padding:13px 16px;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.toc .g{padding:10px 16px 3px;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.toc a{display:block;padding:6px 16px;color:var(--text2);text-decoration:none;border-left:3px solid transparent}.toc a:hover{background:#EBF4FF;color:var(--blue);border-left-color:var(--blue2)}
+section{background:#fff;border-radius:var(--r);box-shadow:0 4px 20px rgba(0,63,138,.06);padding:28px 30px;margin-bottom:22px}
+.part{display:flex;align-items:center;gap:12px;margin:34px 0 14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue2)}
+.part::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,#c8102e 0,#c8102e 50px,var(--border) 50px)}
+.part:first-child{margin-top:0}
+h2{font-size:22px;color:var(--blue);margin-bottom:12px}h3{font-size:16px;color:var(--text)}h2 i{margin-right:8px;color:var(--blue2)}
+p{color:var(--text2);margin:8px 0}ul,ol{margin:8px 0 8px 22px;color:var(--text2)}li{margin:4px 0}
+code,pre{font-family:Consolas,'Courier New',monospace}code{background:#EEF3F9;padding:1px 6px;border-radius:4px;font-size:13px;color:var(--blue)}
+pre{background:#0f1b2e;color:#d7e3f5;padding:14px 16px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.55;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}th{background:#EEF3F9;text-align:left;padding:8px 10px;font-size:12px;color:var(--text2)}td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:#FAFCFF}.card b{display:block;color:var(--blue);margin-bottom:4px}.card i{color:var(--blue2);margin-right:6px}
+.note{display:flex;gap:12px;border-radius:10px;padding:12px 15px;margin:14px 0;font-size:14px;border:1px solid}.note p{margin:2px 0 0}.note .ni{font-size:18px;padding-top:2px}
+.note.info{background:#EBF4FF;border-color:#c5dcf7}.note.info .ni{color:var(--blue2)}.note.warn{background:#FFF8EC;border-color:#f2d9ac}.note.warn .ni{color:var(--orange)}.note.ok{background:#E6F7F2;border-color:#b5e3d2}.note.ok .ni{color:var(--green)}
+.step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}.step:last-child{border:0}
+.sn{flex:none;width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.sb{flex:1}.sh{display:flex;justify-content:space-between;gap:10px;align-items:center}.xp{background:#E6F7F2;color:var(--green);font-weight:800;font-size:12px;padding:2px 10px;border-radius:12px;white-space:nowrap}
+.where{font-size:12px;color:var(--muted);margin-top:2px}.res{font-size:13px;color:var(--green);margin-top:6px}.res i{margin-right:5px}
+.rank{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}.rank div{border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;background:#FAFCFF}.rank b{display:block;color:var(--blue)}.rank span{font-size:12px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+@media print{.toc{display:none}.layout{display:block}section{box-shadow:none;border:1px solid var(--border);break-inside:avoid-page}}
+</style></head><body>
+<header><img src="../assets/img/logo-isod-mvd.png" alt="Цифрополь ИСОД — МВД России — ЦИАДИС">
+<h1>Инструкция по работе с тренажёром</h1>
+<p>Учебная симуляция ЦИАДИС-МВД: обучение по шагам, экзамен и руководство для преподавателя</p>
+<div class="chips"><span>14 шагов обучения</span><span>Режим экзамена</span><span>6 ролей</span><span>200 XP</span><span>Работает без интернета</span></div></header>
+<div class="layout">
+<nav class="toc"><h4>Содержание</h4>
+<div class="g">Общее</div><a href="#start">Запуск и вход</a><a href="#ui">Интерфейс</a><a href="#roles">Роли</a><a href="#notif">Уведомления</a><a href="#db">База дактилокарт</a>
+<div class="g">Обучение</div><a href="#panel">Панель инструкций</a><a href="#quest">14 шагов</a><a href="#xp">XP и ранги</a><a href="#tips">Советы</a>
+<div class="g">Экзамен</div><a href="#exam">Правила экзамена</a><a href="#exam-flow">Как проходит</a><a href="#exam-grade">Оценка</a>
+<div class="g">Преподавателю</div><a href="#t-token">Токен доступа</a><a href="#t-var">Варианты заданий</a><a href="#t-rep">Отчёт JSON</a><a href="#t-data">Карточки и отпечатки</a><a href="#t-limits">Ограничения</a></nav>
+<main>
+<div class="part">Общее</div>
+<section id="start"><h2><i class="fas fa-power-off"></i>Запуск и вход</h2>
+<p>Тренажёр работает целиком в браузере: ни интернет, ни сервер не нужны. Откройте файл <code>index.html</code> из папки проекта двойным щелчком (Chrome, Edge, Firefox; ширина экрана от 1280 px). Все карточки, пользователи и операции — учебные и вымышленные.</p>
+<p>На экране входа заполните:</p>
+<table><tr><th>Поле</th><th>Назначение</th></tr>
+<tr><td>Токен доступа</td><td>Необязательно. Вставляется целиком, если его выдал преподаватель; из токена берутся ФИО, режим и вариант.</td></tr>
+<tr><td>ФИО курсанта, номер взвода</td><td>Обязательны. ФИО отображается в шапке и записывается в журнал и отчёт.</td></tr>
+<tr><td>Режим работы</td><td>«Обучение» (подсказки, шаги) или «Экзамен» (без подсказок, на время). Если режим задан токеном, изменить его нельзя.</td></tr>
+<tr><td>Вариант задания</td><td>Только в экзамене: вручную, по токену или автоматически по номеру взвода.</td></tr>
+<tr><td>Роль пользователя</td><td>В обучении — любая, рекомендуется «Сторонний пользователь». В экзамене закреплена.</td></tr></table></section>
+<section id="ui"><h2><i class="fas fa-display"></i>Интерфейс системы</h2><div class="grid">
+<div class="card"><b><i class="fas fa-window-maximize"></i>Верхняя панель</b>Логотип (клик — главная панель), часы, роль с переключателем, «Отчёт», уведомления, ваше ФИО и выход.</div>
+<div class="card"><b><i class="fas fa-bars"></i>Боковое меню</b>Главная панель, Поиск, База дактилокарт, Запросы, Статистика, Журнал. Для администраторов — раздел «Администрирование».</div>
+<div class="card"><b><i class="fas fa-table-columns"></i>Рабочая область</b>Таблицы, карточки, формы и графики выбранного раздела. «Справка» содержит описание сервиса и контакты ответственных.</div>
+<div class="card"><b><i class="fas fa-terminal"></i>Нижняя панель</b>В обучении — инструкции и подсказки, в экзамене — текст задания, таймер и счётчик ошибок.</div></div></section>
+<section id="roles"><h2><i class="fas fa-users"></i>Роли пользователей</h2>
+<table><tr><th>Роль</th><th>Возможности</th></tr>
+<tr><td>Сторонний пользователь</td><td>Поиск и просмотр данных, создание запросов на редактирование. Подтверждать запросы не может.</td></tr>
+<tr><td>Оператор ЦИАДИС-МВД ГИАЦ/ИЦ</td><td>Всё, что может сторонний; редактирование карт, подтверждение и отклонение запросов.</td></tr>
+<tr><td>Оператор территориальной станции, Оператор ФОИВ</td><td>Дополнительные роли для знакомства с интерфейсом; в учебном сценарии не используются.</td></tr>
+<tr><td>Системный администратор</td><td>Статистика, протоколы АДИС «Папилон», роли и матрица доступа.</td></tr>
+<tr><td>Администратор безопасности</td><td>Учётные записи, мониторинг, раздел «Управление доступом».</td></tr></table>
+<p>Сменить роль можно в любой момент через плашку роли в шапке. Ваше ФИО в шапке при этом не меняется.</p></section>
+<section id="notif"><h2><i class="fas fa-bell"></i>Уведомления</h2>
+<p>Нажмите на колокольчик: откроется список. Клик по уведомлению открывает связанный раздел (например, запросы на актуализацию) и помечает его прочитанным. «Отметить все прочитанными» сбрасывает счётчик. Новое уведомление появляется, когда вы создаёте запрос.</p></section>
+<section id="db"><h2><i class="fas fa-id-card"></i>База дактилокарт</h2>
+<p>Вкладки «Все типы», «Уголовные», «Гражданские», «Миграционные» фильтруют таблицу; в скобках показано число карт. Кнопка с глазом открывает карточку. В карточке — 10 отпечатков: <b>П1–П5</b> правая рука (большой, указательный, средний, безымянный, мизинец), <b>Л1–Л5</b> левая; при наведении курсора показывается название пальца.</p></section>
+
+<div class="part">Режим обучения</div>
+<section id="panel"><h2><i class="fas fa-circle-info"></i>Панель инструкций</h2>
+<p>Тёмная панель внизу экрана ведёт вас по шагам: заголовок шага, пояснение, «Задание», статус («Ожидание действия» → «Выполнено»), шкала прогресса и счётчик XP. Кнопка «Подсказка» выдаёт до трёх подсказок на шаг, «Свернуть» убирает панель. Нужный элемент интерфейса подсвечивается синей рамкой. Пропустить шаг нельзя — следующий откроется после выполнения текущего.</p></section>
+<section id="quest"><h2><i class="fas fa-list-check"></i>14 шагов</h2><div class="step" id="s1"><div class="sn">1</div><div class="sb">
+<div class="sh"><h3>Загрузка системы</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Автоматически</div>
+<p>Дождитесь, пока терминал выведет сообщения о запуске компонентов и заполнится шкала внизу. Ничего нажимать не нужно.</p><div class="res"><i class="fas fa-check"></i> Откроется экран входа.</div></div></div><div class="step" id="s2"><div class="sn">2</div><div class="sb">
+<div class="sh"><h3>Авторизация</h3><span class="xp">+15 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Экран входа</div>
+<p>Введите ФИО курсанта и номер взвода (поля обязательны). Если преподаватель выдал токен — вставьте его целиком, ФИО подставится из токена. Выберите режим «Обучение» и нажмите «Войти в систему». Для следующих шагов рекомендуется роль «Сторонний пользователь» (она выбрана по умолчанию).</p><div class="res"><i class="fas fa-check"></i> Откроется главная панель. В шапке — ваше ФИО.</div></div></div><div class="step" id="s3"><div class="sn">3</div><div class="sb">
+<div class="sh"><h3>Переход к поиску</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Левое меню</div>
+<p>Нажмите «Поиск дактилокарт» (подсвечен синим).</p><div class="res"><i class="fas fa-check"></i> Откроется форма поиска.</div></div></div><div class="step" id="s4"><div class="sn">4</div><div class="sb">
+<div class="sh"><h3>Фильтр по типу</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Форма поиска</div>
+<p>В поле «Тип дактилокарты» выберите «Уголовная».</p><div class="res"><i class="fas fa-check"></i> В поле отображается «Уголовная».</div></div></div><div class="step" id="s5"><div class="sn">5</div><div class="sb">
+<div class="sh"><h3>Поиск по фамилии</h3><span class="xp">+15 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Форма поиска</div>
+<p>В поле «Фамилия» введите «Петров» и нажмите «Найти».</p><div class="res"><i class="fas fa-check"></i> Под формой появится таблица с результатами.</div></div></div><div class="step" id="s6"><div class="sn">6</div><div class="sb">
+<div class="sh"><h3>Выбор карточки</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Таблица результатов</div>
+<p>Нажмите строку «Петров Алексей Иванович» (ДК-2024-0147). Другие «Петровы» не засчитываются.</p><div class="res"><i class="fas fa-check"></i> Ниже развернётся карточка с данными и 10 отпечатками (П1–П5 — правая рука, Л1–Л5 — левая).</div></div></div><div class="step" id="s7"><div class="sn">7</div><div class="sb">
+<div class="sh"><h3>Просмотр данных</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Карточка</div>
+<p>Изучите данные и нажмите «Подтвердить просмотр».</p><div class="res"><i class="fas fa-check"></i> Просмотр зафиксирован в журнале.</div></div></div><div class="step" id="s8"><div class="sn">8</div><div class="sb">
+<div class="sh"><h3>Форма запроса</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Карточка</div>
+<p>Нажмите «Создать запрос на редактирование».</p><div class="res"><i class="fas fa-check"></i> Откроется окно запроса.</div></div></div><div class="step" id="s9"><div class="sn">9</div><div class="sb">
+<div class="sh"><h3>Отправка запроса</h3><span class="xp">+20 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Окно запроса</div>
+<p>Выберите тип изменения (поле «Текущее значение» заполнится само), укажите новое значение и основание, нажмите «Отправить запрос».</p><div class="res"><i class="fas fa-check"></i> Запрос создан, в колокольчике появится уведомление.</div></div></div><div class="step" id="s10"><div class="sn">10</div><div class="sb">
+<div class="sh"><h3>Смена роли</h3><span class="xp">+15 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Плашка роли в шапке</div>
+<p>Нажмите на плашку роли и выберите «Оператор ЦИАДИС-МВД ГИАЦ/ИЦ».</p><div class="res"><i class="fas fa-check"></i> Роль в шапке изменится, ФИО останется вашим.</div></div></div><div class="step" id="s11"><div class="sn">11</div><div class="sb">
+<div class="sh"><h3>Запросы на актуализацию</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Левое меню</div>
+<p>Откройте «Запросы на актуализацию». Сюда также можно попасть из уведомления (колокольчик).</p><div class="res"><i class="fas fa-check"></i> Откроется список запросов.</div></div></div><div class="step" id="s12"><div class="sn">12</div><div class="sb">
+<div class="sh"><h3>Подтверждение</h3><span class="xp">+25 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Список запросов</div>
+<p>Найдите СВОЙ запрос по карте ДК-2024-0147, нажмите «Рассмотреть», затем «Подтвердить». Чужие запросы не трогайте.</p><div class="res"><i class="fas fa-check"></i> Появится сообщение «Запрос подтверждён», статус запроса изменится.</div></div></div><div class="step" id="s13"><div class="sn">13</div><div class="sb">
+<div class="sh"><h3>Статистика</h3><span class="xp">+10 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Левое меню</div>
+<p>Откройте «Статистика» и изучите данные.</p><div class="res"><i class="fas fa-check"></i> Открыт раздел «Статистическая информация» с блоками «Динамика регистрации» и «Топ-5 регионов».</div></div></div><div class="step" id="s14"><div class="sn">14</div><div class="sb">
+<div class="sh"><h3>Журнал операций</h3><span class="xp">+30 XP</span></div><div class="where"><i class="fas fa-location-dot"></i> Левое меню</div>
+<p>Откройте «Журнал операций» и найдите свои действия.</p><div class="res"><i class="fas fa-check"></i> Появится экран «Миссия выполнена» с очками и рангом.</div></div></div></section>
+<section id="xp"><h2><i class="fas fa-medal"></i>XP и ранги</h2>
+<p>За шаги начисляется 200 XP (сумма по таблице выше). Подсказки очки не снимают, но их число записывается в итог и отчёт. Ранг определяется суммой XP:</p>
+<div class="rank"><div><b>Стажёр</b><span>0–79 XP</span></div><div><b>Специалист</b><span>80–139 XP</span></div><div><b>Старший специалист</b><span>140–189 XP</span></div><div><b>Эксперт ЦИАДИС-МВД</b><span>190+ XP</span></div></div>
+<div class="note info"><div class="ni"><i class="fas fa-circle-info"></i></div><div><b>Максимум — 200 XP</b><p>Все 14 шагов вместе дают 200 XP, поэтому высший ранг достижим при полном прохождении. Прохождение без подсказок преподаватель оценивает по их числу в итоге и отчёте.</p></div></div></section>
+<section id="tips"><h2><i class="fas fa-lightbulb"></i>Советы</h2><ul>
+<li>Ищите синюю подсветку: она указывает, куда нажать.</li><li>Если панель мешает, нажмите «Свернуть».</li>
+<li>После квеста попробуйте другие роли и другие фамилии (Сидорова, Новиков, Кузнецов).</li>
+<li>Кнопка «Отчёт» в шапке сохраняет журнал сессии в JSON-файл.</li></ul></section>
+
+<div class="part">Режим экзамена</div>
+<section id="exam"><h2><i class="fas fa-file-pen"></i>Правила экзамена</h2><div class="grid">
+<div class="card"><b><i class="fas fa-eye-slash"></i>Без подсказок</b>Кнопки «Подсказка» и подсветки элементов нет.</div>
+<div class="card"><b><i class="fas fa-shuffle"></i>Любой порядок</b>Пункты задания можно выполнять в удобной вам последовательности.</div>
+<div class="card"><b><i class="fas fa-clock"></i>Время</b>По умолчанию 20 минут, таймер в нижней панели. Последняя минута выделяется красным.</div>
+<div class="card"><b><i class="fas fa-triangle-exclamation"></i>Ошибки</b>Лимит — 5. Каждая ошибка снимает 5 баллов; при лимите экзамен завершается с оценкой «2».</div></div>
+<div class="note warn"><div class="ni"><i class="fas fa-triangle-exclamation"></i></div><div><b>Роль при входе</b><p>В экзамене вход выполняется под ролью «Сторонний пользователь» (изменить её на экране входа нельзя). Для подтверждения собственного запроса переключите роль на оператора через плашку в шапке.</p></div></div></section>
+<section id="exam-flow"><h2><i class="fas fa-route"></i>Как проходит экзамен</h2><ol>
+<li>На экране входа выберите режим «Экзамен» (или вставьте токен, где режим уже задан) и вариант, если он не выдан автоматически.</li>
+<li>После входа в нижней панели появится текст задания: карта, нужное изменение и что сделать дальше. Показывается «Выполнено пунктов: x из 7» — сами пункты не раскрываются.</li>
+<li>Выполните задание: найдите карту, подтвердите просмотр, создайте запрос <b>ровно с теми данными, что указаны в задании</b>, подтвердите свой запрос от имени оператора, откройте статистику и журнал.</li>
+<li>Экзамен заканчивается, когда выполнены все пункты, вышло время, достигнут лимит ошибок или вы нажали «Завершить экзамен». Начать заново самостоятельно нельзя — пересдачу назначает преподаватель.</li>
+<li>На итоговом экране — баллы, число пунктов, ошибки и оценка. Не забудьте сохранить отчёт кнопкой «Отчёт» и передать файл преподавателю.</li></ol>
+<p>Ошибкой считается: открытие или подтверждение просмотра не той карты, запрос, не совпадающий с заданием (карта, тип или новое значение), подтверждение чужого запроса. Повтор одной и той же ошибки считается один раз.</p></section>
+<section id="exam-grade"><h2><i class="fas fa-square-poll-vertical"></i>Оценка</h2>
+<table><tr><th>Пункт</th><th>Баллы</th></tr><tr><td>Поиск карты по фамилии</td><td>10</td></tr><tr><td>Выбор нужной карты</td><td>10</td></tr><tr><td>Подтверждение просмотра</td><td>10</td></tr><tr><td>Корректный запрос на редактирование</td><td>30</td></tr><tr><td>Подтверждение собственного запроса</td><td>25</td></tr><tr><td>Просмотр статистики</td><td>7</td></tr><tr><td>Проверка журнала операций</td><td>8</td></tr></table>
+<p>Итог = сумма за выполненные пункты − 5 баллов за каждую ошибку (не меньше 0).</p>
+<div class="rank"><div><b>Отлично (5)</b><span>от 85</span></div><div><b>Хорошо (4)</b><span>от 70</span></div><div><b>Удовлетворительно (3)</b><span>от 50</span></div><div><b>Неудовлетворительно (2)</b><span>менее 50</span></div></div></section>
+
+<div class="part">Руководство преподавателя</div>
+<section id="t-token"><h2><i class="fas fa-key"></i>Токен доступа</h2>
+<p>Токен — строка вида <code>&lt;base64 от JSON&gt;.&lt;метка&gt;</code>. Курсант вставляет его в поле на экране входа либо открывает тренажёр по ссылке <code>index.html?token=…</code>. Содержимое (payload):</p>
+<pre>{
+  &quot;fio&quot;: &quot;Иванов Иван Иванович&quot;,
+  &quot;grp&quot;: &quot;214&quot;,
+  &quot;mode&quot;: &quot;exam&quot;,
+  &quot;variant&quot;: 3,
+  &quot;exp&quot;: 1893456000000
+}</pre>
+<table><tr><th>Поле</th><th>Значение</th></tr><tr><td>fio</td><td>ФИО курсанта (подставляется в вход и в отчёт)</td></tr><tr><td>grp</td><td>Группа / взвод</td></tr><tr><td>mode</td><td><code>training</code> или <code>exam</code>; при наличии курсант не может сменить режим</td></tr><tr><td>variant</td><td>Номер варианта экзамена (1–4)</td></tr><tr><td>exp</td><td>Срок действия, миллисекунды Unix-времени</td></tr><tr><td>task</td><td>Необязательная метка задания для вашей платформы проверки</td></tr></table>
+<p>Пример выпуска токена на Python:</p><pre>import base64, json, time
+p = {&quot;fio&quot;: &quot;Иванов Иван Иванович&quot;, &quot;grp&quot;: &quot;214&quot;, &quot;mode&quot;: &quot;exam&quot;, &quot;variant&quot;: 3,
+     &quot;exp&quot;: int((time.time() + 7*24*3600) * 1000)}        # срок действия: 7 дней
+token = base64.b64encode(json.dumps(p, ensure_ascii=False).encode(&quot;utf-8&quot;)).decode() + &quot;.ciadis&quot;
+print(token)</pre>
+<div class="note warn"><div class="ni"><i class="fas fa-shield-halved"></i></div><div><b>Токен не подписан криптографически</b><p>Тренажёр читает payload, но не проверяет подпись: это учебный механизм, а не защита. Для зачётов принимайте отчёт очно или проверяйте его отдельно.</p></div></div></section>
+<section id="t-var"><h2><i class="fas fa-clipboard-list"></i>Варианты заданий</h2>
+<p>Варианты лежат в <code>data/exam-variants.js</code>. Сейчас четыре: смена региона (Петров, ДК-2024-0147), смена ФИО (Сидорова, ДК-2023-1899), актуализация региона (Кузнецов, ДК-2024-0089), исправление даты рождения (Новиков, ДК-2023-2341). Без токена и ручного выбора вариант определяется остатком от деления номера взвода на число вариантов — соседи по взводу получают разные задания.</p>
+<p>Чтобы добавить вариант, скопируйте любой объект в массиве и измените <code>cardId</code>, <code>surname</code>, <code>ctype</code> (<code>fio</code>, <code>dob</code>, <code>region</code>, <code>status</code>, <code>other</code>), <code>newValue</code> и текст <code>task</code>. Фамилия цели должна быть уникальной в базе, иначе курсант не сможет однозначно найти карту.</p>
+<p>Время, лимит ошибок, штраф и пороги оценок настраиваются в <code>js/config/modes.js</code>.</p></section>
+<section id="t-rep"><h2><i class="fas fa-file-export"></i>Отчёт JSON</h2>
+<p>Кнопка «Отчёт» в шапке сохраняет файл с журналом сессии: режим, ФИО и взвод, временну́ю шкалу, итог, перечень событий и кликов. В режиме экзамена есть блок <code>exam</code>: вариант, потраченное и допустимое время, баллы, оценка, число и список ошибок, статус каждого пункта с временем выполнения, причина завершения (<code>completed</code>, <code>timeout</code>, <code>errors</code>, <code>manual</code>). В режиме обучения фиксируются XP, ранг и число подсказок.</p></section>
+<section id="t-data"><h2><i class="fas fa-database"></i>Карточки и отпечатки</h2>
+<ul><li>Карточки — <code>data/cards.js</code>; отпечатки — <code>assets/fingerprints/&lt;ID&gt;/01.png … 10.png</code> (порядок: правая рука большой … мизинец, затем левая).</li>
+<li>Импорт набора SOCOFing: <code>py tools\import_socofing.py --src "путь\к\Real"</code> (нужен Python и <code>pip install pillow</code>). Скрипт создаёт карточки с вымышленными данными и сохраняет исходные 7, на которые завязаны варианты экзамена. Проверка без записи — ключ <code>--dry-run</code>.</li>
+<li>Набор SOCOFing распространяется под лицензией CC BY-NC 4.0: только некоммерческое использование и обязательное указание источника.</li>
+<li>Отпечатки принадлежат реальным людям, ФИО в карточках вымышленные. Не выдавайте их за данные настоящих граждан и не добавляйте в проект реальные персональные данные.</li></ul></section>
+<section id="t-limits"><h2><i class="fas fa-circle-exclamation"></i>Ограничения</h2><ul>
+<li>Всё работает на стороне браузера, поэтому результат экзамена технически можно подделать. Проверяйте отчёты выборочно или проводите экзамен под наблюдением.</li>
+<li>Токен хранится в <code>sessionStorage</code>; при закрытии вкладки его придётся вставить снова.</li>
+<li>Размер проекта с отпечатками SOCOFing — около 60–100 МБ; для передачи удобнее архив.</li></ul></section>
+</main></div>
+<footer>Учебный тренажёр ЦИАДИС-МВД — демонстрационный режим. Все данные вымышленные.</footer>
+</body></html>

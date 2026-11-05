@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Сервис ЦАФАП — Учебный тренажёр (6 этапов)</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="loginScreen" class="screen">
+  <!-- Декоративный городской фон -->
+  <svg class="city-bg" viewBox="0 0 1400 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="90" width="55" height="130" fill="#BFCFDF" rx="2"/>
+    <rect x="15" y="65" width="40" height="28" fill="#BFCFDF"/>
+    <rect x="20" y="72" width="8" height="8" fill="#8EB4D0"/>
+    <rect x="32" y="72" width="8" height="8" fill="#8EB4D0"/>
+    <rect x="60" y="50" width="80" height="170" fill="#C8D8E8" rx="2"/>
+    <rect x="70" y="60" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="60" width="12" height="12" fill="#8EB4D0"/>
+    <rect x="70" y="80" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="80" width="12" height="12" fill="#8EB4D0"/>
+    <rect x="70" y="100" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="100" width="12" height="12" fill="#8EB4D0"/>
+    <rect x="145" y="110" width="55" height="110" fill="#B8CADA" rx="2"/>
+    <rect x="205" y="75" width="70" height="145" fill="#C0D0E0" rx="2"/>
+    <rect x="280" y="130" width="45" height="90" fill="#B5C8D8" rx="2"/>
+    <!-- Дорога -->
+    <rect x="0" y="175" width="1400" height="45" fill="#A8BDD0" opacity=".35"/>
+    <rect x="80" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
+    <rect x="230" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
+    <rect x="380" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
+    <rect x="900" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
+    <rect x="1100" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
+    <!-- Столб с камерой -->
+    <rect x="500" y="95" width="4" height="80" fill="#A0B0C0"/>
+    <rect x="494" y="88" width="16" height="9" fill="#909FA8" rx="2"/>
+    <rect x="489" y="80" width="12" height="10" fill="#1565C0" rx="2"/>
+    <circle cx="493" cy="85" r="3" fill="#fff" opacity=".6"/>
+    <!-- Здания справа -->
+    <rect x="900" y="60" width="90" height="160" fill="#C8D8E8" rx="2"/>
+    <rect x="910" y="70" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="70" width="14" height="14" fill="#8EB4D0"/>
+    <rect x="910" y="92" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="92" width="14" height="14" fill="#8EB4D0"/>
+    <rect x="910" y="114" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="114" width="14" height="14" fill="#8EB4D0"/>
+    <rect x="995" y="85" width="65" height="135" fill="#BDD0E0" rx="2"/>
+    <rect x="1065" y="55" width="80" height="165" fill="#C5D5E5" rx="2"/>
+    <rect x="1150" y="100" width="60" height="120" fill="#B8CADA" rx="2"/>
+    <rect x="1215" y="125" width="185" height="95" fill="#C0D2E2" rx="2"/>
+    <!-- Зелень -->
+    <circle cx="450" cy="185" r="18" fill="#A8D5A0" opacity=".6"/>
+    <circle cx="455" cy="195" r="8" fill="#8BBF88" opacity=".5"/>
+    <circle cx="870" cy="183" r="20" fill="#A8D5A0" opacity=".6"/>
+  </svg>
+
+  <div class="security-bar">
+    <i class="fas fa-lock" style="color:var(--success)"></i>
+    Защищённое соединение · ГАС «Правосудие» · МВД России · ГИБДД ОДД
+    <span style="color:var(--text3);">|</span>
+    <span style="color:var(--success); font-weight:700;">TLS 1.3</span>
+  </div>
+
+  <div class="login-card">
+    <div class="login-logo login-logo-img-wrap">
+      <img class="login-logo-img" src="assets/img/logo-cafan.png" alt="Цифрополь ИСОД · МВД России · ЦАФАН — Центр автоматизированной фиксации административных правонарушений">
+    </div>
+
+    <div style="text-align:center;font-size:14px;color:var(--text2);margin-bottom:15px;font-weight:600;">Авторизация</div>
+
+    <div class="form-group">
+      <label class="form-label" for="loginToken">Токен доступа (если выдан преподавателем)</label>
+      <textarea class="form-control" id="loginToken" rows="2" autocomplete="off" spellcheck="false" placeholder="Вставьте токен целиком — если его не выдавали, оставьте поле пустым" style="font-family:Consolas,monospace;font-size:11px;resize:vertical;"></textarea>
+      <div id="tokenErr" style="display:none;color:#C62828;font-size:11.5px;margin-top:4px;">❌ Не удалось распознать токен — проверьте, что он скопирован полностью.</div>
+      <div id="tokenOkHint" style="display:none;font-size:11.5px;margin-top:4px;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ФИО курсанта</label>
+      <input type="text" class="form-control" id="cadetFio" placeholder="Иванов Иван Иванович" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Номер взвода</label>
+      <input type="text" class="form-control" id="cadetPlatoon" placeholder="Например, 214" autocomplete="off">
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="selTab(this,'int')">Внутренняя</div>
+      <div class="auth-tab" onclick="selTab(this,'sud')">СУДИР</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Тип пользователя</label>
+      <select class="form-select" id="roleSelect" onchange="onRoleChange()">
+        <option value="">— Выберите роль —</option>
+        <option value="operator">Оператор ЦАФАП</option>
+        <option value="inspector">Инспектор ЦАФАП</option>
+        <option value="senior">Старший инспектор</option>
+        <option value="reg_admin">Региональный администратор</option>
+        <option value="fed_admin">Дежурный федеральный администратор</option>
+        <option value="analyst">Аналитик мониторинга</option>
+        <option value="postal">Специалист почтовой обработки</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Регион</label>
+      <select class="form-select" id="regSelect">
+        <option value="">— Выберите регион —</option>
+        <option value="77">77 — г. Москва</option>
+        <option value="50">50 — Московская область</option>
+        <option value="78">78 — г. Санкт-Петербург</option>
+        <option value="23">23 — Краснодарский край</option>
+        <option value="16">16 — Республика Татарстан</option>
+        <option value="63">63 — Самарская область</option>
+        <option value="52">52 — Нижегородская область</option>
+        <option value="05">05 — Республика Дагестан</option>
+      </select>
+    </div>
+    <div id="loginHint" style="font-size:11px;color:var(--text2);min-height:18px;margin-bottom:8px;text-align:center;"></div>
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> Войти в систему
+    </button>
+  </div>
+
+  <div class="login-footer">
+    Техническая поддержка: <a href="#" style="color:var(--primary)">cafap_support@mvd.ru</a> · +7 (800) 222-22-22
+    <br><span style="margin-top:4px;display:block;">© 2026 МВД России · Сервис ЦАФАП · Версия 3.14.2</span>
+  </div>
+</div><div id="initScreen" class="screen hidden">
+  <img class="init-logo-img" src="assets/img/logo-cafan.png" alt="Цифрополь ИСОД · МВД России · ЦАФАН">
+  <div class="init-sub">Инициализация защищённой рабочей среды...</div>
+  <div class="init-bar-wrap"><div class="init-bar" id="initBar"></div></div>
+  <div class="init-status mono" id="initStatus">Подключение к серверу аутентификации...</div>
+  <div class="init-checks" id="initChecks">
+    <div class="init-item" id="ic1"><span class="check-ico"><i class="fas fa-circle-notch fa-spin" style="font-size:11px;color:rgba(255,255,255,.6)"></i></span><span>Проверка сертификата ЭЦП должностного лица</span></div>
+    <div class="init-item" id="ic2"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Подключение к ФИС ГИБДД-М</span></div>
+    <div class="init-item" id="ic3"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Загрузка очереди нарушений (РЭО синхронизация)</span></div>
+    <div class="init-item" id="ic4"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Синхронизация справочников НСИ ГИБДД</span></div>
+    <div class="init-item" id="ic5"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Запуск модуля мониторинга камер ФВФ</span></div>
+    <div class="init-item" id="ic6"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Загрузка профиля роли и прав доступа</span></div>
+  </div>
+</div><div id="spaApp" class="screen hidden">
+<div class="app-header" style="z-index:100;gap:8px;flex-shrink:0;">
+<div class="hdr-logo"><div class="live-dot"></div>ЦАФАП</div>
+<div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+<div style="font-size:12px;opacity:.88;padding:4px 10px;background:rgba(255,255,255,.13);border-radius:5px;white-space:nowrap;" id="hdrRegion">77 — г. Москва</div>
+<div style="display:flex;gap:3px;overflow-x:auto;flex-shrink:0;">
+<span class="stage-tab active" id="stab-1" onclick="switchStage(1)">Этап 1: Дашборд</span>
+<span class="stage-tab" id="stab-2" onclick="switchStage(2)">Этап 2: Нарушения</span>
+<span class="stage-tab" id="stab-3" onclick="switchStage(3)">Этап 3: Постановления</span>
+<span class="stage-tab" id="stab-4" onclick="switchStage(4)">Этап 4: Почта/ФССП</span>
+<span class="stage-tab" id="stab-5" onclick="switchStage(5)">Этап 5: Аналитика</span>
+<span class="stage-tab" id="stab-6" onclick="switchStage(6)">Этап 6: Администрирование</span>
+</div>
+<div style="flex:1;"></div>
+<div style="font-family:Courier New,monospace;font-size:13px;letter-spacing:1px;padding:4px 10px;background:rgba(255,255,255,.13);border-radius:5px;flex-shrink:0;" id="shiftClock">00:00:00</div>
+<div style="position:relative;padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="spa_toast('Уведомления: 3 активных','warning')">
+<i class="fas fa-bell"></i><div style="position:absolute;top:-4px;right:-4px;background:#C62828;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--primary);">3</div></div>
+<div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;flex-shrink:0;">
+<div id="hdrAvatar" style="width:28px;height:28px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">КУ</div>
+<div><div style="font-size:12px;font-weight:700;" id="hdrName">Курсант</div><div class="role-chip role-op" id="hdrRole">Оператор</div></div>
+</div>
+<a href="databases.html" target="_blank" rel="noopener" style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;color:#fff;text-decoration:none;" title="Просмотр учебных баз данных (ФИС ГИБДД-М, ГИС ГМП, ФССП, НСИ, ФВФ)"><i class="fas fa-database"></i> Базы</a>
+<div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="downloadReport()" title="Скачать отчёт о прохождении тренажёра (JSON)"><i class="fas fa-file-download"></i> Отчёт</div>
+<div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="doLogout()" title="Выход"><i class="fas fa-sign-out-alt"></i></div>
+</div>
+<div style="display:flex;flex:1;overflow:hidden;">
+<div id="unifiedSidebar" class="sidebar" style="width:215px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;"></div>
+<div style="flex:1;position:relative;overflow:hidden;display:flex;">
+<div class="stage-sec active" id="stage-1" style="flex:1;overflow:hidden;">
+  <div id="mainContent1" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+<div class="stage-sec" id="stage-2" style="flex:1;overflow:hidden;">
+  <div id="mainContent2" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+<div class="stage-sec" id="stage-3" style="flex:1;overflow:hidden;">
+  <div id="mainContent3" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+<div class="stage-sec" id="stage-4" style="flex:1;overflow:hidden;">
+  <div id="mainContent4" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+<div class="stage-sec" id="stage-5" style="flex:1;overflow:hidden;">
+  <div id="mainContent5" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+<div class="stage-sec" id="stage-6" style="flex:1;overflow:hidden;">
+  <div id="mainContent6" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
+</div>
+</div>
+</div>
+<div id="instPanel" class="inst-expanded">
+<div style="display:flex;align-items:center;padding:7px 14px;background:var(--primary);color:#fff;gap:8px;font-size:12.5px;font-weight:700;flex-shrink:0;">
+<i class="fas fa-graduation-cap"></i>
+Учебный тренажёр ЦАФАП · <span id="instStageLabel">Этап 1 из 6</span>
+<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+<span style="font-size:11px;background:rgba(255,255,255,.18);padding:2px 9px;border-radius:4px;">Прогресс: <strong id="questPct">0%</strong></span>
+<button onclick="toggleInst()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;"><i class="fas fa-chevron-down" id="instTogIco"></i></button>
+</div></div>
+<div id="instContent" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+<div style="display:flex;gap:1px;background:var(--border2);border-bottom:1px solid var(--border);flex-shrink:0;">
+<div class="inst-tab active" onclick="spa_switchInstTab(this,'mission')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:var(--primary-lighter);color:var(--primary);text-align:center;">📋 Задание</div>
+<div class="inst-tab" onclick="spa_switchInstTab(this,'hints')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">💡 Подсказки</div>
+<div class="inst-tab" onclick="spa_switchInstTab(this,'progress')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">📊 Прогресс</div>
+<div class="inst-tab" onclick="spa_switchInstTab(this,'glossary')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">📚 Справочник</div>
+</div>
+<div id="instBody" style="flex:1;overflow-y:auto;padding:9px 14px;min-height:0;"></div>
+<div style="display:flex;align-items:center;gap:8px;padding:5px 14px;background:#FAFCFF;border-top:1px solid var(--border2);font-size:11px;color:var(--text2);flex-shrink:0;">
+<strong id="instStageShort">Этап 1:</strong>&nbsp;<span id="instStageDesc">Авторизация и дашборд</span>
+<div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+<div id="instProgFill" style="height:100%;background:var(--primary);border-radius:3px;transition:width .5s;width:0%;"></div></div>
+<span id="instProgTxt">0/12 шагов</span>
+<button class="btn btn-p btn-sm" onclick="spa_nextQuest()">Далее →</button>
+<button class="btn btn-s btn-sm" onclick="spa_restartQuest()"><i class="fas fa-redo"></i></button>
+</div></div></div>
+</div>
+<div id="toastBox" style="position:fixed;top:58px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:5px;"></div>
+<div id="letterModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-envelope" style="color:#D32F2F;"></i> Просмотр письма</div>
+<span onclick="closeModal('letterModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="letterContent"></div></div></div>
+<div id="signModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-signature" style="color:var(--primary);"></i> Подписание ЭЦП</div>
+<span onclick="closeModal('signModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="signModalContent"></div></div></div>
+<div id="decModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-contract" style="color:var(--primary);"></i> Постановление</div>
+<span onclick="closeModal('decModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="decModalContent"></div></div></div>
+<div id="fsspModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-university" style="color:#6A1B9A;"></i> Передача в ФССП</div>
+<span onclick="closeModal('fsspModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="fsspContent"></div></div></div>
+<div id="art2025Modal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:var(--accent-red);"></i> Протокол ст.20.25 КоАП</div>
+<span onclick="closeModal('art2025Modal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="art2025Content"></div></div></div>
+<div id="searchModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-search" style="color:var(--primary);"></i> Поиск дела</div>
+<span onclick="closeModal('searchModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="srchWrapper"><div class="form-group"><label class="form-label">Номер дела</label><input type="text" class="form-control" id="srchCase" placeholder="ДЕЛ-2026-XXXXX"></div>
+<div class="form-group"><label class="form-label">Госномер ТС</label><input type="text" class="form-control" id="srchPlate" placeholder="А000АА77"></div>
+<div class="form-group"><label class="form-label">ФИО</label><input type="text" class="form-control" id="srchName" placeholder="Иванов Иван"></div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+<button class="btn btn-s" onclick="closeModal('searchModal')">Отмена</button>
+<button class="btn btn-p" onclick="if(window.s1_doSearch)s1_doSearch()"><i class="fas fa-search"></i> Найти</button></div>
+<div id="srchResult" style="margin-top:12px;"></div></div></div></div>
+<div id="userModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Пользователь</div>
+<span onclick="closeModal('userModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="userModalContent"></div></div></div>
+<div id="certModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-certificate" style="color:var(--success);"></i> Сертификация</div>
+<span onclick="closeModal('certModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="certModalContent"></div></div></div>
+<div id="incidentModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:var(--accent-red);"></i> Инцидент</div>
+<span onclick="closeModal('incidentModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="incidentContent"></div></div></div>
+<div id="wantedModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-car" style="color:var(--accent-red);"></i> Карточка розыска</div>
+<span onclick="closeModal('wantedModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="wantedContent"></div></div></div>
+<div id="appealModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-balance-scale" style="color:var(--primary);"></i> Апелляция</div>
+<span onclick="closeModal('appealModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="appealModalContent"></div></div></div>
+<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-database" style="color:var(--primary);"></i> Резервное копирование</div>
+<span onclick="closeModal('backupModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="backupContent"></div></div></div>
+<div id="caseModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-folder-open" style="color:var(--primary);"></i> Карточка дела</div>
+<span onclick="closeModal('caseModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="caseModalContent"></div></div></div>
+<div id="lvokModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-shield" style="color:var(--primary);"></i> ЛВОК — Персональные данные</div>
+<span onclick="closeModal('lvokModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="lvokContent"></div></div></div>
+
+<script src="vendor/chart.min.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/db/db.js"></script>
+<script src="data/nsi.js"></script>
+<script src="data/fvf_complexes.js"></script>
+<script src="data/fis_gibdd_m.js"></script>
+<script src="data/gis_gmp.js"></script>
+<script src="data/fssp.js"></script>
+<script src="data/fixations.js"></script>
+<script src="data/photos.js"></script>
+<script src="js/core/token.js"></script>
+<script src="js/core/app.js"></script>
+<script src="js/stages/stage1.js"></script>
+<script src="js/stages/stage2.js"></script>
+<script src="js/stages/stage3.js"></script>
+<script src="js/stages/stage4.js"></script>
+<script src="js/stages/stage5.js"></script>
+<script src="js/stages/stage6.js"></script>
+</body>
+</html>

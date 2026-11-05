@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173b63">
+  <meta name="description" content="Учебная реконструкция главной страницы портала МВД России. Обращения и персональные данные не передаются.">
+  <title>МВД России | Учебная копия портала</title>
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/7/7f/Emblem_of_the_Ministry_of_Internal_Affairs.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --navy:#173b63; --deep:#102e50; --ink:#202c3b; --muted:#818b98; --line:#e4e9ef; --paper:#f3f6f9; --red:#b43a45; font-size:16px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:24px; }
+    body { margin:0; color:var(--ink); background:#fff; font-family:"Golos Text",Arial,sans-serif; font-size:.9375rem; -webkit-font-smoothing:antialiased; }
+    button,input,select,textarea { font:inherit; }
+    button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
+    button,a { touch-action:manipulation; }
+    button { cursor:pointer; color:inherit; border:0; background:none; }
+    a { color:inherit; text-decoration:none; }
+    img { display:block; max-width:100%; }
+    h1,h2,h3,p { margin:0; }
+    [hidden] { display:none !important; }
+    ::selection { background:#d9e5f1; color:var(--deep); }
+    :focus-visible { outline:3px solid #b27d38; outline-offset:5px; }
+    .shell { width:min(1280px,calc(100% - 112px)); margin-inline:auto; }
+    .icon { width:21px; height:21px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .skip-link { position:fixed; top:8px; left:12px; z-index:100; padding:12px 18px; color:#fff; background:var(--navy); transform:translateY(-160%); }
+    .skip-link:focus { transform:translateY(0); }
+    .utility { height:37px; background:#f1f4f7; color:#6a7685; font-size:.6875rem; }
+    .utility-inner { display:flex; align-items:center; justify-content:space-between; height:100%; gap:20px; }
+    .study-note { display:flex; align-items:center; gap:10px; white-space:nowrap; }
+    .flag { width:18px; height:12px; display:inline-block; background:linear-gradient(#fff 0 33.33%,#325a9a 33.33% 66.66%,#b34953 66.66%); box-shadow:0 0 0 1px #0000000d; }
+    .utility-links { display:flex; height:100%; align-items:center; gap:26px; }
+    .utility-link { display:flex; gap:7px; align-items:center; padding:5px 0; white-space:nowrap; transition:color .2s; }
+    .utility-link:hover { color:var(--navy); }
+    .utility-link .icon { width:16px; height:16px; }
+    .language { border-left:1px solid #d8dfe6; padding-left:20px; font-size:.6875rem; font-weight:600; }
+    .masthead { position:relative; display:flex; align-items:center; justify-content:space-between; min-height:146px; overflow:hidden; }
+    .brand { position:relative; z-index:1; display:flex; align-items:center; gap:25px; padding:23px 0; }
+    .brand > div { min-width:0; }
+    .brand-emblem { width:122px; height:84px; flex-shrink:0; object-fit:contain; }
+    .brand h1 { color:var(--navy); font-family:Georgia,"Times New Roman",serif; font-size:1.76rem; font-weight:400; line-height:1.31; letter-spacing:.028em; text-transform:uppercase; }
+    .brand h1 span { display:block; }
+    .brand-motto { margin-top:10px; color:#7d8793; font-size:.5625rem; font-weight:500; letter-spacing:.23em; }
+    .masthead-art { position:absolute; width:355px; height:136px; right:156px; bottom:-4px; color:#b7c6d5; opacity:.37; pointer-events:none; }
+    .emergency { position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; padding:0 0 0 27px; border-left:1px solid var(--line); }
+    .emergency-label { color:#8a929d; font-size:.6875rem; }
+    .emergency-number { display:flex; align-items:center; gap:13px; color:var(--navy); font-size:2.375rem; font-weight:600; line-height:1.3; letter-spacing:.035em; }
+    .emergency-number .icon { width:25px; height:25px; stroke-width:1.4; }
+    .emergency-sub { margin-top:2px; color:#6e7b8a; font-size:.6875rem; }
+    .nav-band { position:relative; z-index:30; color:white; background:var(--navy); }
+    .nav-inner { display:flex; align-items:stretch; justify-content:space-between; min-height:57px; }
+    .nav-items { display:flex; align-items:stretch; gap:2px; }
+    .nav-item { display:flex; align-items:center; justify-content:center; gap:11px; padding:0 26px; font-size:.8125rem; font-weight:500; white-space:nowrap; transition:background .2s; }
+    .nav-item:first-child { margin-left:-23px; }
+    .nav-item .icon { width:12px; height:12px; opacity:.62; transition:transform .2s; }
+    .nav-item:hover,.nav-item[aria-expanded="true"] { background:#ffffff0f; }
+    .nav-item[aria-expanded="true"] .icon { transform:rotate(180deg); }
+    .search-toggle { display:flex; align-items:center; justify-content:flex-end; gap:14px; padding-left:28px; color:#d6e1ec; font-size:.75rem; border-left:1px solid #ffffff1c; margin:15px 0; }
+    .search-toggle .icon { width:19px; height:19px; }
+    .mobile-toggle { display:none; align-items:center; gap:10px; font-size:.8125rem; }
+    .mega-panel,.search-panel { position:absolute; top:100%; left:0; right:0; background:white; color:var(--ink); box-shadow:0 13px 25px #142d491a; border-bottom:1px solid var(--line); animation:panel-in .2s ease-out; }
+    .mega-inner { padding-block:29px 34px; }
+    .mega-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .mega-title { color:var(--navy); font-size:1.125rem; font-weight:600; }
+    .close-small { display:grid; place-items:center; width:30px; height:30px; color:#7c8997; }
+    .mega-links { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px 40px; }
+    .mega-link { display:flex; align-items:center; justify-content:space-between; gap:18px; text-align:left; padding:14px 0; border-bottom:1px solid var(--line); font-size:.875rem; line-height:1.5; }
+    .mega-link:hover { color:var(--navy); }
+    .mega-link .icon { width:16px; height:16px; color:#96a5b5; }
+    .search-inner { padding-block:26px; }
+    .search-form { display:flex; align-items:stretch; border-bottom:2px solid var(--navy); }
+    .search-input { width:100%; min-width:0; padding:12px 0 15px; border:0; background:transparent; outline:none; font-size:1.25rem; }
+    .search-submit { display:flex; align-items:center; gap:12px; padding:0 14px 0 24px; color:var(--navy); font-size:.8125rem; font-weight:500; }
+    .search-hint { color:var(--muted); margin-top:14px; font-size:.75rem; }
+    .search-results { max-height:380px; overflow:auto; margin-top:12px; }
+    .search-result { display:block; width:100%; padding:15px 0; text-align:left; border-bottom:1px solid var(--line); }
+    .search-result span { display:block; margin-top:5px; color:var(--muted); font-size:.6875rem; }
+    .search-result:hover { color:var(--navy); }
+    .search-result-count { padding-top:9px; color:var(--muted); font-size:.75rem; }
+    .main-content { padding-top:31px; padding-bottom:58px; }
+    .lead-layout { display:grid; grid-template-columns:minmax(0,2.12fr) minmax(285px,1fr); gap:39px; }
+    .section-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:35px; margin-bottom:18px; }
+    .section-title { font-size:1.5625rem; line-height:1.3; font-weight:500; letter-spacing:-.035em; }
+    .text-link { display:inline-flex; align-items:center; justify-content:center; gap:13px; color:var(--navy); font-size:.75rem; font-weight:500; white-space:nowrap; }
+    .text-link .icon { width:17px; height:17px; transition:transform .2s; }
+    .text-link:hover .icon { transform:translateX(4px); }
+    .feature { min-width:0; }
+    .feature-open { position:relative; display:block; height:371px; overflow:hidden; isolation:isolate; color:white; background:var(--deep); }
+    .feature-image { width:100%; height:100%; object-fit:cover; object-position:center 43%; transition:transform .8s ease,opacity .2s; animation:image-arrive 1.35s ease-out; }
+    .feature-open:hover .feature-image { transform:scale(1.025); }
+    .feature-shade { position:absolute; inset:0; background:linear-gradient(180deg,#0d244600 25%,#0d244617 42%,#0d2446bf 74%,#0d2446ed 100%); pointer-events:none; }
+    .feature-copy { position:absolute; bottom:27px; left:29px; right:29px; transition:opacity .17s,transform .3s; }
+    .feature-category { display:block; margin-bottom:12px; color:#d8e5f3; font-size:.625rem; font-weight:500; letter-spacing:.17em; text-transform:uppercase; }
+    .feature-title { max-width:765px; font-size:1.6rem; line-height:1.36; font-weight:500; letter-spacing:-.035em; }
+    .feature.is-switching .feature-image,.feature.is-switching .feature-copy { opacity:0; }
+    .feature.is-switching .feature-copy { transform:translateY(5px); }
+    .feature-bottom { display:flex; align-items:center; justify-content:space-between; min-height:47px; border-bottom:1px solid var(--line); }
+    .feature-date { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:.6875rem; }
+    .feature-date .icon { width:13px; height:13px; }
+    .carousel-controls { display:flex; align-items:center; gap:17px; color:var(--navy); }
+    .carousel-arrow { display:grid; place-items:center; width:30px; height:35px; transition:background .2s; }
+    .carousel-arrow:hover { background:var(--paper); }
+    .carousel-arrow .icon { width:18px; height:18px; }
+    .carousel-counter { color:#9ba6b2; font-size:.6875rem; font-variant-numeric:tabular-nums; letter-spacing:.06em; }
+    .carousel-counter strong { color:var(--navy); font-weight:500; }
+    .services-heading { justify-content:flex-start; gap:12px; }
+    .services-heading .icon { color:var(--navy); width:22px; height:22px; stroke-width:1.4; }
+    .service-list { border-top:1px solid var(--line); }
+    .service-row { display:flex; align-items:center; gap:18px; width:100%; min-height:73px; padding:11px 0; border-bottom:1px solid var(--line); text-align:left; transition:color .2s,padding .2s; }
+    .service-row:hover { color:var(--navy); padding-left:5px; }
+    .service-row > .icon:first-child { width:27px; height:27px; color:#476d96; stroke-width:1.35; }
+    .service-copy { flex:1; min-width:0; font-size:.875rem; font-weight:450; line-height:1.45; }
+    .service-copy small { display:block; margin-top:3px; font-size:.6875rem; color:var(--muted); font-weight:400; }
+    .service-chevron { width:15px; height:15px; color:#8fa0b3; }
+    .all-services { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:49px; }
+    .news-section { margin-top:37px; }
+    .news-top { display:flex; align-items:center; justify-content:space-between; gap:25px; border-bottom:1px solid var(--line); margin-bottom:25px; }
+    .news-title-tabs { display:flex; align-items:center; gap:35px; min-width:0; }
+    .news-top .section-title { margin-bottom:17px; }
+    .news-tabs { display:flex; align-items:stretch; gap:27px; }
+    .news-tab { position:relative; padding:9px 0 21px; font-size:.75rem; color:#8b949f; white-space:nowrap; transition:color .2s; }
+    .news-tab::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:transparent; transition:background .2s; }
+    .news-tab[aria-selected="true"] { color:var(--navy); }
+    .news-tab[aria-selected="true"]::after { background:var(--red); }
+    .news-tab:hover { color:var(--navy); }
+    .archive-link { margin-bottom:14px; color:#788695; font-size:.6875rem; }
+    .archive-link .icon { width:15px; height:15px; }
+    .news-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px 28px; }
+    .news-item { min-width:0; animation:content-in .45s ease-out both; }
+    .news-image-link { display:block; overflow:hidden; aspect-ratio:1.94; background:var(--paper); }
+    .news-image { height:100%; width:100%; object-fit:cover; transition:transform .6s ease; }
+    .news-image-link:hover .news-image { transform:scale(1.04); }
+    .news-meta { display:flex; align-items:center; gap:12px; margin-top:17px; font-size:.625rem; color:#8a94a0; line-height:1.5; }
+    .news-meta-category { color:#66809d; }
+    .news-meta-dot { width:3px; height:3px; border-radius:50%; background:#c2ccd7; flex-shrink:0; }
+    .news-item h3 { margin-top:9px; font-size:1.03125rem; line-height:1.52; font-weight:500; letter-spacing:-.02em; }
+    .news-item h3 a:hover { color:var(--navy); }
+    .news-excerpt { margin-top:10px; color:#818b97; font-size:.78125rem; line-height:1.75; }
+    .news-more-wrap { display:flex; justify-content:center; margin-top:29px; }
+    .outline-button { display:inline-flex; align-items:center; justify-content:center; gap:15px; min-height:43px; padding:11px 28px; color:var(--navy); border:1px solid #cdd8e4; font-size:.75rem; font-weight:500; transition:background .2s,border-color .2s; }
+    .outline-button:hover { background:var(--paper); border-color:#93abc3; }
+    .outline-button .icon { width:16px; height:16px; }
+    .region-band { background:var(--paper); border-top:1px solid #edf0f4; border-bottom:1px solid #edf0f4; }
+    .region-inner { display:grid; grid-template-columns:1fr 1.9fr; gap:65px; align-items:center; padding-block:40px; }
+    .region-heading { display:flex; align-items:center; gap:15px; }
+    .region-heading .icon { width:29px; height:29px; color:var(--navy); stroke-width:1.3; }
+    .region-description { color:#7b8998; font-size:.75rem; line-height:1.75; margin-top:10px; max-width:310px; }
+    .region-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; align-items:end; gap:13px; }
+    .region-form > div { min-width:0; }
+    .field-label { display:block; margin-bottom:8px; color:#6d7b8a; font-size:.6875rem; font-weight:400; }
+    .select-wrap { position:relative; min-width:0; }
+    .select-wrap .icon { position:absolute; right:14px; top:50%; transform:translateY(-50%); pointer-events:none; width:13px; height:13px; color:#70869f; }
+    .field { display:block; width:100%; min-width:0; max-width:100%; min-height:46px; padding:12px 15px; background:#fff; color:var(--ink); border:1px solid #d9e1e9; border-radius:0; font-size:.75rem; transition:border-color .2s; }
+    .field:focus { outline:none; border-color:#53799f; box-shadow:0 0 0 2px #53799f1c; }
+    select.field { appearance:none; padding-right:34px; cursor:pointer; text-overflow:ellipsis; }
+    .primary-button { display:inline-flex; align-items:center; justify-content:center; gap:17px; min-height:46px; padding:12px 21px; background:var(--navy); color:white; font-size:.75rem; font-weight:500; transition:background .2s; }
+    .primary-button:hover { background:var(--deep); }
+    .primary-button:disabled { opacity:.45; cursor:not-allowed; }
+    .primary-button .icon { width:17px; height:17px; }
+    .resources { padding-block:41px 45px; }
+    .resources .section-heading { margin-bottom:21px; }
+    .resource-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 40px; }
+    .resource-link { display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:57px; border-bottom:1px solid var(--line); text-align:left; font-size:.8125rem; line-height:1.6; }
+    .resource-link .icon { width:15px; height:15px; color:#8da1b6; transition:transform .2s; }
+    .resource-link:hover { color:var(--navy); }
+    .resource-link:hover .icon { transform:translate(2px,-2px); }
+    .footer { background:var(--deep); color:#c8d3df; }
+    .footer-main { display:flex; align-items:center; justify-content:space-between; gap:30px; padding-block:33px; }
+    .footer-brand { display:flex; align-items:center; gap:21px; }
+    .footer-emblem { width:75px; height:53px; object-fit:contain; }
+    .footer-name { font-family:Georgia,"Times New Roman",serif; font-size:.8125rem; line-height:1.65; letter-spacing:.055em; text-transform:uppercase; }
+    .footer-name span { display:block; }
+    .footer-links { display:flex; gap:29px; color:#d1dce7; font-size:.6875rem; }
+    .footer-links a:hover,.footer-links button:hover { color:white; }
+    .footer-bottom { display:flex; align-items:flex-start; justify-content:space-between; gap:40px; padding-block:22px 25px; border-top:1px solid #ffffff14; color:#91a4b9; font-size:.625rem; line-height:1.8; }
+    .footer-disclaimer { max-width:720px; }
+    .footer-copyright { text-align:right; white-space:nowrap; }
+    .back-top { position:fixed; bottom:25px; right:23px; z-index:20; display:grid; place-items:center; width:43px; height:43px; color:white; background:var(--navy); box-shadow:0 3px 12px #102e5020; animation:panel-in .2s ease-out; }
+    .back-top .icon { transform:rotate(-90deg); width:19px; height:19px; }
+    .reveal { transition:opacity .65s ease,transform .65s ease; }
+    .reveal.will-reveal:not(.is-visible) { opacity:0; transform:translateY(15px); }
+    .reveal.is-visible { opacity:1; transform:none; }
+    .brand { animation:content-in .65s ease-out both; }
+    .lead-layout { animation:content-in .7s .1s ease-out both; }
+    dialog { position:fixed; inset:0; width:min(760px,calc(100% - 40px)); max-height:calc(100dvh - 56px); margin:auto; padding:0; border:0; background:#fff; color:var(--ink); box-shadow:0 18px 85px #06152a45; overflow:auto; overscroll-behavior:contain; }
+    dialog::backdrop { background:#0c203ab3; backdrop-filter:blur(3px); }
+    dialog[open] { animation:dialog-in .23s ease-out; }
+    .dialog-bar { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:48px; padding:9px 24px; background:#f5f7fa; color:#8190a1; font-size:.625rem; letter-spacing:.1em; border-bottom:1px solid var(--line); }
+    .dialog-close { display:grid; place-items:center; width:29px; height:29px; color:var(--navy); }
+    .dialog-content { padding:31px 38px 37px; }
+    .dialog-title { color:var(--navy); font-size:1.5625rem; line-height:1.4; font-weight:500; letter-spacing:-.025em; margin-bottom:21px; }
+    .dialog-content p { font-size:.875rem; line-height:1.85; margin-top:14px; color:#5f6f80; }
+    .dialog-content .dialog-note { margin-top:22px; padding-top:17px; border-top:1px solid var(--line); font-size:.75rem; color:#8894a2; }
+    .dialog-content .dialog-image { width:100%; max-height:360px; object-fit:cover; margin-block:20px; background:var(--paper); }
+    .dialog-meta { color:#8491a0; font-size:.6875rem; margin-top:-7px; }
+    .dialog-content .source-link { display:inline-flex; align-items:center; gap:9px; margin-top:22px; color:var(--navy); font-size:.8125rem; text-decoration:underline; text-underline-offset:4px; }
+    .source-link .icon { width:15px; height:15px; }
+    .dialog-form { display:flex; flex-direction:column; gap:19px; margin-top:25px; }
+    .dialog-form .field { font-size:.8125rem; }
+    .dialog-form .field-label { font-size:.75rem; color:#51647a; }
+    textarea.field { min-height:145px; resize:vertical; line-height:1.65; }
+    .textarea-count { display:block; margin-top:6px; text-align:right; color:#8995a3; font-size:.625rem; }
+    .check-row { display:flex; align-items:flex-start; gap:11px; font-size:.75rem; color:#6f7c8c; line-height:1.7; }
+    .check-row input { margin-top:4px; width:16px; height:16px; accent-color:var(--navy); flex-shrink:0; }
+    .dialog-form .primary-button { align-self:flex-start; }
+    .demo-notice { display:flex; align-items:flex-start; gap:12px; padding:15px 0 16px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); font-size:.75rem; line-height:1.7; color:#748394; }
+    .demo-notice .icon { width:19px; height:19px; color:#8c6a34; margin-top:1px; }
+    .success-message { padding-block:16px; }
+    .success-message > .icon { width:43px; height:43px; color:#4d7962; margin-bottom:21px; }
+    .dialog-list { margin-top:18px; }
+    .dialog-list-item { display:flex; width:100%; align-items:center; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line); text-align:left; color:var(--navy); font-size:.8125rem; line-height:1.65; }
+    .dialog-list-item .icon { width:17px; height:17px; flex-shrink:0; }
+    .dialog-list-item small { display:block; margin-top:3px; color:var(--muted); font-size:.6875rem; }
+    .bio-image { width:205px; float:right; margin:0 0 18px 24px; }
+    .archive-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:12px; align-items:end; margin-top:24px; }
+    .archive-empty { padding:25px 0; }
+    .dialog-content::after { content:""; display:block; clear:both; }
+    html.accessibility-mode { font-size:19px; --navy:#111; --deep:#111; --ink:#111; --muted:#444; --line:#aaa; }
+    .accessibility-mode .utility,.accessibility-mode .region-band { background:#f1f1f1; }
+    .accessibility-mode img { filter:grayscale(1); }
+    .accessibility-mode .masthead-art { display:none; }
+    .accessibility-mode .brand h1 { font-size:1.5rem; }
+    .accessibility-mode .nav-item { padding-inline:17px; }
+    .accessibility-mode .service-row { min-height:85px; }
+    .accessibility-mode .feature-open { min-height:430px; }
+    .accessibility-mode .feature-shade { background:linear-gradient(transparent,#000); }
+    .accessibility-mode .feature-bottom { flex-wrap:wrap; gap:5px; }
+    .accessibility-mode .news-tabs { flex-wrap:wrap; gap:5px 18px; }
+    .accessibility-mode :is(.utility-link,.brand-motto,.emergency-label,.emergency-sub,.feature-date,.carousel-counter,.service-copy small,.news-tab,.news-meta,.news-meta-category,.news-excerpt,.region-description,.field-label,.archive-link,.dialog-content p,.dialog-meta,.dialog-note,.check-row,.demo-notice) { color:#252525; }
+    .accessibility-mode :is(.footer,.footer-bottom,.footer-links) { color:#fff; }
+    @keyframes content-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @keyframes image-arrive { from { transform:scale(1.035); } to { transform:scale(1); } }
+    @keyframes panel-in { from { opacity:0; transform:translateY(-7px); } to { opacity:1; transform:none; } }
+    @keyframes dialog-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+    @media(min-width:1600px) { .shell { width:min(1320px,calc(100% - 160px)); } .feature-open { height:393px; } .service-row { min-height:77px; } }
+    @media(max-width:1199px) {
+      .shell { width:calc(100% - 64px); }
+      .brand { gap:19px; }
+      .brand-emblem { width:104px; height:76px; }
+      .brand h1 { font-size:1.43rem; }
+      .brand-motto { font-size:.5rem; }
+      .masthead-art { width:270px; right:118px; opacity:.27; }
+      .emergency { padding-left:21px; }
+      .emergency-number { font-size:2rem; }
+      .nav-item { padding-inline:19px; font-size:.75rem; }
+      .nav-item:first-child { margin-left:-17px; }
+      .search-toggle { padding-left:18px; gap:12px; }
+      .search-toggle span { display:none; }
+      .lead-layout { grid-template-columns:minmax(0,1.85fr) minmax(277px,1fr); gap:28px; }
+      .feature-open { height:360px; }
+      .feature-title { font-size:1.375rem; }
+      .service-row { min-height:71px; gap:13px; }
+      .service-copy { font-size:.8125rem; }
+      .section-title { font-size:1.4375rem; }
+      .region-inner { gap:32px; grid-template-columns:.85fr 1.8fr; }
+      .region-form { gap:9px; }
+      .region-form .primary-button { padding-inline:16px; }
+      .footer-links { gap:20px; }
+    }
+    @media(max-width:900px) {
+      .utility-links { gap:19px; }
+      .utility-link.region-utility { display:none; }
+      .brand h1 { font-size:1.22rem; }
+      .brand-emblem { width:91px; height:66px; }
+      .brand-motto { font-size:.45rem; letter-spacing:.18em; }
+      .masthead { min-height:127px; }
+      .masthead-art { display:none; }
+      .emergency-label,.emergency-sub { font-size:.5625rem; }
+      .emergency { padding-left:15px; }
+      .emergency-number { font-size:1.75rem; gap:9px; }
+      .emergency-number .icon { width:19px; height:19px; }
+      .nav-item { padding-inline:14px; gap:7px; font-size:.6875rem; }
+      .nav-item:first-child { margin-left:-12px; }
+      .lead-layout { gap:24px; grid-template-columns:minmax(0,1.6fr) minmax(252px,1fr); }
+      .feature-open { height:350px; }
+      .feature-copy { left:23px; right:23px; bottom:23px; }
+      .feature-title { font-size:1.25rem; }
+      .feature-category { font-size:.5625rem; }
+      .section-title { font-size:1.3125rem; }
+      .service-row { min-height:69px; gap:12px; }
+      .service-row > .icon:first-child { width:23px; height:23px; }
+      .service-copy { font-size:.75rem; }
+      .service-copy small { font-size:.625rem; }
+      .service-chevron { width:12px; height:12px; }
+      .news-title-tabs { gap:25px; }
+      .news-tabs { gap:20px; }
+      .news-grid { gap:24px 20px; }
+      .news-item h3 { font-size:.9375rem; }
+      .news-meta { gap:7px; font-size:.5625rem; flex-wrap:wrap; }
+      .news-excerpt { font-size:.71875rem; }
+      .region-inner { grid-template-columns:1fr; gap:24px; padding-block:30px; }
+      .region-description { max-width:none; margin-top:6px; }
+      .region-form { gap:15px; }
+      .resource-grid { gap:0 25px; }
+      .resource-link { font-size:.75rem; }
+      .footer-links { flex-wrap:wrap; justify-content:flex-end; gap:15px 23px; max-width:260px; line-height:1.5; }
+      .footer-name { font-size:.6875rem; }
+    }
+    @media(min-width:701px) {
+      .accessibility-mode .nav-items { flex:1; min-width:0; flex-wrap:wrap; }
+      .accessibility-mode .nav-item { min-height:55px; }
+    }
+    @media(max-width:700px) {
+      .shell { width:calc(100% - 36px); }
+      .utility { height:33px; }
+      .study-note { gap:7px; font-size:.625rem; }
+      .study-note .flag { width:15px; height:10px; }
+      .utility-links { gap:14px; }
+      .utility-link.accessibility-link span,.utility-link.sitemap-utility,.language { display:none; }
+      .utility-link .icon { width:16px; height:16px; }
+      .brand { gap:13px; padding-block:20px; }
+      .brand-emblem { width:74px; height:59px; }
+      .brand h1 { font-size:1.02rem; letter-spacing:.015em; line-height:1.4; }
+      .brand-motto { font-size:.39rem; margin-top:7px; letter-spacing:.15em; }
+      .masthead { min-height:111px; }
+      .emergency { display:none; }
+      .nav-inner { min-height:50px; flex-wrap:wrap; }
+      .mobile-toggle { display:flex; }
+      .search-toggle { padding-left:19px; margin:12px 0; }
+      .nav-items { display:none; width:100%; order:3; padding-block:5px 14px; flex-direction:column; gap:0; }
+      .nav-items.is-open { display:flex; }
+      .nav-item,.nav-item:first-child { justify-content:space-between; margin:0; padding:14px 0; border-top:1px solid #ffffff1a; font-size:.8125rem; }
+      .nav-item:hover,.nav-item[aria-expanded="true"] { background:none; }
+      .mega-inner { padding-block:20px 27px; }
+      .mega-links { grid-template-columns:1fr; gap:0; max-height:55dvh; overflow:auto; }
+      .mega-title { font-size:1rem; }
+      .mega-link { padding-block:12px; font-size:.8125rem; }
+      .search-input { font-size:1rem; }
+      .search-submit { font-size:.75rem; padding-left:12px; gap:8px; }
+      .search-inner { padding-block:19px; }
+      .main-content { padding-top:24px; padding-bottom:32px; }
+      .lead-layout { grid-template-columns:1fr; gap:29px; }
+      .section-heading { margin-bottom:14px; min-height:29px; }
+      .section-title { font-size:1.375rem; }
+      .feature-open { height:339px; }
+      .feature-title { font-size:1.375rem; line-height:1.42; }
+      .feature-copy { left:22px; right:20px; bottom:24px; }
+      .feature-category { margin-bottom:10px; }
+      .feature-bottom { min-height:45px; }
+      .carousel-controls { gap:12px; }
+      .services-heading { gap:10px; }
+      .services-heading .icon { width:20px; height:20px; }
+      .service-row { min-height:68px; gap:19px; }
+      .service-copy { font-size:.875rem; }
+      .service-copy small { font-size:.6875rem; }
+      .service-row > .icon:first-child { width:26px; height:26px; }
+      .service-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:23px; }
+      .service-row:last-child { grid-column:1 / -1; }
+      .service-copy small { display:none; }
+      .all-services { min-height:45px; }
+      .news-section { margin-top:29px; }
+      .news-top { gap:10px; margin-bottom:21px; align-items:flex-start; }
+      .news-title-tabs { flex-wrap:wrap; gap:10px 22px; }
+      .news-top .section-title { width:100%; margin-bottom:0; }
+      .news-tabs { gap:24px; }
+      .news-tab { padding-top:5px; padding-bottom:13px; font-size:.75rem; }
+      .archive-link { font-size:0; margin-top:6px; }
+      .archive-link .icon { width:19px; height:19px; }
+      .news-grid { grid-template-columns:1fr 1fr; gap:28px 19px; }
+      .news-image-link { aspect-ratio:1.5; }
+      .news-item h3 { font-size:.875rem; line-height:1.55; }
+      .news-meta { margin-top:12px; font-size:.5625rem; gap:5px; }
+      .news-meta-dot,.news-meta-category { display:none; }
+      .news-excerpt { display:none; }
+      .news-grid .news-item:first-child { grid-column:1 / -1; }
+      .news-grid .news-item:first-child .news-image-link { aspect-ratio:1.94; }
+      .news-grid .news-item:first-child h3 { font-size:1rem; }
+      .news-more-wrap { margin-top:25px; }
+      .region-inner { gap:21px; padding-block:28px; }
+      .region-form { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; }
+      .region-form .primary-button { grid-column:1 / -1; }
+      .region-description { font-size:.71875rem; }
+      .region-heading { gap:11px; }
+      .region-heading .icon { width:25px; height:25px; }
+      .resources { padding-block:29px 34px; }
+      .resource-grid { grid-template-columns:1fr 1fr; gap:0 22px; }
+      .resource-link { min-height:64px; font-size:.75rem; gap:12px; }
+      .resources .section-heading { margin-bottom:13px; }
+      .footer-main { flex-direction:column; align-items:flex-start; gap:26px; padding-block:27px; }
+      .footer-brand { gap:16px; }
+      .footer-emblem { width:67px; height:46px; }
+      .footer-name { font-size:.71875rem; }
+      .footer-links { max-width:none; justify-content:flex-start; gap:16px 24px; font-size:.6875rem; }
+      .footer-bottom { flex-direction:column; gap:13px; padding-block:20px 24px; font-size:.625rem; }
+      .footer-copyright { text-align:left; }
+      .back-top { width:37px; height:37px; bottom:17px; right:14px; }
+      dialog { width:calc(100% - 24px); max-height:calc(100dvh - 28px); }
+      .dialog-bar { padding-inline:18px; }
+      .dialog-content { padding:25px 23px 29px; }
+      .dialog-title { font-size:1.3125rem; margin-bottom:18px; }
+      .dialog-content p { font-size:.8125rem; }
+      .archive-form { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .archive-form .primary-button { grid-column:1 / -1; }
+      .bio-image { width:145px; margin-left:15px; }
+      .accessibility-mode .brand h1 { font-size:.9rem; }
+      .accessibility-mode .service-list { grid-template-columns:1fr; }
+      .accessibility-mode .news-grid { grid-template-columns:1fr; }
+      .accessibility-mode .feature-title { font-size:1.15rem; }
+    }
+    @media(max-width:520px) {
+      .service-list { grid-template-columns:1fr; }
+      .bio-image { float:none; width:205px; margin:0 0 20px; }
+    }
+    @media(max-width:380px) {
+      .shell { width:calc(100% - 28px); }
+      .brand { gap:10px; }
+      .brand-emblem { width:62px; }
+      .brand h1 { font-size:.89rem; }
+      .brand-motto { font-size:.34rem; }
+      .service-list { grid-template-columns:1fr; }
+      .feature-title { font-size:1.25rem; }
+      .resource-grid { grid-template-columns:1fr; }
+      .region-form { grid-template-columns:1fr; }
+      .region-form .primary-button { grid-column:auto; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      *,*::before,*::after { scroll-behavior:auto !important; animation:none !important; transition:none !important; }
+      .reveal,.reveal.will-reveal:not(.is-visible) { opacity:1; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="M20 12H5m6-6-6 6 6 6"/></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M19 9c0 5.5-7 12-7 12S5 14.5 5 9a7 7 0 0 1 14 0Z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="m5.5 3 4 4-2.2 3.2a15 15 0 0 0 6.5 6.5l3.2-2.2 4 4-2 2c-1 1-5.5.7-11-4.8S2.2 5.9 3.5 4.6Z"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="6.5" height="6.5"/><rect x="14.5" y="3" width="6.5" height="6.5"/><rect x="3" y="14.5" width="6.5" height="6.5"/><rect x="14.5" y="14.5" width="6.5" height="6.5"/></symbol>
+      <symbol id="i-letter" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx=".5"/><path d="m3 6 9 7 9-7M3 19l6-7m6 0 6 7"/></symbol>
+      <symbol id="i-officer" viewBox="0 0 24 24"><path d="m4 5 8-3 8 3-3 3H7ZM7 8h10M8 10v1a4 4 0 0 0 8 0v-1M4 21v-2c0-3 3-5 8-5s8 2 8 5v2M9 15l3 4 3-4M12 19v3"/></symbol>
+      <symbol id="i-car" viewBox="0 0 24 24"><path d="m4 10 2-6h12l2 6M3 11h18v8H3ZM5 19v2m14-2v2M3 10l-1-2m19 2 1-2M6 14h3m6 0h3M10 4V2h4v2"/></symbol>
+      <symbol id="i-passport" viewBox="0 0 24 24"><rect x="5" y="2" width="15" height="20" rx="1"/><path d="M5 2H3v20h2M9 17h7M10 19h5"/><circle cx="12.5" cy="9.5" r="3.5"/><path d="M9 9.5h7m-3.5-3.5c-2 2-2 5 0 7 2-2 2-5 0-7Z"/></symbol>
+      <symbol id="i-document" viewBox="0 0 24 24"><path d="M5 2h9l5 5v15H5ZM14 2v6h5M9 12h6m-6 4h6m-6 3h4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M7 2v6m10-6v6M3 10h18M7 14h2m3 0h2m3 0h1M7 17h2m3 0h2"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M8 5H4v15h15v-4M12 4h8v8M10 14 20 4"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 8 3v6c0 5-8 11-8 11S4 16 4 11V5Z"/><path d="m8 11 3 3 5-5"/></symbol>
+    </defs>
+  </svg>
+
+  <header>
+    <div class="utility">
+      <div class="shell utility-inner">
+        <div class="study-note"><span class="flag" aria-hidden="true"></span><span>Учебная копия</span></div>
+        <div class="utility-links">
+          <a class="utility-link region-utility" href="#regions"><svg class="icon"><use href="#i-pin"/></svg>МВД в регионах</a>
+          <button class="utility-link accessibility-link" id="accessibility-toggle" type="button" aria-pressed="false" aria-label="Включить версию для слабовидящих"><svg class="icon"><use href="#i-eye"/></svg><span id="accessibility-text">Версия для слабовидящих</span></button>
+          <button class="utility-link sitemap-utility" type="button" data-action="sitemap">Карта сайта</button>
+          <button class="utility-link language" type="button" data-action="english" lang="en" aria-label="Information in English">EN</button>
+        </div>
+      </div>
+    </div>
+    <div class="shell masthead">
+      <a class="brand" href="#" aria-label="МВД России. На главную">
+        <img class="brand-emblem" src="https://upload.wikimedia.org/wikipedia/commons/7/7f/Emblem_of_the_Ministry_of_Internal_Affairs.svg" alt="Эмблема МВД России" width="122" height="84" fetchpriority="high">
+        <div>
+          <h1><span>Министерство внутренних дел</span><span>Российской Федерации</span></h1>
+          <p class="brand-motto">СЛУЖИМ РОССИИ. СЛУЖИМ ЗАКОНУ.</p>
+        </div>
+      </a>
+      <svg class="masthead-art" viewBox="0 0 380 145" fill="none" stroke="currentColor" stroke-width=".8" aria-hidden="true">
+        <path d="M5 143h370M18 143V56h72v87M90 143V35h174v108M264 143V56h91v87M82 35h190M97 28h160M105 24h144M110 24V14h134v10M176 14V2m0 0h23v9h-23M90 56H18m246 0h91M18 62h72m174 0h91M90 43h174M90 105h174M18 108h72m174 0h91M14 138h345M159 143v-27h34v27M153 116h46M159 116l17-9 17 9M90 133h69m34 0h71"/>
+        <path d="M29 72h10v21H29Zm20 0h10v21H49Zm20 0h10v21H69Zm-40 43h10v17H29Zm20 0h10v17H49Zm20 0h10v17H69ZM105 53h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12ZM105 80h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12Zm26 0h12v18h-12ZM105 113h12v13h-12Zm26 0h12v13h-12Zm78 0h12v13h-12Zm26 0h12v13h-12ZM277 72h11v21h-11Zm22 0h11v21h-11Zm22 0h11v21h-11Zm-44 43h11v17h-11Zm22 0h11v17h-11Zm22 0h11v17h-11Z"/>
+      </svg>
+      <div class="emergency">
+        <span class="emergency-label">Телефон полиции</span>
+        <a class="emergency-number" href="tel:102" aria-label="Позвонить в полицию, 102"><svg class="icon"><use href="#i-phone"/></svg>102</a>
+        <span class="emergency-sub">112 · единый номер помощи</span>
+      </div>
+    </div>
+    <div class="nav-band" id="nav-band">
+      <div class="shell nav-inner">
+        <button class="mobile-toggle" id="mobile-toggle" type="button" aria-expanded="false" aria-controls="nav-items"><svg class="icon"><use href="#i-menu"/></svg>Меню</button>
+        <nav class="nav-items" id="nav-items" aria-label="Основная навигация">
+          <button class="nav-item" type="button" data-menu="ministry" aria-expanded="false" aria-controls="mega-panel">МВД России<svg class="icon"><use href="#i-down"/></svg></button>
+          <button class="nav-item" type="button" data-menu="activity" aria-expanded="false" aria-controls="mega-panel">Деятельность<svg class="icon"><use href="#i-down"/></svg></button>
+          <button class="nav-item" type="button" data-menu="citizens" aria-expanded="false" aria-controls="mega-panel">Для граждан<svg class="icon"><use href="#i-down"/></svg></button>
+          <button class="nav-item" type="button" data-menu="contacts" aria-expanded="false" aria-controls="mega-panel">Контакты<svg class="icon"><use href="#i-down"/></svg></button>
+          <button class="nav-item" type="button" data-menu="services" aria-expanded="false" aria-controls="mega-panel">Онлайн-сервисы<svg class="icon"><use href="#i-down"/></svg></button>
+        </nav>
+        <button class="search-toggle" id="search-toggle" type="button" aria-expanded="false" aria-controls="search-panel" aria-label="Открыть поиск по сайту"><span>Поиск по сайту</span><svg class="icon"><use href="#i-search"/></svg></button>
+      </div>
+      <div class="mega-panel" id="mega-panel" hidden>
+        <div class="shell mega-inner">
+          <div class="mega-top"><h2 class="mega-title" id="mega-title"></h2><button class="close-small" type="button" id="mega-close" aria-label="Закрыть раздел меню"><svg class="icon"><use href="#i-close"/></svg></button></div>
+          <div class="mega-links" id="mega-links"></div>
+        </div>
+      </div>
+      <div class="search-panel" id="search-panel" hidden>
+        <div class="shell search-inner">
+          <form class="search-form" id="search-form" role="search">
+            <label class="sr-only" for="site-search">Поиск по учебному порталу</label>
+            <input class="search-input" id="site-search" type="search" maxlength="100" placeholder="Что вы хотите найти?" autocomplete="off">
+            <button class="search-submit" type="submit">Найти<svg class="icon"><use href="#i-arrow"/></svg></button>
+          </form>
+          <p class="search-hint" id="search-hint">Поиск по материалам учебной версии. Например: миграция, участковый, Колокольцев.</p>
+          <div class="search-results" id="search-results" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="shell main-content">
+      <div class="lead-layout">
+        <section aria-labelledby="lead-heading">
+          <div class="section-heading"><h2 class="section-title" id="lead-heading">Главное</h2><a class="text-link" href="#news" id="all-news-link">Все новости<svg class="icon"><use href="#i-arrow"/></svg></a></div>
+          <div class="feature" id="feature" role="region" aria-roledescription="карусель" aria-label="Главные новости">
+            <a class="feature-open" id="feature-open" href="#news-meeting" data-article="meeting">
+              <img class="feature-image" id="feature-image" src="https://mvdmedia.ru/upload/resize_cache/iblock/c9d/1170_1080_112e23092a5dbb905c83b3ae67db670d0/r5av1h5lhbi7xezwdjryjpkuk1oyft4t.jpg" alt="Встреча Владимира Колокольцева и Айсена Николаева" width="845" height="371" fetchpriority="high">
+              <span class="feature-shade" aria-hidden="true"></span>
+              <div class="feature-copy"><span class="feature-category" id="feature-category">Официально</span><h3 class="feature-title" id="feature-title">Владимир Колокольцев встретился с Главой Республики Саха (Якутия) Айсеном Николаевым</h3></div>
+            </a>
+            <div class="feature-bottom">
+              <div class="feature-date"><svg class="icon"><use href="#i-clock"/></svg><time id="feature-date" datetime="2026-10-27T11:40:00+03:00">27 октября 2026, 11:40</time></div>
+              <div class="carousel-controls"><button class="carousel-arrow" type="button" id="feature-prev" aria-label="Предыдущая новость"><svg class="icon"><use href="#i-left"/></svg></button><span class="carousel-counter" aria-hidden="true"><strong id="feature-number">01</strong> / 03</span><button class="carousel-arrow" type="button" id="feature-next" aria-label="Следующая новость"><svg class="icon"><use href="#i-arrow"/></svg></button></div>
+            </div>
+            <span class="sr-only" id="feature-status" aria-live="polite"></span>
+          </div>
+        </section>
+        <aside aria-labelledby="services-heading">
+          <div class="section-heading services-heading"><svg class="icon"><use href="#i-grid"/></svg><h2 class="section-title" id="services-heading">Онлайн-сервисы</h2></div>
+          <div class="service-list">
+            <button class="service-row" type="button" data-service="appeal"><svg class="icon"><use href="#i-letter"/></svg><span class="service-copy">Приём обращений<small>Граждан и организаций</small></span><svg class="icon service-chevron"><use href="#i-chevron"/></svg></button>
+            <button class="service-row" type="button" data-service="precinct"><svg class="icon"><use href="#i-officer"/></svg><span class="service-copy">Ваш участковый /<br>отдел полиции</span><svg class="icon service-chevron"><use href="#i-chevron"/></svg></button>
+            <button class="service-row" type="button" data-service="traffic"><svg class="icon"><use href="#i-car"/></svg><span class="service-copy">Сервисы Госавтоинспекции<small>Информация для автовладельцев</small></span><svg class="icon service-chevron"><use href="#i-chevron"/></svg></button>
+            <button class="service-row" type="button" data-service="migration"><svg class="icon"><use href="#i-passport"/></svg><span class="service-copy">Сервисы по вопросам миграции<small>Информация и справочные сервисы</small></span><svg class="icon service-chevron"><use href="#i-chevron"/></svg></button>
+            <button class="service-row" type="button" data-service="public"><svg class="icon"><use href="#i-document"/></svg><span class="service-copy">Государственные услуги<small>В электронном виде</small></span><svg class="icon service-chevron"><use href="#i-chevron"/></svg></button>
+          </div>
+          <button class="text-link all-services" type="button" data-action="all-services">Все онлайн-сервисы<svg class="icon"><use href="#i-arrow"/></svg></button>
+        </aside>
+      </div>
+
+      <section class="news-section" id="news" aria-labelledby="news-heading">
+        <div class="news-top">
+          <div class="news-title-tabs"><h2 class="section-title" id="news-heading">Новости</h2><div class="news-tabs" role="tablist" aria-label="Категории новостей"><button class="news-tab" id="tab-all" type="button" role="tab" aria-selected="true" aria-controls="news-grid" data-tab="all">Все новости</button><button class="news-tab" id="tab-official" type="button" role="tab" aria-selected="false" aria-controls="news-grid" tabindex="-1" data-tab="official">Официально</button><button class="news-tab" id="tab-regions" type="button" role="tab" aria-selected="false" aria-controls="news-grid" tabindex="-1" data-tab="regions">В регионах</button></div></div>
+          <button class="text-link archive-link" type="button" data-action="archive" aria-label="Архив новостей"><svg class="icon"><use href="#i-calendar"/></svg>Архив новостей</button>
+        </div>
+        <div class="news-grid" id="news-grid" role="tabpanel" aria-labelledby="tab-all" tabindex="0"></div>
+        <p class="sr-only" id="news-status" aria-live="polite"></p>
+        <noscript><p>Для работы новостной ленты и интерактивных разделов включите JavaScript. Официальные новости доступны на <a href="https://mvdmedia.ru/">МВД МЕДИА</a>.</p></noscript>
+        <div class="news-more-wrap"><button class="outline-button" type="button" id="news-more">Показать ещё<svg class="icon"><use href="#i-plus"/></svg></button></div>
+      </section>
+    </div>
+
+    <section class="region-band reveal" id="regions" aria-labelledby="region-heading">
+      <div class="shell region-inner">
+        <div><div class="region-heading"><svg class="icon"><use href="#i-pin"/></svg><h2 class="section-title" id="region-heading">МВД в регионах</h2></div><p class="region-description">Найдите сайт территориального органа МВД России в вашем регионе.</p></div>
+        <form class="region-form" id="region-form">
+          <div><label class="field-label" for="district">Федеральный округ</label><div class="select-wrap"><select class="field" id="district" required></select><svg class="icon"><use href="#i-down"/></svg></div></div>
+          <div><label class="field-label" for="region">Регион</label><div class="select-wrap"><select class="field" id="region" required><option value="">Выберите регион</option></select><svg class="icon"><use href="#i-down"/></svg></div></div>
+          <button class="primary-button" id="region-submit" type="submit" disabled>Найти<svg class="icon"><use href="#i-arrow"/></svg></button>
+        </form>
+      </div>
+    </section>
+
+    <section class="shell resources reveal" aria-labelledby="resources-heading">
+      <div class="section-heading"><h2 class="section-title" id="resources-heading">Полезная информация</h2></div>
+      <div class="resource-grid">
+        <button class="resource-link" type="button" data-info="legal">Правовое информирование<svg class="icon"><use href="#i-external"/></svg></button>
+        <button class="resource-link" type="button" data-info="fraud">Осторожно, мошенники!<svg class="icon"><use href="#i-external"/></svg></button>
+        <button class="resource-link" type="button" data-info="career">Служба в органах внутренних дел<svg class="icon"><use href="#i-external"/></svg></button>
+        <button class="resource-link" type="button" data-info="corruption">Противодействие коррупции<svg class="icon"><use href="#i-external"/></svg></button>
+        <button class="resource-link" type="button" data-info="history">История российской полиции<svg class="icon"><use href="#i-external"/></svg></button>
+        <a class="resource-link" href="https://mvdmedia.ru/" target="_blank" rel="noopener noreferrer">МВД МЕДИА<svg class="icon"><use href="#i-external"/></svg></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <div class="footer-main"><a class="footer-brand" href="#" aria-label="Вернуться к началу страницы"><img class="footer-emblem" src="https://upload.wikimedia.org/wikipedia/commons/7/7f/Emblem_of_the_Ministry_of_Internal_Affairs.svg" alt="Эмблема МВД России" loading="lazy" width="75" height="53"><p class="footer-name"><span>Министерство внутренних дел</span><span>Российской Федерации</span></p></a><div class="footer-links"><button type="button" data-action="about">О проекте</button><button type="button" data-action="sitemap">Карта сайта</button><a href="https://мвд.рф/" target="_blank" rel="noopener noreferrer">Официальный сайт МВД России</a></div></div>
+      <div class="footer-bottom"><p class="footer-disclaimer">Учебная реконструкция интерфейса. Не является официальным сайтом МВД России и не связана с ведомством.<br>Не используйте этот сайт для подачи обращений и передачи персональных данных.</p><p class="footer-copyright">Учебный проект · 2026<br>Материалы новостей: МВД МЕДИА</p></div>
+    </div>
+  </footer>
+  <button class="back-top" id="back-top" type="button" aria-label="Вернуться наверх" hidden><svg class="icon"><use href="#i-arrow"/></svg></button>
+  <dialog id="main-dialog" aria-labelledby="dialog-title"><div class="dialog-bar"><span>УЧЕБНАЯ КОПИЯ · НЕОФИЦИАЛЬНЫЙ САЙТ</span><button class="dialog-close" id="dialog-close" type="button" aria-label="Закрыть окно"><svg class="icon"><use href="#i-close"/></svg></button></div><div class="dialog-content" id="dialog-content"></div></dialog>
+
+  <script>
+    'use strict';
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+    const officialLink = (text = 'Перейти на официальный сайт МВД России', url = 'https://мвд.рф/') => `<a class="source-link" href="${url}" target="_blank" rel="noopener noreferrer">${text}${icon('external')}</a>`;
+    const imageBase = 'https://mvdmedia.ru/upload/resize_cache/iblock/';
+    const media = {
+      meeting: imageBase + 'c9d/1170_1080_112e23092a5dbb905c83b3ae67db670d0/r5av1h5lhbi7xezwdjryjpkuk1oyft4t.jpg',
+      training: imageBase + '0bf/1170_1080_112e23092a5dbb905c83b3ae67db670d0/sbtar9nf2tqwsktvfivq2brinqbkx7wu.jpg',
+      medical: imageBase + '252/1170_1080_112e23092a5dbb905c83b3ae67db670d0/b7meqlyfixp38g41v724i4g6rq5j28va.jpg',
+      cyber: imageBase + 'c04/370_278_112e23092a5dbb905c83b3ae67db670d0/511dz7oehe2cl7h5lcydqpahfa16gz7m.jpg',
+      migration: imageBase + '74c/370_278_112e23092a5dbb905c83b3ae67db670d0/g0djfw9cku8j30p52ncofy68q3kgesbh.jpg',
+      taxes: imageBase + '0e4/370_278_112e23092a5dbb905c83b3ae67db670d0/bau6w7mh3dpbwylz2pf9g2z53epwz0u3.jpg',
+      interpol: imageBase + '831/370_278_112e23092a5dbb905c83b3ae67db670d0/7q3hhhd5wpeste3kn9wfgds7szyse2uj.jpg',
+      arrest: imageBase + 'e53/370_278_212e23092a5dbb905c83b3ae67db670d0/39bp7bogs4wbkko3onekvsv6x0benyhm.png'
+    };
+    const articles = {
+      meeting: {
+        title:'Владимир Колокольцев встретился с Главой Республики Саха (Якутия) Айсеном Николаевым',
+        category:'Официально', tab:'official', date:'2026-10-27', time:'11:40', dateText:'27 октября 2026', image:media.meeting,
+        alt:'Встреча Владимира Колокольцева и Айсена Николаева',
+        excerpt:'Обсуждались актуальные вопросы правоохранительной тематики.',
+        paragraphs:['Министр внутренних дел Российской Федерации генерал полиции Российской Федерации Владимир Колокольцев прибыл в г. Якутск и встретился с Главой Республики Саха (Якутия) Айсеном Николаевым. Обсуждались актуальные вопросы правоохранительной тематики.', 'Глава МВД России подчеркнул, что улучшение условий несения службы находится на постоянном контроле. При этом особое внимание уделяется отдалённым регионам со сложной транспортной инфраструктурой и суровыми климатическими условиями.', 'Владимир Колокольцев поблагодарил Айсена Николаева за внимание к работе органов внутренних дел.'],
+        source:'https://mvdmedia.ru/news/official/vladimir-kolokoltsev-vstretilsya-s-glavoy-respubliki-sakha-yakutiya-aysenom-nikolaevym/'
+      },
+      training: {
+        title:'Владимир Колокольцев посетил Центр профессиональной подготовки МВД по Республике Саха (Якутия)',
+        category:'Официально', tab:'official', date:'2026-10-27', time:'11:51', dateText:'27 октября 2026', image:media.training,
+        alt:'Посещение Центра профессиональной подготовки МВД',
+        excerpt:'Глава МВД России отметил важность качественной профессиональной подготовки личного состава.',
+        paragraphs:['Владимир Колокольцев посетил Центр профессиональной подготовки МВД по Республике Саха (Якутия).', 'Глава МВД России отметил важность качественной профессиональной подготовки личного состава. По его словам, от этого напрямую зависит безопасность граждан.'],
+        source:'https://mvdmedia.ru/news/official/vladimir-kolokoltsev-posetil-tsentr-professionalnoy-podgotovki-mvd-po-respublike-sakha-yakutiya/'
+      },
+      medical: {
+        title:'Владимир Колокольцев ознакомился с организацией медицинского обслуживания сотрудников полиции в Якутии',
+        category:'В регионах', tab:'regions', date:'2026-10-27', time:'11:46', dateText:'27 октября 2026', image:media.medical,
+        alt:'Посещение медицинского учреждения МВД в Республике Саха',
+        excerpt:'Министр побеседовал с персоналом и сотрудниками полиции, которые проходят обследование и лечение.',
+        paragraphs:['Владимир Колокольцев ознакомился с организацией медицинского обслуживания сотрудников органов внутренних дел в Республике Саха (Якутия).', 'Министр побеседовал с персоналом и сотрудниками полиции, которые проходят обследование и лечение, а также встретился с руководством медицинского учреждения.'],
+        source:'https://mvdmedia.ru/news/official/vladimir-kolokoltsev-oznakomilsya-s-organizatsiey-meditsinskogo-obsluzhivaniya-sotrudnikov-organov-v/'
+      },
+      cyber: {
+        title:'В российской киберполиции рассказали о схеме обмана под видом победы в розыгрыше денег',
+        category:'В регионах', tab:'regions', date:'2026-10-22', time:'15:10', dateText:'22 октября 2026', image:media.cyber,
+        alt:'Информационный материал о безопасности в интернете',
+        excerpt:'Полицейские призывают граждан быть внимательными при общении с незнакомцами в мессенджерах.',
+        paragraphs:['В российской киберполиции рассказали о схеме обмана в Telegram под видом победы в розыгрыше денег.', 'Одной из жертв подобной аферы стала 19-летняя жительница Москвы. Суммарно она перевела на счета злоумышленников 230 тысяч рублей.', 'Не сообщайте незнакомцам коды из СМС и не переводите деньги для получения обещанного выигрыша.'],
+        source:'https://mvdmedia.ru/news/obshchestvo/v-rossiyskoy-kiberpolitsii-rasskazali-o-skheme-obmana-v-telegram-pod-vidom-pobedy-v-rozygryshe-deneg/'
+      },
+      migration: {
+        title:'Запрет на въезд в Россию: когда, почему и что не стоит делать иностранцу?',
+        category:'Официально', tab:'official', date:'2026-10-22', time:'11:04', dateText:'22 октября 2026', image:media.migration,
+        alt:'Справочная информация по вопросам миграции',
+        excerpt:'В МВД России перечислили основные причины, из-за которых иностранцам отказывают во въезде.',
+        paragraphs:['В МВД России перечислили основные причины, из-за которых иностранцам и лицам без гражданства отказывают во въезде на территорию нашей страны.', 'Полный справочный материал и разъяснения доступны на сайте МВД МЕДИА по ссылке ниже.'],
+        source:'https://mvdmedia.ru/news/official/zapret-na-vezd-v-rossiyu-kogda-pochemu-i-chto-ne-stoit-delat-inostrantsu/'
+      },
+      taxes: {
+        title:'МВД России предупреждает о новых схемах, которые используют мошенники в период уплаты налогов',
+        category:'Официально', tab:'official', date:'2026-10-16', time:'10:30', dateText:'16 октября 2026', image:media.taxes,
+        alt:'Предупреждение о мошеннических сообщениях',
+        excerpt:'Гражданам поступают сообщения якобы от ФНС России с предложением проверить налоговые начисления.',
+        paragraphs:['В мессенджерах гражданам поступают сообщения якобы от ФНС России с уведомлением о необходимости проверки налоговых начислений. В них предлагается перейти по ссылке, которая на самом деле ведёт на поддельный сайт.', 'Проверяйте информацию на официальных ресурсах. Не переходите по подозрительным ссылкам и не передавайте персональные данные неизвестным лицам.'],
+        source:'https://mvdmedia.ru/news/ofitsialnyy-predstavitel/mvd-rossii-preduprezhdaet-o-novykh-skhemakh-kotorye-ispolzuyut-moshenniki-v-period-provedeniya-kampa/'
+      },
+      interpol: {
+        title:'МВД России призывает проявлять бдительность при обращении к посредникам',
+        category:'Официально', tab:'official', date:'2026-10-15', time:'11:50', dateText:'15 октября 2026', image:media.interpol,
+        alt:'Информационное сообщение МВД России',
+        excerpt:'Предложения гарантированно удалить сведения из баз данных Интерпола вводят граждан в заблуждение.',
+        paragraphs:['МВД России призывает проявлять бдительность при обращении к посредникам, обещающим удалить данные из баз Интерпола.', 'Те, кто выдают свои посреднические или консультационные услуги за возможность гарантированно удалить данные об автомобиле из баз данных, вводят граждан в заблуждение.'],
+        source:'https://mvdmedia.ru/news/ofitsialnyy-predstavitel/mvd-rossii-prizyvaet-proyavlyat-bditelnost-pri-obrashchenii-k-posrednikam-obeshchayushchim-udalit-da/'
+      },
+      arrest: {
+        title:'Оперативники Санкт-Петербурга в кратчайшие сроки задержали подозреваемого в совершении двойного убийства',
+        category:'В регионах', tab:'regions', date:'2026-10-27', time:'15:47', dateText:'27 октября 2026', image:media.arrest,
+        alt:'Оперативные материалы полиции Санкт-Петербурга',
+        excerpt:'О задержании подозреваемого сообщила официальный представитель МВД России Ирина Волк.',
+        paragraphs:['Ирина Волк сообщила, что оперативники Санкт-Петербурга в кратчайшие сроки задержали подозреваемого в совершении двойного убийства.', 'Подробности опубликованы в материале официального представителя МВД России на портале МВД МЕДИА.'],
+        source:'https://mvdmedia.ru/news/ofitsialnyy-predstavitel/irina-volk-operativniki-sankt-peterburga-v-kratchayshie-sroki-zaderzhali-podozrevaemogo-v-soversheni/'
+      }
+    };
+    const newsOrder = ['training','medical','cyber','migration','taxes','interpol','arrest'];
+    const featured = ['meeting','training','medical'];
+    const serviceNames = { appeal:'Приём обращений граждан и организаций', precinct:'Ваш участковый / отдел полиции', traffic:'Сервисы Госавтоинспекции', migration:'Сервисы по вопросам миграции', public:'Государственные услуги', wanted:'Внимание, розыск!', app:'Мобильное приложение МВД России' };
+    const menus = {
+      ministry:{ title:'МВД России', items:[['Министр внутренних дел','minister'],['Руководство','leadership'],['Структура Министерства','structure'],['Общественный совет','council'],['История МВД России','history'],['Документы и законодательство','legal']] },
+      activity:{ title:'Деятельность', items:[['Основные направления деятельности','activity'],['Государственные услуги','public','service'],['Противодействие коррупции','corruption'],['Правовое информирование','legal'],['Безопасность в интернете','fraud'],['Служба в органах внутренних дел','career']] },
+      citizens:{ title:'Для граждан', items:[['Приём обращений','appeal','service'],['Ваш участковый / отдел полиции','precinct','service'],['График приёма граждан','reception'],['Правовое информирование','legal'],['Осторожно, мошенники!','fraud'],['Мобильное приложение','app','service']] },
+      contacts:{ title:'Контакты', items:[['Приёмная МВД России','contacts'],['Экстренная помощь','emergency'],['Территориальные органы','precinct','service'],['Пресс-центр МВД России','press'],['Общественный совет','council'],['Официальные интернет-ресурсы','resources']] },
+      services:{ title:'Онлайн-сервисы', items:Object.entries(serviceNames).map(([key,label]) => [label,key,'service']) }
+    };
+    const districts = [
+      { name:'Центральный', regions:[['77','г. Москва'],['50','Московская область'],['31','Белгородская область'],['32','Брянская область'],['33','Владимирская область'],['36','Воронежская область'],['37','Ивановская область'],['40','Калужская область'],['44','Костромская область'],['46','Курская область'],['48','Липецкая область'],['57','Орловская область'],['62','Рязанская область'],['67','Смоленская область'],['68','Тамбовская область'],['69','Тверская область'],['71','Тульская область'],['76','Ярославская область']] },
+      { name:'Северо-Западный', regions:[['78','г. Санкт-Петербург и Ленинградская область'],['10','Республика Карелия'],['11','Республика Коми'],['29','Архангельская область'],['35','Вологодская область'],['39','Калининградская область'],['51','Мурманская область'],['53','Новгородская область'],['60','Псковская область'],['83','Ненецкий автономный округ']] },
+      { name:'Южный', regions:[['01','Республика Адыгея'],['08','Республика Калмыкия'],['23','Краснодарский край'],['30','Астраханская область'],['34','Волгоградская область'],['61','Ростовская область']] },
+      { name:'Северо-Кавказский', regions:[['05','Республика Дагестан'],['06','Республика Ингушетия'],['07','Кабардино-Балкарская Республика'],['09','Карачаево-Черкесская Республика'],['15','Республика Северная Осетия - Алания'],['95','Чеченская Республика'],['26','Ставропольский край']] },
+      { name:'Приволжский', regions:[['02','Республика Башкортостан'],['12','Республика Марий Эл'],['13','Республика Мордовия'],['16','Республика Татарстан'],['18','Удмуртская Республика'],['21','Чувашская Республика'],['59','Пермский край'],['43','Кировская область'],['52','Нижегородская область'],['56','Оренбургская область'],['58','Пензенская область'],['63','Самарская область'],['64','Саратовская область'],['73','Ульяновская область']] },
+      { name:'Уральский', regions:[['45','Курганская область'],['66','Свердловская область'],['72','Тюменская область'],['74','Челябинская область'],['86','Ханты-Мансийский автономный округ - Югра'],['89','Ямало-Ненецкий автономный округ']] },
+      { name:'Сибирский', regions:[['04','Республика Алтай'],['17','Республика Тыва'],['19','Республика Хакасия'],['22','Алтайский край'],['24','Красноярский край'],['38','Иркутская область'],['42','Кемеровская область - Кузбасс'],['54','Новосибирская область'],['55','Омская область'],['70','Томская область']] },
+      { name:'Дальневосточный', regions:[['03','Республика Бурятия'],['14','Республика Саха (Якутия)'],['75','Забайкальский край'],['41','Камчатский край'],['25','Приморский край'],['27','Хабаровский край'],['28','Амурская область'],['49','Магаданская область'],['65','Сахалинская область'],['79','Еврейская автономная область'],['87','Чукотский автономный округ']] }
+    ];
+    const allRegions = districts.flatMap(district => district.regions);
+    const dialog = $('#main-dialog');
+    let lastDialogFocus = null;
+    let currentMenu = null;
+    let currentFeature = 0;
+    let featureBusy = false;
+    let currentTab = 'all';
+    let visibleNews = 3;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function openDialog(title, content) {
+      if (!dialog.open) {
+        const active = document.activeElement;
+        const fromMenu = $('#mega-panel').contains(active);
+        lastDialogFocus = fromMenu ? $(`[data-menu="${currentMenu}"]`) : $('#search-panel').contains(active) ? $('#search-toggle') : active;
+        if ($('#nav-items').classList.contains('is-open') && (fromMenu || $('#nav-items').contains(active))) lastDialogFocus = $('#mobile-toggle');
+      }
+      $('#dialog-content').innerHTML = `<h2 class="dialog-title" id="dialog-title">${title}</h2>${content}`;
+      setMobileMenu(false);
+      if (!dialog.open) dialog.showModal();
+      document.body.style.overflow = 'hidden';
+      dialog.scrollTop = 0;
+      $('#dialog-close').focus({preventScroll:true});
+    }
+    function closeDialog() { dialog.close(); }
+    $('#dialog-close').addEventListener('click', closeDialog);
+    dialog.addEventListener('click', event => {
+      if (event.target !== dialog) return;
+      const rect = dialog.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog();
+    });
+    dialog.addEventListener('close', () => {
+      document.body.style.overflow = '';
+      $('#dialog-content').innerHTML = '';
+      if (lastDialogFocus?.isConnected && lastDialogFocus.getClientRects().length) lastDialogFocus.focus({preventScroll:true});
+      else $('.brand').focus({preventScroll:true});
+      lastDialogFocus = null;
+    });
+
+    function openArticle(id) {
+      const article = articles[id];
+      if (!article) return;
+      openDialog(article.title, `<div class="dialog-meta">${article.category} · ${article.dateText}, ${article.time}</div><img class="dialog-image" src="${article.image}" alt="${article.alt}">${article.paragraphs.map(paragraph => `<p>${paragraph}</p>`).join('')}${officialLink('Полный материал на МВД МЕДИА',article.source)}<p class="dialog-note">Краткая учебная подборка. Источник текста и фотографии: МВД МЕДИА. Эта страница не является официальной публикацией ведомства.</p>`);
+    }
+
+    function setFeature(delta) {
+      if (featureBusy) return;
+      featureBusy = true;
+      currentFeature = (currentFeature + delta + featured.length) % featured.length;
+      const feature = $('#feature');
+      feature.classList.add('is-switching');
+      window.setTimeout(() => {
+        const id = featured[currentFeature];
+        const article = articles[id];
+        delete $('#feature-image').dataset.fallbackApplied;
+        $('#feature-image').src = article.image;
+        $('#feature-image').alt = article.alt;
+        $('#feature-open').dataset.article = id;
+        $('#feature-open').href = '#news-' + id;
+        $('#feature-category').textContent = article.category;
+        $('#feature-title').textContent = article.title;
+        $('#feature-date').textContent = `${article.dateText}, ${article.time}`;
+        $('#feature-date').dateTime = `${article.date}T${article.time}:00+03:00`;
+        $('#feature-number').textContent = String(currentFeature + 1).padStart(2,'0');
+        $('#feature-status').textContent = `Новость ${currentFeature + 1} из ${featured.length}: ${article.title}`;
+        feature.classList.remove('is-switching');
+        featureBusy = false;
+      }, reducedMotion.matches ? 0 : 180);
+    }
+    $('#feature-prev').addEventListener('click', () => setFeature(-1));
+    $('#feature-next').addEventListener('click', () => setFeature(1));
+    $('#feature').addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setFeature(event.key === 'ArrowRight' ? 1 : -1);
+      }
+    });
+    featured.slice(1).forEach(id => { const image = new Image(); image.src = articles[id].image; });
+
+    function renderNews() {
+      const filtered = newsOrder.filter(id => currentTab === 'all' || articles[id].tab === currentTab);
+      const shown = filtered.slice(0,visibleNews);
+      $('#news-grid').innerHTML = shown.map((id,index) => {
+        const article = articles[id];
+        return `<article class="news-item" style="animation-delay:${index % 3 * 55}ms"><a class="news-image-link" href="#news-${id}" data-article="${id}" tabindex="-1" aria-hidden="true"><img class="news-image" src="${article.image}" alt="" loading="lazy" width="400" height="206"></a><div class="news-meta"><time datetime="${article.date}">${article.dateText}</time><span class="news-meta-dot" aria-hidden="true"></span><span class="news-meta-category">${article.category}</span></div><h3><a href="#news-${id}" data-article="${id}">${article.title}</a></h3><p class="news-excerpt">${article.excerpt}</p></article>`;
+      }).join('');
+      $('#news-more').hidden = shown.length >= filtered.length;
+      $('#news-grid').setAttribute('aria-labelledby','tab-' + currentTab);
+      $('#news-status').textContent = `Показано ${shown.length} из ${filtered.length} новостей.`;
+    }
+    function selectTab(tab) {
+      currentTab = tab;
+      visibleNews = 3;
+      $$('[data-tab]').forEach(button => {
+        const active = button.dataset.tab === tab;
+        button.setAttribute('aria-selected',String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      renderNews();
+    }
+    $$('[data-tab]').forEach(button => {
+      button.addEventListener('click', () => selectTab(button.dataset.tab));
+      button.addEventListener('keydown', event => {
+        const tabs = $$('[data-tab]');
+        const index = tabs.indexOf(button);
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = tabs.length - 1;
+        if (next !== undefined) { event.preventDefault(); tabs[next].focus(); selectTab(tabs[next].dataset.tab); }
+      });
+    });
+    $('#news-more').addEventListener('click', () => {
+      const previousCount = $$('.news-item').length;
+      visibleNews += 3;
+      renderNews();
+      const firstNewLink = $$('.news-item h3 a')[previousCount];
+      if (firstNewLink) firstNewLink.focus({preventScroll:true});
+    });
+    $('#all-news-link').addEventListener('click', () => selectTab('all'));
+
+    function closePanels() {
+      $('#mega-panel').hidden = true;
+      $('#search-panel').hidden = true;
+      $('#search-toggle').setAttribute('aria-expanded','false');
+      $$('[data-menu]').forEach(button => button.setAttribute('aria-expanded','false'));
+      currentMenu = null;
+    }
+    function setMobileMenu(open) {
+      $('#nav-items').classList.toggle('is-open',open);
+      $('#mobile-toggle').setAttribute('aria-expanded',String(open));
+      $('#mobile-toggle use').setAttribute('href',open ? '#i-close' : '#i-menu');
+      if (!open) closePanels();
+    }
+    $('#mobile-toggle').addEventListener('click', () => setMobileMenu(!$('#nav-items').classList.contains('is-open')));
+    $$('[data-menu]').forEach(button => button.addEventListener('click', () => {
+      const key = button.dataset.menu;
+      const shouldOpen = currentMenu !== key;
+      closePanels();
+      if (!shouldOpen) return;
+      currentMenu = key;
+      const menu = menus[key];
+      $('#mega-title').textContent = menu.title;
+      $('#mega-links').innerHTML = menu.items.map(([title,id,type]) => `<button class="mega-link" type="button" data-${type === 'service' ? 'service' : 'info'}="${id}">${title}${icon('arrow')}</button>`).join('');
+      $('#mega-panel').hidden = false;
+      button.setAttribute('aria-expanded','true');
+    }));
+    $('#mega-close').addEventListener('click', () => {
+      const trigger = $(`[data-menu="${currentMenu}"]`);
+      closePanels();
+      trigger?.focus();
+    });
+    $('#search-toggle').addEventListener('click', () => {
+      const shouldOpen = $('#search-panel').hidden;
+      closePanels();
+      if (!shouldOpen) return;
+      $('#search-panel').hidden = false;
+      $('#search-toggle').setAttribute('aria-expanded','true');
+      $('#site-search').focus();
+    });
+    document.addEventListener('click', event => { if (!$('#nav-band').contains(event.target)) closePanels(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !dialog.open) {
+        const trigger = currentMenu ? $(`[data-menu="${currentMenu}"]`) : !$('#search-panel').hidden ? $('#search-toggle') : null;
+        closePanels();
+        trigger?.focus();
+        if (!trigger && $('#nav-items').classList.contains('is-open')) { setMobileMenu(false); $('#mobile-toggle').focus(); }
+      }
+    });
+    const normalize = value => value.toLocaleLowerCase('ru').replaceAll('ё','е').trim();
+    function searchSite() {
+      const query = normalize($('#site-search').value);
+      const results = $('#search-results');
+      if (!query) { results.innerHTML = ''; $('#search-hint').hidden = false; return; }
+      const words = query.split(/\s+/);
+      const matches = text => words.every(word => normalize(text).includes(word));
+      const entries = [
+        ...Object.entries(serviceNames).map(([id,title]) => ({title,kind:'service',id,description:'Онлайн-сервисы'})),
+        ...Object.entries(articles).map(([id,article]) => ({title:article.title,kind:'article',id,description:`Новости · ${article.dateText}`,extra:article.excerpt})),
+        ...Object.entries(infoPages).map(([id,page]) => ({title:page.title,kind:'info',id,description:'Информация'}))
+      ].filter(entry => matches(entry.title + ' ' + (entry.extra || '')));
+      $('#search-hint').hidden = true;
+      results.innerHTML = `<p class="search-result-count">${entries.length ? `Найдено материалов: ${entries.length}` : 'Ничего не найдено. Попробуйте изменить запрос.'}</p>` + entries.slice(0,12).map(entry => `<button class="search-result" type="button" data-${entry.kind}="${entry.id}">${entry.title}<span>${entry.description}</span></button>`).join('');
+    }
+    $('#search-form').addEventListener('submit', event => { event.preventDefault(); searchSite(); });
+    let searchTimer;
+    $('#site-search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(searchSite,150); });
+
+    const infoPages = {
+      minister:{ title:'Министр внутренних дел Российской Федерации', html:`<img class="bio-image" src="https://mvdmedia.ru/upload/resize_cache/iblock/63b/370_237_212e23092a5dbb905c83b3ae67db670d0/63bc3a88c9d6543878965f3edaf8a67e.jpg" alt="Владимир Александрович Колокольцев"><p><strong>Владимир Александрович Колокольцев</strong></p><p>Генерал полиции Российской Федерации. Возглавляет Министерство внутренних дел Российской Федерации с 2012 года.</p><p>Актуальная биография, выступления и материалы о деятельности Министра размещены на официальных ресурсах ведомства.</p>${officialLink('Материалы о Министре на МВД МЕДИА','https://mvdmedia.ru/news/ministr/')}` },
+      leadership:{ title:'Руководство МВД России', html:'<p>Министерство возглавляет Министр внутренних дел Российской Федерации. Информация о заместителях Министра и руководителях подразделений публикуется на официальном портале.</p>' + officialLink() },
+      structure:{ title:'Структура Министерства', html:'<p>В систему МВД России входят центральный аппарат, территориальные органы, образовательные, научные, медицинские и другие организации, созданные для выполнения задач органов внутренних дел.</p>' + officialLink() },
+      council:{ title:'Общественный совет при МВД России', html:'<p>Общественный совет обеспечивает взаимодействие граждан, общественных объединений и органов внутренних дел. Состав совета и материалы заседаний доступны на официальном портале МВД России.</p>' + officialLink() },
+      history:{ title:'История МВД России', html:'<p>Министерство внутренних дел было учреждено 8 сентября 1802 года в ходе реформы государственного управления Российской империи.</p><p>Исторические материалы, сведения о ведомственных музеях и истории российской полиции представлены на официальных ресурсах Министерства.</p>' + officialLink() },
+      legal:{ title:'Правовое информирование', html:'<p>Основу деятельности органов внутренних дел составляют Конституция Российской Федерации, Федеральный закон от 7 февраля 2011 года № 3-ФЗ «О полиции» и другие нормативные правовые акты.</p><p>Проверять актуальную редакцию документов следует на официальных ресурсах правовой информации.</p>' + officialLink('Официальный интернет-портал правовой информации','https://pravo.gov.ru/') + '<br>' + officialLink('Правовое информирование на портале МВД','https://мвд.рф/help/legal_info') },
+      activity:{ title:'Основные направления деятельности', html:'<p>Защита жизни, здоровья, прав и свобод граждан, противодействие преступности, охрана общественного порядка и обеспечение общественной безопасности.</p><p>К направлениям деятельности также относятся безопасность дорожного движения и реализация государственной политики в сфере миграции.</p>' + officialLink() },
+      corruption:{ title:'Противодействие коррупции', html:'<p>Информация о профилактике коррупционных правонарушений, нормативных актах и порядке сообщения о фактах коррупции публикуется в соответствующем разделе официального портала МВД России.</p><p>Учебная версия не принимает сообщения о правонарушениях. Для официального обращения используйте сайт ведомства.</p>' + officialLink() },
+      fraud:{ title:'Осторожно, мошенники!', html:'<p><strong>Не сообщайте никому коды из СМС, пароли и реквизиты банковских карт.</strong></p><p>Если неизвестный представляется сотрудником ведомства или банка и требует срочно перевести деньги, завершите разговор. Самостоятельно позвоните в организацию по номеру с её официального сайта.</p><p>Не переходите по подозрительным ссылкам. Не устанавливайте программы удалённого доступа по просьбе незнакомцев. При непосредственной угрозе звоните 102 или 112.</p>' + officialLink('Материалы по информационной безопасности','https://mvdmedia.ru/') },
+      career:{ title:'Служба в органах внутренних дел', html:'<p>Информацию о поступлении на службу, требованиях к кандидатам и перечне документов можно получить в кадровом подразделении территориального органа МВД России.</p><p>Вакансии и условия приёма уточняйте на официальном сайте своего региона.</p><div class="dialog-list"><button class="dialog-list-item" type="button" data-service="precinct">Найти территориальный орган' + icon('arrow') + '</button></div>' },
+      reception:{ title:'График приёма граждан', html:'<p>Личный приём осуществляется в соответствии с графиком, опубликованным на официальном сайте ведомства. Порядок предварительной записи и часы работы необходимо уточнять перед посещением.</p><p>В учебной версии запись на приём недоступна.</p>' + officialLink() },
+      contacts:{ title:'Приёмная МВД России', html:'<p><strong>Центральный аппарат:</strong><br>г. Москва, ул. Житная, д. 16.</p><p><strong>Приёмная МВД России:</strong><br>г. Москва, ул. Садовая-Сухаревская, д. 11.</p><p>Актуальные контактные телефоны, режим работы и порядок приёма обращений уточняйте на официальном портале.</p>' + officialLink() },
+      emergency:{ title:'Экстренная помощь', html:'<p>Если вам или другим людям угрожает опасность, обратитесь в экстренные службы.</p><div class="dialog-list"><a class="dialog-list-item" href="tel:102"><span>102<small>Вызов полиции</small></span>' + icon('phone') + '</a><a class="dialog-list-item" href="tel:112"><span>112<small>Единый номер экстренных служб</small></span>' + icon('phone') + '</a></div><p class="dialog-note">Этот учебный сайт не принимает экстренные сообщения и не передаёт информацию в полицию.</p>' },
+      press:{ title:'Пресс-центр МВД России', html:'<p>Официальные сообщения для средств массовой информации, новости и комментарии публикуются на портале МВД МЕДИА.</p>' + officialLink('Перейти на МВД МЕДИА','https://mvdmedia.ru/') },
+      resources:{ title:'Официальные интернет-ресурсы', html:'<div class="dialog-list"><a class="dialog-list-item" href="https://мвд.рф/" target="_blank" rel="noopener noreferrer">МВД России' + icon('external') + '</a><a class="dialog-list-item" href="https://mvdmedia.ru/" target="_blank" rel="noopener noreferrer">МВД МЕДИА' + icon('external') + '</a><a class="dialog-list-item" href="https://www.gosuslugi.ru/" target="_blank" rel="noopener noreferrer">Госуслуги' + icon('external') + '</a><a class="dialog-list-item" href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">Официальный портал правовой информации' + icon('external') + '</a></div>' }
+    };
+    function openInfo(id) { if (infoPages[id]) openDialog(infoPages[id].title,infoPages[id].html); }
+
+    function regionOptions(placeholder = 'Выберите регион') {
+      return `<option value="">${placeholder}</option>` + districts.map(district => `<optgroup label="${district.name} федеральный округ">${district.regions.map(([code,name]) => `<option value="${code}">${name}</option>`).join('')}</optgroup>`).join('');
+    }
+    function openRegion(code) {
+      const region = allRegions.find(item => item[0] === code);
+      if (!region) return;
+      const [id,name] = region;
+      openDialog(name, `<p>Информацию о территориальном органе МВД России, ближайшем отделе полиции и участковом уполномоченном уточняйте на официальном региональном сайте.</p><p>В учебной версии не хранится база сотрудников, адресов участков и графиков приёма.</p>${officialLink('Открыть сайт территориального органа',`https://${id}.мвд.рф/`)}<p class="dialog-note">Ссылка откроется в новой вкладке. Вы покинете учебную копию и перейдёте на внешний ресурс.</p>`);
+    }
+    function syncRegions() {
+      const district = districts[Number($('#district').value)];
+      $('#region').innerHTML = '<option value="">Выберите регион</option>' + district.regions.map(([code,name]) => `<option value="${code}">${name}</option>`).join('');
+      $('#region-submit').disabled = true;
+    }
+    $('#district').innerHTML = districts.map((district,index) => `<option value="${index}">${district.name}</option>`).join('');
+    $('#district').addEventListener('change',syncRegions);
+    $('#region').addEventListener('change', () => { $('#region-submit').disabled = !$('#region').value; });
+    $('#region-form').addEventListener('submit', event => { event.preventDefault(); if ($('#region').value) openRegion($('#region').value); });
+
+    function openService(id) {
+      if (id === 'appeal') {
+        openDialog(serviceNames[id], `<div class="demo-notice">${icon('info')}<span>Только учебная демонстрация. Обращение не будет отправлено. Не вводите настоящие персональные данные.</span></div><form class="dialog-form" id="appeal-form"><div><label class="field-label" for="appeal-topic">Тема обращения</label><div class="select-wrap"><select class="field" id="appeal-topic" required><option value="">Выберите тему</option><option>Работа органов внутренних дел</option><option>Безопасность дорожного движения</option><option>Миграционные вопросы</option><option>Иная тема</option></select>${icon('down')}</div></div><div><label class="field-label" for="appeal-text">Вымышленный текст обращения</label><textarea class="field" id="appeal-text" required minlength="20" maxlength="4000" placeholder="Введите учебный пример, не менее 20 символов. Не указывайте ФИО, адреса и другие персональные данные."></textarea><span class="textarea-count" id="appeal-count">0 / 4000</span></div><label class="check-row"><input type="checkbox" required><span>Я понимаю, что это учебная демонстрация и обращение не поступит в МВД России.</span></label><button class="primary-button" type="submit">Проверить обращение${icon('arrow')}</button></form><p class="dialog-note">Нужна реальная помощь? Используйте официальный сайт МВД России. В экстренной ситуации звоните 102 или 112.</p>${officialLink()}`);
+        $('#appeal-text').addEventListener('input', () => { $('#appeal-count').textContent = `${$('#appeal-text').value.length} / 4000`; });
+        $('#appeal-form').addEventListener('submit', event => {
+          event.preventDefault();
+          if (!event.currentTarget.reportValidity()) return;
+          openDialog('Учебная проверка завершена', `<div class="success-message">${icon('check')}<p>Все обязательные поля заполнены корректно.</p><p><strong>Обращение никуда не отправлено.</strong> Введённый текст удалён из формы и не сохраняется на сервере.</p></div>${officialLink('Подать настоящее обращение на официальном сайте')}`);
+        });
+        return;
+      }
+      if (id === 'precinct') {
+        openDialog(serviceNames[id], `<p>Выберите регион, чтобы перейти на сайт территориального органа и найти информацию о своём отделе полиции или участковом.</p><form class="dialog-form" id="precinct-form"><div><label class="field-label" for="precinct-region">Регион</label><div class="select-wrap"><select class="field" id="precinct-region" required>${regionOptions()}</select>${icon('down')}</div></div><button class="primary-button" type="submit">Найти подразделение${icon('arrow')}</button></form><p class="dialog-note">Учебная версия не определяет местоположение и не запрашивает ваш домашний адрес.</p>`);
+        $('#precinct-form').addEventListener('submit', event => { event.preventDefault(); if ($('#precinct-region').value) openRegion($('#precinct-region').value); });
+        return;
+      }
+      const serviceContent = {
+        traffic:`<p>Информация для участников дорожного движения, сведения о регистрации транспортных средств и получении водительского удостоверения публикуются на официальных государственных ресурсах.</p><div class="dialog-list"><a class="dialog-list-item" href="https://госавтоинспекция.рф/" target="_blank" rel="noopener noreferrer">Официальный сайт Госавтоинспекции${icon('external')}</a><a class="dialog-list-item" href="https://www.gosuslugi.ru/" target="_blank" rel="noopener noreferrer">Электронные услуги на Госуслугах${icon('external')}</a></div><p class="dialog-note">Учебная копия не проверяет автомобили, водительские удостоверения и штрафы.</p>`,
+        migration:`<p>Справочные сервисы, порядок оформления документов и информация по вопросам миграции размещены на официальном портале МВД России.</p><div class="dialog-list"><a class="dialog-list-item" href="https://мвд.рф/dejatelnost/emvd/guvm" target="_blank" rel="noopener noreferrer">Миграционная служба МВД России${icon('external')}</a><a class="dialog-list-item" href="https://www.gosuslugi.ru/" target="_blank" rel="noopener noreferrer">Государственные услуги по вопросам миграции${icon('external')}</a></div><p class="dialog-note">Не вводите паспортные данные на учебных сайтах. Все официальные проверки выполняются только на ресурсах ведомства.</p>`,
+        public:`<p>Подать заявление на государственные услуги в электронном виде можно через Единый портал государственных и муниципальных услуг.</p><p>В числе услуг МВД России: оформление паспорта, регистрационный учёт, выдача справок и услуги для автовладельцев.</p>${officialLink('Перейти на Госуслуги','https://www.gosuslugi.ru/')}<p class="dialog-note">В учебной версии нет авторизации через ЕСИА. Мы не запрашиваем логины и пароли.</p>`,
+        wanted:`<p>Актуальные сведения о разыскиваемых лицах публикуются только на официальных ресурсах МВД России.</p><p>Учебная версия не содержит розыскных учётов и не принимает сообщения о местонахождении людей.</p>${officialLink()}`,
+        app:`<p>Мобильное приложение «МВД России» предоставляет справочную информацию, сведения о территориальных подразделениях и возможность экстренного вызова полиции.</p>${officialLink('Приложение в RuStore','https://www.rustore.ru/catalog/app/ru.mvd')}<p class="dialog-note">Устанавливайте приложения только из проверенных источников. Учебный проект не распространяет установочные файлы.</p>`
+      };
+      if (serviceContent[id]) openDialog(serviceNames[id],serviceContent[id]);
+    }
+
+    function openAllServices() {
+      openDialog('Онлайн-сервисы', `<p>Информационные сервисы для граждан. Формы на этой странице работают в учебном режиме, официальные услуги доступны по внешним ссылкам.</p><div class="dialog-list">${Object.entries(serviceNames).map(([id,name]) => `<button class="dialog-list-item" type="button" data-service="${id}">${name}${icon('arrow')}</button>`).join('')}</div>`);
+    }
+    function openArchive() {
+      openDialog('Архив новостей', `<p>Поиск в небольшой новостной подборке учебного проекта.</p><form class="archive-form" id="archive-form"><div><label class="field-label" for="archive-date">Дата публикации</label><input class="field" type="date" id="archive-date" min="2026-10-15" max="2026-10-27"></div><div><label class="field-label" for="archive-category">Раздел</label><div class="select-wrap"><select class="field" id="archive-category"><option value="all">Все новости</option><option value="official">Официально</option><option value="regions">В регионах</option></select>${icon('down')}</div></div><button class="primary-button" type="submit">Найти${icon('search')}</button></form><div class="dialog-list" id="archive-results" aria-live="polite"></div>`);
+      const renderArchive = () => {
+        const date = $('#archive-date').value;
+        const category = $('#archive-category').value;
+        const entries = Object.entries(articles).filter(([,article]) => (!date || article.date === date) && (category === 'all' || article.tab === category)).sort((a,b) => (b[1].date + b[1].time).localeCompare(a[1].date + a[1].time));
+        $('#archive-results').innerHTML = entries.length ? entries.map(([id,article]) => `<button class="dialog-list-item" type="button" data-article="${id}"><span>${article.title}<small>${article.dateText} · ${article.category}</small></span>${icon('arrow')}</button>`).join('') : '<p class="archive-empty">За выбранную дату в учебной подборке нет публикаций. Измените дату или очистите поле.</p>';
+      };
+      $('#archive-form').addEventListener('submit', event => { event.preventDefault(); renderArchive(); });
+      renderArchive();
+    }
+    function openSitemap() {
+      openDialog('Карта сайта', Object.entries(menus).map(([,menu]) => `<h3 style="font-size:1rem;font-weight:500;margin:23px 0 3px;color:var(--navy)">${menu.title}</h3><div class="dialog-list">${menu.items.map(([title,id,type]) => `<button class="dialog-list-item" type="button" data-${type === 'service' ? 'service' : 'info'}="${id}">${title}${icon('arrow')}</button>`).join('')}</div>`).join('') + '<h3 style="font-size:1rem;font-weight:500;margin:23px 0 3px;color:var(--navy)">Новости</h3><button class="dialog-list-item" type="button" data-action="archive">Архив новостей' + icon('arrow') + '</button>');
+    }
+    const actions = {
+      'all-services':openAllServices,
+      archive:openArchive,
+      sitemap:openSitemap,
+      about:() => openDialog('Об учебном проекте','<p>Это самостоятельная учебная реконструкция интерфейса портала МВД России, созданная для изучения HTML, CSS и JavaScript. Проект не связан с Министерством внутренних дел и не является государственным интернет-ресурсом.</p><p>Все функции выполняются в браузере. Демонстрационные обращения не отправляются и не сохраняются. Поиск работает только по локальной подборке материалов.</p><p>Новостные материалы и фотографии взяты с портала МВД МЕДИА, эмблема загружается из Wikimedia Commons. Изображения, шрифт и Tailwind CSS требуют подключения к интернету.</p><p>Основной сайт был недоступен при подготовке, поэтому точное совпадение с его текущим оформлением не подтверждено.</p>' + officialLink()),
+      english:() => openDialog('Educational Website Replica','<div lang="en"><p>This is an unofficial educational reconstruction of the Russian Ministry of Internal Affairs website. It is not affiliated with the Ministry.</p><p>Forms are demonstrations only. No applications are submitted. Do not enter personal information, passwords or identity document numbers.</p>' + officialLink('Visit the official English-language website','https://en.mvd.ru/') + '</div>')
+    };
+    document.addEventListener('click', event => {
+      const target = event.target.closest('[data-article],[data-service],[data-info],[data-action]');
+      if (!target) return;
+      event.preventDefault();
+      if (target.dataset.article) openArticle(target.dataset.article);
+      else if (target.dataset.service) openService(target.dataset.service);
+      else if (target.dataset.info) openInfo(target.dataset.info);
+      else if (actions[target.dataset.action]) actions[target.dataset.action]();
+    });
+
+    function setAccessibility(enabled) {
+      document.documentElement.classList.toggle('accessibility-mode',enabled);
+      $('#accessibility-toggle').setAttribute('aria-pressed',String(enabled));
+      $('#accessibility-toggle').setAttribute('aria-label',enabled ? 'Включить обычную версию' : 'Включить версию для слабовидящих');
+      $('#accessibility-text').textContent = enabled ? 'Обычная версия' : 'Версия для слабовидящих';
+      try { localStorage.setItem('mvd-study-accessibility',String(enabled)); } catch (_) { /* Storage can be unavailable in private browsing. */ }
+    }
+    $('#accessibility-toggle').addEventListener('click', () => setAccessibility(!document.documentElement.classList.contains('accessibility-mode')));
+    try { if (localStorage.getItem('mvd-study-accessibility') === 'true') setAccessibility(true); } catch (_) {}
+
+    $('#back-top').addEventListener('click', () => { window.scrollTo({top:0,behavior:reducedMotion.matches ? 'auto' : 'smooth'}); $('.brand').focus({preventScroll:true}); });
+    let scrollQueued = false;
+    window.addEventListener('scroll', () => {
+      if (scrollQueued) return;
+      scrollQueued = true;
+      requestAnimationFrame(() => { $('#back-top').hidden = window.scrollY < 650; scrollQueued = false; });
+    },{passive:true});
+
+    // Keep the lower sections visible when IntersectionObserver is unavailable.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+      }),{threshold:.08});
+      $$('.reveal').forEach(element => { element.classList.add('will-reveal'); observer.observe(element); });
+    } else $$('.reveal').forEach(element => element.classList.add('is-visible'));
+
+    document.addEventListener('error', event => {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement) || image.dataset.fallbackApplied) return;
+      image.dataset.fallbackApplied = 'true';
+      if (image.classList.contains('brand-emblem') || image.classList.contains('footer-emblem')) {
+        image.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Emblem_of_the_Ministry_of_Internal_Affairs.svg/250px-Emblem_of_the_Ministry_of_Internal_Affairs.svg.png';
+      } else {
+        image.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ministry_of_Internal_Affairs_%28Moscow%29.jpg/960px-Ministry_of_Internal_Affairs_%28Moscow%29.jpg';
+        image.alt = 'Здание Министерства внутренних дел Российской Федерации в Москве';
+      }
+    },true);
+
+    renderNews();
+    syncRegions();
+    if (location.hash.startsWith('#news-') && articles[location.hash.slice(6)]) openArticle(location.hash.slice(6));
+  </script>
+</body>
+</html>

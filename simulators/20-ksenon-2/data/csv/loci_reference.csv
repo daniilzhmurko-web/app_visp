@@ -1,0 +1,33 @@
+﻿locus,aliases,chromosome,cytoband,repeat_motif,allele_min,allele_max,type,kits,populations_with_frequencies,metadata_verified
+CSF1PO,,5,5q33.1,AGAT,6,15,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,16,да
+FGA,,4,4q31.3,CTTT,15,48.2,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+TH01,THO1; HUMTH01,11,11p15.5,AATG,5,11,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+TPOX,,2,2p25.3,GAAT,5,13,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,16,да
+vWA,VWA,12,12p13.31,TCTG TCTA,11,23,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+D3S1358,,3,3p21.31,TCTG TCTA,9,20,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+D5S818,,5,5q23.2,AGAT,7,17,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,16,да
+D7S820,,7,7q21.11,GATA,6,14,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,16,да
+D8S1179,,8,8q24.13,TCTR,7,18,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+D13S317,,13,13q31.1,TATC,7,15,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,16,да
+D16S539,,16,16q24.1,GATA,5,15,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; GlobalFiler,20,да
+D18S51,,18,18q21.33,AGAA,7,28,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+D21S11,,21,21q21.1,TCTA TCTG,24,39,autosomal,CODIS_13; CODIS_20; PowerPlex_16; RUS_PP16_15; Identifiler; ESS_12; GlobalFiler,20,да
+D1S1656,,1,1q42.2,TAGA,8,20.3,autosomal,CODIS_20; ESS_12; GlobalFiler,20,да
+D2S441,,2,2p14,TCTA,8,17,autosomal,CODIS_20; ESS_12; GlobalFiler,20,да
+D2S1338,,2,2q35,TGCC TTCC,12,28,autosomal,CODIS_20; Identifiler; GlobalFiler,20,да
+D10S1248,,10,10q26.3,GGAA,8,19,autosomal,CODIS_20; ESS_12; GlobalFiler,20,да
+D12S391,,12,12p13.2,AGAT AGAC,14,27,autosomal,CODIS_20; ESS_12; GlobalFiler,20,да
+D19S433,,19,19q12,AAGG TAGG,9,18.2,autosomal,CODIS_20; Identifiler; GlobalFiler,20,да
+D22S1045,,22,22q12.3,ATT,8,20,autosomal,CODIS_20; ESS_12; GlobalFiler,20,да
+SE33,ACTBP2,6,6q14,AAAG,6.3,36,autosomal,GlobalFiler,20,да
+Penta D,PentaD,21,21q22.3,AAAGA,2.2,17,autosomal,PowerPlex_16; RUS_PP16_15,16,да
+Penta E,PentaE,15,15q26.2,AAAGA,5,25,autosomal,PowerPlex_16; RUS_PP16_15,16,да
+Penta C,PentaC,9,,AAAAC,5,16,autosomal,,4,требует сверки
+D6S1043,,6,6q15,AGAT AGAC,8,26,autosomal,,4,требует сверки
+F13A01,F13A1,6,6p25.3,AAAG,3.2,17,autosomal,,4,да
+F13B,,1,1q31.1,TTTA,6,11,autosomal,,4,да
+FESFPS,FES/FPS,15,15q26.1,ATTT,5,14,autosomal,,4,да
+LPL,,8,8p21.3,TTTA,7,15,autosomal,,4,да
+AMEL,Amelogenin,X/Y,Xp22.22 / Yp11.2,,X,Y,amelogenin,PowerPlex_16; Identifiler; GlobalFiler,0,да
+DYS391,,Y,Yq11.21,TCTA,,,Y-STR,GlobalFiler,0,да
+YINDEL,Y-indel; Yindel,Y,,,1,2,Y-indel,GlobalFiler,0,требует сверки

@@ -1,0 +1,1 @@
+{ "name": "sodp-sb-build", "private": true, "description": "Сборка СОДП СБ: index.html, db/*.js, docs/**", "scripts": { "build": "node make.js" }, "devDependencies": { "jsdom": "^24.0.0" } }

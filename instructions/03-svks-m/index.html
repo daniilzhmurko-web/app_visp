@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сервис видеоконференцсвязи МВД России — учебная реконструкция</title>
+<meta name="description" content="Единая служба видеоконференцсвязи Министерства внутренних дел Российской Федерации: защищённые совещания, инструктажи, журнал сеансов, документы и поддержка.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Mono&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07111E;
+  --ink-2:#0B1B2E;
+  --paper:#F5F2EC;
+  --paper-2:#EDE8DE;
+  --blue:#0B4EA2;
+  --blue-deep:#083A78;
+  --blue-lt:#2E8BD6;
+  --red:#D8232A;
+  --gold:#C8A44D;
+  --line:#D9D3C7;
+  --muted:#5D6470;
+  --rail:58px;
+  --serif:"PT Serif",Georgia,serif;
+  --sans:"PT Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"PT Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+::selection{background:var(--gold);color:var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.a11y-btn{
+  background:transparent;border:1px solid #33445A;color:#9FB2C6;font-family:var(--mono);
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;cursor:pointer;transition:.2s;
+}
+.a11y-btn:hover{border-color:var(--gold);color:var(--gold)}
+.a11y-btn[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+/* enlarged reading mode */
+html.big .hero h1{font-size:clamp(2.6rem,7vw,6rem)}
+html.big .hero__lead,html.big .sec-note,html.big .cap__desc,html.big .news-card p,
+html.big .doc,html.big .sup p,html.big .side-box li,html.big footer li a,
+html.big .news-lead p,html.big .region{font-size:1.14em;line-height:1.7}
+html.big .brand__name{font-size:23px}
+html.big .nav a{font-size:17px}
+html.big th,html.big td{font-size:1.1em;padding:15px 16px}
+html.big .stat span{font-size:12px}
+
+/* ---------- grain ---------- */
+.grain{
+  position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.22;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ---------- left rail (document spine) ---------- */
+.rail{display:none}
+@media (min-width:1200px){
+  body{padding-left:var(--rail)}
+  .rail{
+    display:flex;position:fixed;left:0;top:0;bottom:0;width:var(--rail);z-index:120;
+    background:var(--paper);border-right:1px solid var(--line);
+    flex-direction:column;align-items:center;justify-content:space-between;padding:16px 0;
+  }
+  .rail__seal{
+    width:30px;height:34px;border:1.5px solid var(--gold);border-radius:4px 4px 14px 14px;
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;
+    letter-spacing:.06em;color:var(--gold);
+  }
+  .rail__list{display:flex;flex-direction:column;gap:26px;align-items:center}
+  .rail__list a{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);padding:2px 0;border-right:2px solid transparent;transition:.25s;
+  }
+  .rail__list a:hover{color:var(--ink)}
+  .rail__list a.is-active{color:var(--blue);border-right-color:var(--red)}
+  .rail__foot{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
+}
+
+/* ---------- utility strip ---------- */
+.topline{
+  background:var(--ink);color:#9FB2C6;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.topline__in{
+  max-width:1420px;margin:0 auto;padding:7px 22px;display:flex;gap:18px;align-items:center;justify-content:space-between;
+}
+.topline a:hover{color:var(--gold)}
+.topline__left{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.dot-red{width:6px;height:6px;background:var(--red);border-radius:50%;display:inline-block;margin-right:7px;vertical-align:middle;animation:blink 2.4s infinite}
+@keyframes blink{0%,60%{opacity:1}80%{opacity:.25}100%{opacity:1}}
+.search{display:flex;align-items:center;gap:8px}
+.search input{
+  background:transparent;border:0;border-bottom:1px solid #33445A;color:#E7EEF6;
+  font-family:var(--mono);font-size:12px;padding:3px 4px;width:170px;outline:none;
+}
+.search input::placeholder{color:#6A7C92}
+.search input:focus{border-bottom-color:var(--gold)}
+
+/* ---------- header ---------- */
+.hdr{
+  position:sticky;top:0;z-index:110;background:rgba(245,242,236,.96);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.hdr__in{max-width:1420px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand svg{width:46px;height:auto;flex:none}
+.brand__txt{min-width:0}
+.brand__top{
+  display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);
+}
+.brand__name{
+  display:block;font-family:var(--serif);font-weight:700;font-size:20px;line-height:1.15;
+  letter-spacing:.01em;margin-top:3px;
+}
+.brand__name > span{white-space:nowrap}
+@media (max-width:520px){
+  .brand svg{width:38px}
+  .brand__name{font-size:17px}
+  .brand__top{font-size:9px;letter-spacing:.14em}
+}
+.brand__name span{color:var(--blue)}
+.nav{display:flex;gap:22px;margin-left:auto;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.hdr__in{flex-wrap:wrap}
+.nav a{
+  font-size:15.5px;font-weight:700;letter-spacing:.02em;padding:6px 0;position:relative;white-space:nowrap;
+}
+.nav a::after{
+  content:"";position:absolute;left:0;right:100%;bottom:0;height:2px;background:var(--red);transition:right .3s;
+}
+.nav a:hover::after,.nav a.is-active::after{right:0}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;
+  border:0;padding:12px 20px;font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;
+  transition:.25s;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}
+.btn:hover{background:var(--blue-deep);transform:translateY(-1px)}
+.btn--gold{background:var(--gold);color:var(--ink)}
+.btn--gold:hover{background:#B8933C}
+.btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn--ghost:hover{background:var(--ink);color:var(--paper)}
+.burger{display:none;background:none;border:1px solid var(--line);padding:9px 11px;cursor:pointer}
+.burger span{display:block;width:20px;height:2px;background:var(--ink);margin:4px 0}
+@media (max-width:640px){
+  #clock{display:none}
+  .search input{width:120px}
+  .topline__in{gap:10px}
+}
+@media (max-width:1400px){
+  .nav{
+    position:fixed;inset:0 0 auto;top:0;background:var(--paper);flex-direction:column;align-items:flex-start;
+    gap:6px;padding:90px 26px 30px;transform:translateY(-102%);transition:.4s cubic-bezier(.6,.05,.2,1);
+    border-bottom:3px solid var(--blue);box-shadow:0 24px 40px rgba(7,17,30,.18);margin-left:0;
+  }
+  .nav.is-open{transform:translateY(0)}
+  .nav a{font-family:var(--serif);font-size:24px}
+  .nav .btn{margin-top:14px}
+  .burger{display:block;margin-left:auto}
+}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;overflow:hidden;background:
+    radial-gradient(120% 95% at 72% 42%,#0E2745 0%,#081426 55%,#050B14 100%);
+  min-height:min(94vh,900px);display:flex;flex-direction:column;justify-content:flex-end;
+}
+#globe{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;cursor:grab}
+#globe:active{cursor:grabbing}
+.hero__scrim{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(100deg,rgba(5,11,20,.95) 0%,rgba(5,11,20,.82) 34%,rgba(5,11,20,.25) 62%,rgba(5,11,20,0) 82%),
+             linear-gradient(0deg,rgba(5,11,20,.9) 0%,rgba(5,11,20,0) 40%);
+}
+.hero__in{position:relative;z-index:3;max-width:1420px;margin:0 auto;width:100%;padding:120px 22px 34px}
+.kicker{
+  display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:26px;
+}
+.kicker::before{content:"";width:44px;height:2px;background:var(--red)}
+.hero h1{
+  font-family:var(--serif);font-weight:700;color:#F7F4EE;margin:0;
+  font-size:clamp(2.35rem,6.2vw,5.4rem);line-height:.98;letter-spacing:-.015em;max-width:15ch;
+  text-transform:uppercase;
+}
+.hero h1 em{font-style:italic;color:var(--gold);text-transform:none;letter-spacing:0}
+.hero__lead{
+  color:#B9C7D8;font-size:clamp(1rem,1.35vw,1.22rem);max-width:56ch;margin:26px 0 32px;
+  border-left:2px solid var(--red);padding-left:18px;
+}
+.hero__cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.badge3d{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--gold);
+  border:1px solid rgba(200,164,77,.5);padding:7px 11px;text-transform:uppercase;
+}
+.stats{
+  position:relative;z-index:3;max-width:1420px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(200,164,77,.32);
+}
+.stat{padding:20px 22px 26px;border-right:1px solid rgba(255,255,255,.09)}
+.stat:last-child{border-right:0}
+.stat b{
+  display:block;font-family:var(--mono);font-weight:400;color:#F7F4EE;
+  font-size:clamp(1.6rem,2.7vw,2.5rem);line-height:1;letter-spacing:-.02em;
+}
+.stat b i{font-style:normal;color:var(--gold);font-size:.6em}
+.stat span{
+  display:block;margin-top:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#8399B1;
+}
+@media (max-width:760px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(2){border-right:0}
+  .stat:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.09)}
+  .hero__scrim{background:linear-gradient(0deg,rgba(5,11,20,.96) 26%,rgba(5,11,20,.6) 62%,rgba(5,11,20,.72) 100%)}
+}
+
+/* ---------- ticker ---------- */
+.ticker{background:var(--ink);color:#C7D4E2;border-top:3px solid var(--red);overflow:hidden;position:relative;z-index:4}
+.ticker__track{
+  display:inline-flex;gap:56px;white-space:nowrap;padding:11px 0;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+  animation:slide 46s linear infinite;will-change:transform;
+}
+.ticker:hover .ticker__track{animation-play-state:paused}
+.ticker__track span i{font-style:normal;color:var(--gold)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- generic section ---------- */
+section{position:relative}
+.wrap{max-width:1420px;margin:0 auto;padding:0 22px}
+.sec{padding:96px 0 88px}
+.sec--alt{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.grid12{display:grid;grid-template-columns:repeat(12,1fr);gap:28px}
+.sec-head{grid-column:span 12;display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:46px}
+.sec-kicker{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--red);
+  display:flex;align-items:center;gap:12px;
+}
+.sec-kicker::after{content:"";height:1px;width:70px;background:var(--line)}
+h2.title{
+  font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;
+  font-size:clamp(1.9rem,3.6vw,3.15rem);line-height:1.03;margin:16px 0 0;max-width:20ch;
+}
+.sec-note{max-width:44ch;color:var(--muted);font-size:16px;border-top:2px solid var(--ink);padding-top:14px}
+.sticky-head{grid-column:span 3}
+@media (min-width:1000px){.sticky-head{position:sticky;top:132px;align-self:start}}
+
+/* ---------- capabilities list ---------- */
+.caps{grid-column:span 9;border-top:1.5px solid var(--ink)}
+.cap{
+  display:grid;grid-template-columns:78px 1fr auto;gap:24px;align-items:baseline;
+  padding:26px 18px 26px 6px;border-bottom:1px solid var(--line);cursor:default;
+  transition:background .3s,color .3s,padding .3s;position:relative;overflow:hidden;
+}
+.cap::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);
+  transform:scaleY(0);transform-origin:bottom;transition:transform .35s;
+}
+.cap:hover{background:var(--ink);color:var(--paper);padding-left:22px}
+.cap:hover::before{transform:scaleY(1)}
+.cap:hover .cap__num{color:var(--gold)}
+.cap:hover .cap__desc{color:#AFBECE}
+.cap:hover .cap__meta{border-color:rgba(255,255,255,.3);color:#E3E9F1}
+.cap__num{font-family:var(--mono);font-size:30px;color:var(--blue);letter-spacing:-.04em;transition:.3s}
+.cap__t{font-family:var(--serif);font-weight:700;font-size:clamp(1.15rem,1.7vw,1.5rem);line-height:1.2;margin:0 0 8px}
+.cap__desc{color:var(--muted);font-size:16px;max-width:62ch;transition:.3s}
+.cap__meta{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--line);padding:5px 9px;color:var(--muted);white-space:nowrap;transition:.3s;
+}
+@media (max-width:760px){
+  .cap{grid-template-columns:56px 1fr;gap:14px}
+  .cap__meta{grid-column:2}
+}
+
+/* ---------- scenarios: 3D video wall ---------- */
+.wall-stage{grid-column:span 12;perspective:1500px;padding:30px 0 10px}
+.wall{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:16px;
+  transform:rotateY(-15deg) rotateX(5deg);transform-style:preserve-3d;
+}
+.tile{
+  position:relative;background:var(--ink);overflow:hidden;aspect-ratio:3/4;
+  box-shadow:0 30px 60px -30px rgba(7,17,30,.75);
+  transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s;
+}
+.tile:nth-child(2n){transform:translateZ(38px)}
+.tile:nth-child(3){transform:translateZ(70px)}
+.tile img{width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.06) brightness(.82);transition:.6s}
+.tile:hover img{filter:saturate(1) contrast(1.05) brightness(1);transform:scale(1.05)}
+.tile:hover{transform:translateZ(110px) translateY(-8px);box-shadow:0 44px 70px -26px rgba(7,17,30,.9)}
+.tile__cap{
+  position:absolute;left:0;right:0;bottom:0;padding:16px 14px 14px;color:#F2EFE8;
+  background:linear-gradient(0deg,rgba(5,11,20,.95),rgba(5,11,20,0));
+}
+.tile__cap b{display:block;font-family:var(--serif);font-size:17px;line-height:1.2}
+.tile__cap span{
+  display:block;margin-top:7px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);
+}
+.tile__live{
+  position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  background:var(--red);color:#fff;padding:4px 7px;text-transform:uppercase;
+}
+.wall-legend{
+  grid-column:span 12;display:flex;gap:26px;flex-wrap:wrap;margin-top:34px;
+  border-top:1px solid var(--line);padding-top:16px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.wall-legend b{color:var(--ink)}
+@media (max-width:980px){
+  .wall{grid-template-columns:repeat(2,1fr);transform:none}
+  .tile,.tile:nth-child(2n),.tile:nth-child(3){transform:none}
+  .tile:hover{transform:translateY(-6px)}
+}
+
+/* ---------- dark panel: shield + session log ---------- */
+.panel{background:var(--ink);color:#DCE5EE;position:relative;overflow:hidden}
+.panel::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(80% 70% at 12% 30%,rgba(11,78,162,.35),transparent 60%),
+             radial-gradient(60% 60% at 92% 80%,rgba(200,164,77,.16),transparent 65%);
+  pointer-events:none;
+}
+.panel .wrap{position:relative;z-index:2}
+.panel h2.title{color:#F7F4EE}
+.panel .sec-note{color:#8FA3B9;border-top-color:rgba(255,255,255,.35)}
+.panel .sec-kicker{color:var(--gold)}
+.panel .sec-kicker::after{background:rgba(255,255,255,.2)}
+.shield-col{grid-column:span 4}
+.shield-stage{
+  position:relative;aspect-ratio:1/1;background:
+    radial-gradient(60% 60% at 50% 42%,rgba(46,139,214,.24),rgba(7,17,30,0) 70%);
+  border:1px solid rgba(255,255,255,.12);
+}
+#shield{position:absolute;inset:0;width:100%;height:100%;display:block}
+.shield-fallback{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+}
+.shield-fallback svg{width:52%}
+.shield-meta{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.12);border-top:0;
+}
+.shield-meta div{background:var(--ink);padding:14px 14px 16px}
+.shield-meta b{display:block;font-family:var(--mono);font-size:20px;color:var(--gold);font-weight:400}
+.shield-meta span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7E93AA}
+.log-col{grid-column:span 8;min-width:0}
+.log-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.chip{
+  background:transparent;border:1px solid rgba(255,255,255,.24);color:#C4D1DF;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 13px;cursor:pointer;transition:.25s;
+}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.chip.is-active{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.log-count{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:#7E93AA;text-transform:uppercase}
+.tablewrap{overflow-x:auto;border:1px solid rgba(255,255,255,.14)}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{text-align:left;padding:13px 15px;font-size:15px;border-bottom:1px solid rgba(255,255,255,.09)}
+th{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#8399B1;background:rgba(255,255,255,.045);font-weight:400;white-space:nowrap;
+}
+td.num,td.mono{font-family:var(--mono);font-size:14px;letter-spacing:.02em}
+tbody tr{transition:background .25s}
+tbody tr:hover{background:rgba(46,139,214,.12)}
+tbody tr:last-child td{border-bottom:0}
+.st{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st--live{color:#FF6167}
+.st--live::before{box-shadow:0 0 0 0 rgba(255,97,103,.6);animation:pulse 1.8s infinite}
+.st--done{color:#7FC7A4}
+.st--wait{color:var(--gold)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,97,103,.55)}70%{box-shadow:0 0 0 9px rgba(255,97,103,0)}100%{box-shadow:0 0 0 0 rgba(255,97,103,0)}}
+@media (max-width:1000px){.shield-col,.log-col{grid-column:span 12}}
+
+/* ---------- news ---------- */
+.news-lead{grid-column:span 7}
+.news-side{grid-column:span 5;display:flex;flex-direction:column;gap:22px}
+.news-item{display:block}
+.news-lead .nimg{position:relative;overflow:hidden;aspect-ratio:16/9;background:var(--ink)}
+.news-lead .nimg img{width:100%;height:100%;object-fit:cover;transition:.7s;filter:saturate(.85)}
+.news-lead:hover .nimg img{transform:scale(1.04);filter:saturate(1)}
+.ndate{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);
+  display:flex;gap:14px;align-items:center;margin:18px 0 10px;
+}
+.ndate::after{content:"";flex:1;height:1px;background:var(--line)}
+.news-lead h3{font-family:var(--serif);font-size:clamp(1.4rem,2.3vw,2.05rem);line-height:1.16;margin:0 0 12px}
+.news-lead p{color:var(--muted);margin:0;max-width:60ch}
+.news-card{
+  display:grid;grid-template-columns:118px 1fr;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--line);
+  transition:.3s;
+}
+.news-card:last-child{border-bottom:0}
+.news-card:hover{transform:translateX(6px)}
+.news-card .thumb{aspect-ratio:1/1;overflow:hidden;background:var(--ink)}
+.news-card .thumb img{width:100%;height:100%;object-fit:cover;filter:saturate(.8);transition:.5s}
+.news-card:hover .thumb img{filter:saturate(1);transform:scale(1.06)}
+.news-card .ndate{margin:0 0 8px}
+.news-card h4{font-family:var(--serif);font-size:18px;line-height:1.24;margin:0}
+.news-card p{margin:8px 0 0;font-size:14.5px;color:var(--muted)}
+.quote{
+  margin-top:auto;background:var(--ink);color:#E7EDF4;padding:26px 24px;position:relative;
+}
+.quote::before{
+  content:"“";position:absolute;top:-6px;left:18px;font-family:var(--serif);font-size:76px;color:var(--gold);opacity:.55;
+}
+.quote p{font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.5;margin:14px 0 0}
+.quote span{display:block;margin-top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8399B1}
+@media (max-width:980px){.news-lead,.news-side{grid-column:span 12}}
+
+/* ---------- documents ---------- */
+.docs{grid-column:span 8}
+.docs-side{grid-column:span 4}
+@media (max-width:980px){.docs,.docs-side{grid-column:span 12}}
+.doc{
+  display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;
+  padding:19px 6px;border-bottom:1px solid var(--line);transition:.28s;position:relative;
+}
+.doc:first-child{border-top:1.5px solid var(--ink)}
+.doc:hover{background:var(--ink);color:var(--paper);padding-left:16px}
+.doc:hover .doc__meta{color:#A9B9CA}
+.doc:hover .fmt{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.doc:hover .arrow{background:var(--gold);color:var(--ink);transform:translateX(5px)}
+.doc__t{font-family:var(--serif);font-weight:700;font-size:18px;line-height:1.3}
+.doc__meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--muted);margin-top:6px;text-transform:uppercase}
+.fmt{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;border:1px solid var(--line);
+  padding:5px 9px;color:var(--muted);transition:.28s;
+}
+.arrow{
+  width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);
+  transition:.28s;font-family:var(--mono);
+}
+.side-box{border:1.5px solid var(--ink);padding:24px 22px;background:var(--paper)}
+.side-box h3{font-family:var(--serif);font-size:22px;margin:0 0 12px}
+.side-box ul{list-style:none;margin:0;padding:0}
+.side-box li{padding:11px 0;border-bottom:1px dashed var(--line);font-size:15.5px;display:flex;gap:12px;align-items:baseline}
+.side-box li:last-child{border-bottom:0}
+.side-box li::before{content:"—";color:var(--red)}
+.empty{padding:26px 6px;font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.08em}
+
+/* ---------- support ---------- */
+.sup-grid{grid-column:span 12;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-bottom:44px}
+.sup{border-top:3px solid var(--blue);padding-top:20px}
+.sup:nth-child(2){border-top-color:var(--red)}
+.sup:nth-child(3){border-top-color:var(--gold)}
+.sup h4{font-family:var(--serif);font-size:20px;margin:0 0 10px}
+.sup p{margin:0;color:var(--muted);font-size:15.5px}
+.sup b{display:block;font-family:var(--mono);font-size:clamp(1.15rem,1.8vw,1.55rem);color:var(--ink);font-weight:400;margin-top:12px;letter-spacing:-.01em}
+.form{grid-column:span 7;background:var(--ink);color:#DCE5EE;padding:34px 30px}
+.form h3{font-family:var(--serif);font-size:26px;margin:0 0 8px;color:#F7F4EE}
+.form p{color:#8FA3B9;font-size:15px;margin:0 0 22px}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8399B1;margin-bottom:7px}
+.field input,.field select,.field textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);
+  color:#EDF2F8;padding:12px 13px;outline:none;transition:.25s;font-size:15.5px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);background:rgba(255,255,255,.09)}
+.field select option{background:var(--ink)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-ok{
+  display:none;border:1px solid var(--gold);color:var(--gold);padding:16px;font-family:var(--mono);
+  font-size:13px;letter-spacing:.06em;margin-top:6px;
+}
+.form-ok.is-on{display:block;animation:rise .5s}
+.mapish{grid-column:span 5;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+.regions{background:var(--paper);padding:22px 20px}
+.regions h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:0 0 14px}
+.region{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.region:last-child{border-bottom:0}
+.region span:last-child{font-family:var(--mono);font-size:13.5px;color:var(--blue)}
+@media (max-width:980px){
+  .sup-grid{grid-template-columns:1fr}
+  .form,.mapish{grid-column:span 12}
+  .form-row{grid-template-columns:1fr}
+}
+
+/* ---------- footer ---------- */
+footer{background:var(--ink);color:#93A6BA;padding:60px 0 30px;position:relative}
+.foot-grid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:34px}
+.foot-brand svg{width:56px;margin-bottom:16px}
+.foot-brand b{display:block;font-family:var(--serif);color:#F2EFE8;font-size:19px;line-height:1.3}
+.foot-brand p{font-size:14.5px;max-width:36ch}
+footer h5{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.14);
+}
+footer ul{list-style:none;margin:0;padding:0}
+footer li{margin-bottom:9px}
+footer li a{font-size:15px;transition:.2s}
+footer li a:hover{color:var(--gold);padding-left:5px}
+.foot-bot{
+  margin-top:46px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+}
+.disclaimer{
+  background:rgba(216,35,42,.12);border:1px solid rgba(216,35,42,.5);color:#F0C7C9;
+  padding:13px 16px;font-size:14px;letter-spacing:.02em;text-transform:none;font-family:var(--sans);
+  margin-top:34px;
+}
+@media (max-width:900px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.foot-grid{grid-template-columns:1fr}}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.rv.is-in{opacity:1;transform:none}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ============ LEFT RAIL ============ -->
+<aside class="rail" aria-label="Разделы документа">
+  <div class="rail__seal">ВКС</div>
+  <nav class="rail__list" id="railList">
+    <a href="#hero" data-rail="hero">01 Сервис</a>
+    <a href="#vozmozhnosti" data-rail="vozmozhnosti">02 Возможности</a>
+    <a href="#scenarii" data-rail="scenarii">03 Сценарии</a>
+    <a href="#journal" data-rail="journal">04 Журнал</a>
+    <a href="#novosti" data-rail="novosti">05 Новости</a>
+    <a href="#dokumenty" data-rail="dokumenty">06 Документы</a>
+    <a href="#podderzhka" data-rail="podderzhka">07 Поддержка</a>
+  </nav>
+  <div class="rail__foot">МВД России</div>
+</aside>
+
+<!-- ============ UTILITY STRIP ============ -->
+<div class="topline">
+  <div class="topline__in">
+    <div class="topline__left">
+      <span><span class="dot-red"></span>Контур функционирует штатно</span>
+      <span id="clock">—</span>
+      <button id="a11y" class="a11y-btn" type="button" aria-pressed="false">Версия для слабовидящих</button>
+    </div>
+    <div class="search">
+      <label for="q" class="sr" style="position:absolute;left:-9999px">Поиск</label>
+      <input id="q" type="search" placeholder="Поиск по сайту" autocomplete="off">
+      <span aria-hidden="true">⌕</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="brand" href="#hero" aria-label="На главную">
+      <svg viewBox="0 0 64 70" role="img" aria-label="Эмблема сервиса">
+        <defs>
+          <linearGradient id="gShield" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1260BE"/><stop offset="1" stop-color="#073066"/>
+          </linearGradient>
+        </defs>
+        <!-- sword -->
+        <path d="M32 1 L35 7 V44 H29 V7 Z" fill="#C9CFD8"/>
+        <rect x="20" y="44" width="24" height="3.4" fill="#C8A44D"/>
+        <rect x="30.4" y="47.4" width="3.2" height="9" fill="#C9CFD8"/>
+        <circle cx="32" cy="58.5" r="3.4" fill="#C8A44D"/>
+        <!-- shield -->
+        <path d="M8 9 H56 V33 C56 47 45.5 57.5 32 62 C18.5 57.5 8 47 8 33 Z"
+              fill="url(#gShield)" stroke="#C8A44D" stroke-width="2.6"/>
+        <!-- star -->
+        <path d="M32 15 L37.6 31.4 L55 32 L41.2 42 L46.3 58.4 L32 48.6 L17.7 58.4 L22.8 42 L9 32 L26.4 31.4 Z"
+              fill="#C8A44D"/>
+        <circle cx="32" cy="35.6" r="5.4" fill="#073066"/>
+      </svg>
+      <span class="brand__txt">
+        <span class="brand__top">Министерство внутренних дел Российской Федерации</span>
+        <span class="brand__name">Сервис <span>видеоконференцсвязи</span> МВД России</span>
+      </span>
+    </a>
+
+    <nav class="nav" id="nav">
+      <a href="#vozmozhnosti">Возможности</a>
+      <a href="#scenarii">Сценарии</a>
+      <a href="#journal">Журнал сеансов</a>
+      <a href="#novosti">Новости</a>
+      <a href="#dokumenty">Документы</a>
+      <a href="#podderzhka">Поддержка</a>
+      <button class="btn" type="button" data-login>Войти в систему</button>
+    </nav>
+
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <canvas id="globe" aria-label="Трёхмерная карта защищённого контура видеосвязи"></canvas>
+  <div class="hero__scrim"></div>
+
+  <div class="hero__in">
+    <div class="kicker">Единый защищённый контур · 2026</div>
+    <h1>Видеосвязь <em>во всех подразделениях</em> страны</h1>
+    <p class="hero__lead">
+      Закрытый сервис видеоконференцсвязи Министерства внутренних дел Российской Федерации:
+      совещания центрального аппарата с территориальными органами, инструктажи личного состава,
+      судебные заседания и оперативные штабы — в одном контуре с шифрованием по ГОСТ.
+    </p>
+    <div class="hero__cta">
+      <button class="btn btn--gold" type="button" data-login>Подключиться к сеансу</button>
+      <a class="btn btn--ghost" href="#vozmozhnosti" style="color:#F2EFE8;box-shadow:inset 0 0 0 1.5px rgba(242,239,232,.6)">Возможности сервиса</a>
+      <span class="badge3d">WebGL · 3D-карта контура</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b data-count="4218">0</b><span>подразделений в контуре</span></div>
+    <div class="stat"><b id="sessionsToday" data-count="1276">0</b><span>сеансов сегодня</span></div>
+    <div class="stat"><b data-count="99.98" data-dec="2">0</b><span>доступность, %</span></div>
+    <div class="stat"><b data-count="84">0</b><span>средняя задержка, мс</span></div>
+  </div>
+</section>
+
+<!-- ============ TICKER ============ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track" id="tickerTrack">
+    <span>Сеанс <i>VKS-2026-0417</i> · Коллегия МВД России · 128 участников · 84 мс</span>
+    <span>Аппаратная <i>Владивосток</i> подключена · шифрование ГОСТ Р 34.13-2018</span>
+    <span>Инструктаж <i>ГУОООП</i> · идёт запись · 40 мин</span>
+    <span>Очередь заявок: <i>3</i> · среднее время подключения 42 с</span>
+    <span>Судебное заседание <i>Тверской районный суд</i> · канал 4 К · 4 участника</span>
+    <span>Резервный канал <i>Магадан</i> · активен</span>
+  </div>
+</div>
+
+<!-- ============ CAPABILITIES ============ -->
+<section class="sec" id="vozmozhnosti">
+  <div class="wrap grid12">
+    <div class="sticky-head rv">
+      <div class="sec-kicker">Раздел 02</div>
+      <h2 class="title">Что умеет сервис</h2>
+      <p class="sec-note" style="margin-top:22px">
+        Шесть базовых сценариев, закреплённых регламентом. Каждый сеанс журналируется,
+        протоколируется и хранится в соответствии с ведомственными правилами.
+      </p>
+    </div>
+
+    <div class="caps">
+      <article class="cap rv">
+        <div class="cap__num">01</div>
+        <div>
+          <h3 class="cap__t">Коллегии и совещания</h3>
+          <p class="cap__desc">До 512 одновременных участников в одном сеансе, демонстрация материалов, очередь выступающих, роль модератора и раздельный показ презентаций.</p>
+        </div>
+        <div class="cap__meta">до 512 мест</div>
+      </article>
+
+      <article class="cap rv">
+        <div class="cap__num">02</div>
+        <div>
+          <h3 class="cap__t">Инструктажи личного состава</h3>
+          <p class="cap__desc">Трансляция в территориальные органы с обязательным подтверждением присутствия, отчётом посещаемости и автозаписью расшифровки.</p>
+        </div>
+        <div class="cap__meta">трансляция + отчёт</div>
+      </article>
+
+      <article class="cap rv">
+        <div class="cap__num">03</div>
+        <div>
+          <h3 class="cap__t">Участие в судебных заседаниях</h3>
+          <p class="cap__desc">Выделенные каналы для залов судов, двусторонняя аудиозапись, отметка времени и хранение материалов в защищённом хранилище.</p>
+        </div>
+        <div class="cap__meta">по запросу суда</div>
+      </article>
+
+      <article class="cap rv">
+        <div class="cap__num">04</div>
+        <div>
+          <h3 class="cap__t">Оперативные штабы</h3>
+          <p class="cap__desc">Режим низкой задержки, приоритет канала, дублирование на резервном маршруте и подключение мобильных групп с планшетов.</p>
+        </div>
+        <div class="cap__meta">задержка &lt; 100 мс</div>
+      </article>
+
+      <article class="cap rv">
+        <div class="cap__num">05</div>
+        <div>
+          <h3 class="cap__t">Дистанционное обучение</h3>
+          <p class="cap__desc">Учебные аудитории с разграничением прав, тестирование после занятия, ведомость результатов и выгрузка в ведомственную систему обучения.</p>
+        </div>
+        <div class="cap__meta">аудитории + тесты</div>
+      </article>
+
+      <article class="cap rv">
+        <div class="cap__num">06</div>
+        <div>
+          <h3 class="cap__t">Запись и протоколирование</h3>
+          <p class="cap__desc">Автозапись сеанса, расшифровка речи, поиск по протоколу, экспорт в PDF и электронная подпись ответственного сотрудника.</p>
+        </div>
+        <div class="cap__meta">хранение 3 года</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCENARIOS / 3D WALL ============ -->
+<section class="sec sec--alt" id="scenarii">
+  <div class="wrap grid12">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-kicker">Раздел 03</div>
+        <h2 class="title">Видеостена аппаратной</h2>
+      </div>
+      <p class="sec-note">
+        Пять рабочих окон оператора: основной эфир, презентация, выездная группа,
+        зал совещаний и мониторинг канала. Наведите курсор — окно поднимается к вам.
+      </p>
+    </div>
+
+    <div class="wall-stage rv">
+      <div class="wall">
+        <figure class="tile" style="margin:0">
+          <img src="https://images.pexels.com/photos/7643888/pexels-photo-7643888.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=700" alt="Видеомост с участниками совещания" loading="lazy">
+          <span class="tile__live">В эфире</span>
+          <figcaption class="tile__cap"><b>Основной эфир</b><span>Коллегия · 128 мест</span></figcaption>
+        </figure>
+        <figure class="tile" style="margin:0">
+          <img src="https://images.pexels.com/photos/17486300/pexels-photo-17486300.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=700" alt="Камера на рабочем месте оператора" loading="lazy">
+          <figcaption class="tile__cap"><b>Камера зала</b><span>4 К · 50 к/с</span></figcaption>
+        </figure>
+        <figure class="tile" style="margin:0">
+          <img src="https://images.pexels.com/photos/38816547/pexels-photo-38816547.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=700" alt="Переговорная с экраном" loading="lazy">
+          <figcaption class="tile__cap"><b>Зал совещаний</b><span>Территориальный орган</span></figcaption>
+        </figure>
+        <figure class="tile" style="margin:0">
+          <img src="https://images.pexels.com/photos/7648050/pexels-photo-7648050.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=700" alt="Инструктаж перед аудиторией" loading="lazy">
+          <span class="tile__live">Трансляция</span>
+          <figcaption class="tile__cap"><b>Инструктаж</b><span>812 подразделений</span></figcaption>
+        </figure>
+        <figure class="tile" style="margin:0">
+          <img src="https://images.pexels.com/photos/5511124/pexels-photo-5511124.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=700" alt="Пустая переговорная с экраном" loading="lazy">
+          <span class="tile__live">Резерв</span>
+          <figcaption class="tile__cap"><b>Резервный канал</b><span>Магадан · дубль</span></figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="wall-legend rv">
+      <span><b>Кодек:</b> H.265 / AV1</span>
+      <span><b>Разрешение:</b> до 3840×2160</span>
+      <span><b>Шифрование:</b> ГОСТ Р 34.12-2018</span>
+      <span><b>Запись:</b> ведётся</span>
+      <span><b>Оператор:</b> дежурная смена № 2</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SESSION LOG (dark panel + 3D shield) ============ -->
+<section class="sec panel" id="journal">
+  <div class="wrap grid12">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-kicker">Раздел 04</div>
+        <h2 class="title">Журнал сеансов</h2>
+      </div>
+      <p class="sec-note">
+        Оперативная выписка из системы за текущие сутки. Данные обновляются автоматически,
+        доступ к полной версии — по служебной учётной записи.
+      </p>
+    </div>
+
+    <div class="shield-col rv">
+      <div class="shield-stage">
+        <canvas id="shield" aria-label="Трёхмерная модель ведомственного щита"></canvas>
+        <div class="shield-fallback" id="shieldFallback">
+          <svg viewBox="0 0 64 70" aria-hidden="true">
+            <path d="M32 1 L35 7 V44 H29 V7 Z" fill="#C9CFD8"/>
+            <rect x="20" y="44" width="24" height="3.4" fill="#C8A44D"/>
+            <path d="M8 9 H56 V33 C56 47 45.5 57.5 32 62 C18.5 57.5 8 47 8 33 Z" fill="#0B4EA2" stroke="#C8A44D" stroke-width="2.6"/>
+            <path d="M32 15 L37.6 31.4 L55 32 L41.2 42 L46.3 58.4 L32 48.6 L17.7 58.4 L22.8 42 L9 32 L26.4 31.4 Z" fill="#C8A44D"/>
+            <circle cx="32" cy="35.6" r="5.4" fill="#073066"/>
+          </svg>
+        </div>
+      </div>
+      <div class="shield-meta">
+        <div><b>ГОСТ</b><span>Р 34.13-2018</span></div>
+        <div><b>256</b><span>бит, сессионный ключ</span></div>
+        <div><b>0</b><span>зафиксированных сбоев</span></div>
+        <div><b>3 года</b><span>срок хранения записей</span></div>
+      </div>
+    </div>
+
+    <div class="log-col rv">
+      <div class="log-tools">
+        <button class="chip is-active" data-filter="all" type="button">Все</button>
+        <button class="chip" data-filter="live" type="button">В эфире</button>
+        <button class="chip" data-filter="done" type="button">Завершены</button>
+        <button class="chip" data-filter="wait" type="button">Ожидают</button>
+        <span class="log-count" id="logCount">Записей: 8</span>
+      </div>
+
+      <div class="tablewrap">
+        <table id="logTable">
+          <thead>
+            <tr>
+              <th>Идентификатор</th>
+              <th>Подразделение</th>
+              <th>Тема сеанса</th>
+              <th>Начало</th>
+              <th>Длит.</th>
+              <th>Участн.</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-status="live">
+              <td class="mono">VKS-2026-0417</td><td>Центральный аппарат</td><td>Коллегия МВД России</td>
+              <td class="num">10:00</td><td class="num">01:12</td><td class="num">128</td>
+              <td><span class="st st--live">В эфире</span></td>
+            </tr>
+            <tr data-status="live">
+              <td class="mono">VKS-2026-0418</td><td>ГУ МВД по г. Москве</td><td>Инструктаж дежурных частей</td>
+              <td class="num">10:30</td><td class="num">00:42</td><td class="num">64</td>
+              <td><span class="st st--live">В эфире</span></td>
+            </tr>
+            <tr data-status="done">
+              <td class="mono">VKS-2026-0412</td><td>ГУ МВД по Приморскому краю</td><td>Оперативный штаб «Порт»</td>
+              <td class="num">08:15</td><td class="num">00:58</td><td class="num">36</td>
+              <td><span class="st st--done">Завершён</span></td>
+            </tr>
+            <tr data-status="done">
+              <td class="mono">VKS-2026-0409</td><td>Следственный департамент</td><td>Совещание по практике</td>
+              <td class="num">09:00</td><td class="num">01:40</td><td class="num">82</td>
+              <td><span class="st st--done">Завершён</span></td>
+            </tr>
+            <tr data-status="wait">
+              <td class="mono">VKS-2026-0419</td><td>ГУ МВД по Республике Татарстан</td><td>Судебное заседание (запрос)</td>
+              <td class="num">12:15</td><td class="num">—</td><td class="num">8</td>
+              <td><span class="st st--wait">Ожидает</span></td>
+            </tr>
+            <tr data-status="wait">
+              <td class="mono">VKS-2026-0420</td><td>ГУОБДД МВД России</td><td>Обучение инспекторов, 2 поток</td>
+              <td class="num">13:00</td><td class="num">—</td><td class="num">150</td>
+              <td><span class="st st--wait">Ожидает</span></td>
+            </tr>
+            <tr data-status="done">
+              <td class="mono">VKS-2026-0405</td><td>ГУ МВД по Свердловской области</td><td>Приём обращений граждан (видео)</td>
+              <td class="num">07:40</td><td class="num">00:35</td><td class="num">12</td>
+              <td><span class="st st--done">Завершён</span></td>
+            </tr>
+            <tr data-status="done">
+              <td class="mono">VKS-2026-0402</td><td>ГУ МВД по Калининградской области</td><td>Селекторное совещание</td>
+              <td class="num">07:00</td><td class="num">00:47</td><td class="num">54</td>
+              <td><span class="st st--done">Завершён</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWS ============ -->
+<section class="sec" id="novosti">
+  <div class="wrap grid12">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-kicker">Раздел 05</div>
+        <h2 class="title">Новости и пресс-служба</h2>
+      </div>
+      <a class="btn btn--ghost" href="#novosti">Все материалы →</a>
+    </div>
+
+    <div class="news-lead rv news-item" data-search="контур аппаратные territorial подключены territorial органы">
+      <div class="nimg">
+        <img src="https://images.pexels.com/photos/39204830/pexels-photo-39204830.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1400" alt="Совещание с презентацией на экране" loading="lazy">
+      </div>
+      <div class="ndate">26 мая 2026 · В центре внимания</div>
+      <h3>Ещё 14 территориальных органов подключены к единому контуру видеосвязи</h3>
+      <p>
+        Аппаратные в Магадане, Петропавловске-Камчатском, Салехарде и ещё одиннадцати городах
+        переведены на защищённый канал. Общая численность точек подключения достигла 4 218.
+      </p>
+    </div>
+
+    <div class="news-side">
+      <a class="news-card news-item" href="#novosti" data-search="регламент инструктаж запись расшифровка">
+        <div class="thumb">
+          <img src="https://images.pexels.com/photos/6814354/pexels-photo-6814354.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=500&w=500" alt="Рабочее совещание" loading="lazy">
+        </div>
+        <div>
+          <div class="ndate">24 мая</div>
+          <h4>Введён автоматический протокол инструктажей с расшифровкой речи</h4>
+          <p>Сотрудник получает протокол сеанса в течение пяти минут после завершения трансляции.</p>
+        </div>
+      </a>
+
+      <a class="news-card news-item" href="#novosti" data-search="судебные заседания видеосвязь суды">
+        <div class="thumb">
+          <img src="https://images.pexels.com/photos/6949494/pexels-photo-6949494.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=500&w=500" alt="Совещание в переговорной" loading="lazy">
+        </div>
+        <div>
+          <div class="ndate">21 мая</div>
+          <h4>Расширен порядок участия сотрудников в заседаниях по видеосвязи</h4>
+          <p>Выделенные каналы работают в 76 судах общей юрисдикции с подтверждением времени сеанса.</p>
+        </div>
+      </a>
+
+      <div class="quote">
+        <p>Единый контур позволил сократить время сбора совещания с двух суток до двадцати минут — регион подключается по одной заявке.</p>
+        <span>Пресс-служба МВД России · оперативный брифинг</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCUMENTS ============ -->
+<section class="sec sec--alt" id="dokumenty">
+  <div class="wrap grid12">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-kicker">Раздел 06</div>
+        <h2 class="title">Документы и регламенты</h2>
+      </div>
+      <p class="sec-note">Материалы для служебного пользования. Загрузка доступна по учётной записи; размер файла указан в мегабайтах.</p>
+    </div>
+
+    <div class="docs" id="docList">
+      <a class="doc rv news-item" href="#dokumenty" data-search="регламент использования сервиса видеоконференцсвязи">
+        <div>
+          <div class="doc__t">Регламент использования сервиса видеоконференцсвязи МВД России</div>
+          <div class="doc__meta">Редакция № 3 · 1,8 МБ · 44 с.</div>
+        </div>
+        <span class="fmt">PDF</span>
+        <span class="arrow">↓</span>
+      </a>
+      <a class="doc rv news-item" href="#dokumenty" data-search="порядок организации защищённых видеосовещаний">
+        <div>
+          <div class="doc__t">Порядок организации защищённых видеосовещаний</div>
+          <div class="doc__meta">Утв. приказом · 2,4 МБ · 61 с.</div>
+        </div>
+        <span class="fmt">PDF</span>
+        <span class="arrow">↓</span>
+      </a>
+      <a class="doc rv news-item" href="#dokumenty" data-search="технические требования рабочие места аппаратная">
+        <div>
+          <div class="doc__t">Технические требования к рабочим местам и аппаратным</div>
+          <div class="doc__meta">Приложение А · 860 КБ · 18 с.</div>
+        </div>
+        <span class="fmt">PDF</span>
+        <span class="arrow">↓</span>
+      </a>
+      <a class="doc rv news-item" href="#dokumenty" data-search="инструкция оператора аппаратной">
+        <div>
+          <div class="doc__t">Инструкция оператора дежурной смены</div>
+          <div class="doc__meta">С иллюстрациями · 1,2 МБ · 26 с.</div>
+        </div>
+        <span class="fmt">PDF</span>
+        <span class="arrow">↓</span>
+      </a>
+      <a class="doc rv news-item" href="#dokumenty" data-search="соглашение конфиденциальность обработка данных">
+        <div>
+          <div class="doc__t">Соглашение о неразглашении при обработке данных сеанса</div>
+          <div class="doc__meta">Шаблон · 64 КБ · 4 с.</div>
+        </div>
+        <span class="fmt">DOCX</span>
+        <span class="arrow">↓</span>
+      </a>
+      <div class="empty" id="docEmpty" hidden>По запросу ничего не найдено. Уточните формулировку.</div>
+    </div>
+
+    <aside class="docs-side rv">
+      <div class="side-box">
+        <h3>Порядок подключения</h3>
+        <ul>
+          <li>Заявка от руководителя подразделения</li>
+          <li>Проверка канала и оборудования (до 2 часов)</li>
+          <li>Выдача сессионного ключа оператору</li>
+          <li>Пробный сеанс с дежурной сменой</li>
+          <li>Включение точки в журнал сеансов</li>
+        </ul>
+        <button class="btn" type="button" data-login style="margin-top:20px;width:100%;justify-content:center">Оставить заявку</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ SUPPORT ============ -->
+<section class="sec" id="podderzhka">
+  <div class="wrap grid12">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-kicker">Раздел 07</div>
+        <h2 class="title">Поддержка и контакты</h2>
+      </div>
+      <p class="sec-note">Круглосуточная дежурная смена. При недоступности канала подключайтесь по резервному маршруту — номер указан в карточке точки.</p>
+    </div>
+
+    <div class="sup-grid rv">
+      <div class="sup">
+        <h4>Единая служба поддержки</h4>
+        <p>Круглосуточно, без выходных. Номер закреплён за вашей точкой подключения.</p>
+        <b>8 800 100-12-40</b>
+      </div>
+      <div class="sup">
+        <h4>Дежурная смена, сбои канала</h4>
+        <p>Приоритетная линия для восстановления сеанса в течение 15 минут.</p>
+        <b>+7 495 627-04-11</b>
+      </div>
+      <div class="sup">
+        <h4>Электронная почта (демо)</h4>
+        <p>Заявки на подключение, вопросы по регламенту и обучению операторов.</p>
+        <b>support@vks-mvd.demo</b>
+      </div>
+    </div>
+
+    <form class="form rv" id="callForm" novalidate>
+      <h3>Заявка на сеанс</h3>
+      <p>Заполните — дежурная смена свяжется с подразделением и подтвердит время подключения.</p>
+      <div class="form-row">
+        <div class="field">
+          <label for="f-name">Фамилия, имя, отчество</label>
+          <input id="f-name" name="name" type="text" placeholder="Иванов Иван Иванович" required>
+        </div>
+        <div class="field">
+          <label for="f-unit">Подразделение</label>
+          <input id="f-unit" name="unit" type="text" placeholder="ГУ МВД по …" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="f-type">Тип сеанса</label>
+          <select id="f-type" name="type">
+            <option>Совещание / коллегия</option>
+            <option>Инструктаж личного состава</option>
+            <option>Судебное заседание</option>
+            <option>Оперативный штаб</option>
+            <option>Учебное занятие</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-time">Желаемое время</label>
+          <input id="f-time" name="time" type="datetime-local">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-note">Примечание</label>
+        <textarea id="f-note" name="note" rows="3" placeholder="Количество участников, зал, оборудование"></textarea>
+      </div>
+      <button class="btn btn--gold" type="submit">Отправить заявку</button>
+      <div class="form-ok" id="formOk"></div>
+    </form>
+
+    <div class="mapish rv">
+      <div class="regions">
+        <h4>МВД в регионах · точки контура</h4>
+        <div class="region"><span>Москва, центральный аппарат</span><span>84 мс</span></div>
+        <div class="region"><span>Санкт-Петербург</span><span>76 мс</span></div>
+        <div class="region"><span>Новосибирск</span><span>91 мс</span></div>
+        <div class="region"><span>Екатеринбург</span><span>88 мс</span></div>
+        <div class="region"><span>Владивосток</span><span>112 мс</span></div>
+        <div class="region"><span>Калининград</span><span>97 мс</span></div>
+        <div class="region"><span>Мурманск</span><span>89 мс</span></div>
+        <div class="region"><span>Якутск</span><span>124 мс</span></div>
+      </div>
+      <div class="regions" style="border-top:1px solid var(--line)">
+        <h4>Полезные ресурсы</h4>
+        <div class="region"><span>Онлайн-сервисы МВД России</span><span>→</span></div>
+        <div class="region"><span>Пресс-центр МВД России</span><span>→</span></div>
+        <div class="region"><span>Территориальные органы</span><span>→</span></div>
+        <div class="region"><span>Телефон доверия</span><span>02</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <svg viewBox="0 0 64 70" aria-hidden="true">
+          <path d="M32 1 L35 7 V44 H29 V7 Z" fill="#C9CFD8"/>
+          <rect x="20" y="44" width="24" height="3.4" fill="#C8A44D"/>
+          <path d="M8 9 H56 V33 C56 47 45.5 57.5 32 62 C18.5 57.5 8 47 8 33 Z" fill="#0B4EA2" stroke="#C8A44D" stroke-width="2.6"/>
+          <path d="M32 15 L37.6 31.4 L55 32 L41.2 42 L46.3 58.4 L32 48.6 L17.7 58.4 L22.8 42 L9 32 L26.4 31.4 Z" fill="#C8A44D"/>
+          <circle cx="32" cy="35.6" r="5.4" fill="#073066"/>
+        </svg>
+        <b>Сервис видеоконференцсвязи<br>МВД России</b>
+        <p>Единый защищённый контур для совещаний, инструктажей и судебных заседаний с участием ОВД.</p>
+      </div>
+      <div>
+        <h5>МВД России</h5>
+        <ul>
+          <li><a href="#hero">Министр</a></li>
+          <li><a href="#vozmozhnosti">Структура Министерства</a></li>
+          <li><a href="#dokumenty">Документы</a></li>
+          <li><a href="#novosti">Пресс-центр</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Деятельность</h5>
+        <ul>
+          <li><a href="#journal">Журнал сеансов</a></li>
+          <li><a href="#scenarii">Сценарии применения</a></li>
+          <li><a href="#dokumenty">Регламенты</a></li>
+          <li><a href="#podderzhka">Статистика контура</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Контакты</h5>
+        <ul>
+          <li><a href="#podderzhka">Поддержка 8 800 100-12-40</a></li>
+          <li><a href="#podderzhka">Заявка на сеанс</a></li>
+          <li><a href="#podderzhka">Телефон доверия</a></li>
+          <li><a href="#dokumenty">Порядок подключения</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      Страница создана для практических целей и не является официальным сайтом Министерство внутренних дел России. Все названия, номера и материалы приведены в демонстрационных целях.
+    </div>
+
+    <div class="foot-bot">
+      <span>© 2026 · Учебная реконструкция · Вёрстка и 3D — собственная реализация</span>
+      <span>Конструкция: HTML · CSS · three.js</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ IMPORT MAP + 3D ============ -->
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+
+<!-- ============ UI ============ -->
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* clock */
+  var clock = document.getElementById('clock');
+  function tick(){
+    var d = new Date();
+    var p = function(n){return String(n).padStart(2,'0');};
+    clock.textContent = p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' · '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* enlarged reading mode */
+  var a11y = document.getElementById('a11y');
+  var stored = false;
+  try { stored = localStorage.getItem('vks-big') === '1'; } catch(e){}
+  function applyBig(on){
+    document.documentElement.classList.toggle('big', on);
+    a11y.setAttribute('aria-pressed', on ? 'true' : 'false');
+    a11y.textContent = on ? 'Обычная версия' : 'Версия для слабовидящих';
+  }
+  if(stored) applyBig(true);
+  a11y.addEventListener('click', function(){
+    var on = !document.documentElement.classList.contains('big');
+    applyBig(on);
+    try { localStorage.setItem('vks-big', on ? '1' : '0'); } catch(e){}
+  });
+
+  /* burger */
+  var burger = document.getElementById('burger'), nav = document.getElementById('nav');
+  burger.addEventListener('click', function(){
+    var open = nav.classList.toggle('is-open');
+    burger.setAttribute('aria-expanded', open ? 'true':'false');
+  });
+  nav.addEventListener('click', function(e){
+    if(e.target.tagName === 'A'){ nav.classList.remove('is-open'); burger.setAttribute('aria-expanded','false'); }
+  });
+
+  /* login demo */
+  document.querySelectorAll('[data-login]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var j = document.getElementById('journal');
+      j.scrollIntoView({behavior: reduce ? 'auto':'smooth', block:'start'});
+    });
+  });
+
+  /* reveals */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('is-in'); io.unobserve(en.target); }
+    });
+  }, {threshold:.14, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el, i){
+    el.style.transitionDelay = ((i % 6) * 60) + 'ms';
+    io.observe(el);
+  });
+
+  /* counters */
+  function animateCount(el){
+    var target = parseFloat(el.dataset.count), dec = parseInt(el.dataset.dec || '0', 10);
+    if(reduce){ el.textContent = fmt(target, dec); return; }
+    var start = performance.now(), dur = 1500;
+    function step(now){
+      var p = Math.min(1, (now - start)/dur);
+      var e = 1 - Math.pow(1-p, 3);
+      el.textContent = fmt(target*e, dec);
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(target, dec);
+    }
+    requestAnimationFrame(step);
+  }
+  function fmt(v, dec){
+    return v.toLocaleString('ru-RU', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  }
+  var cio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ animateCount(e.target); cio.unobserve(e.target);} });
+  }, {threshold:.5});
+  document.querySelectorAll('[data-count]').forEach(function(el){ cio.observe(el); });
+
+  /* live "sessions today" drift */
+  var st = document.getElementById('sessionsToday');
+  if(st && !reduce){
+    setInterval(function(){
+      if(Math.random() > .55){
+        var v = parseInt(st.textContent.replace(/\s/g,''), 10) + 1;
+        if(!isNaN(v)) st.textContent = v.toLocaleString('ru-RU');
+      }
+    }, 7000);
+  }
+
+  /* ticker duplicate for seamless loop */
+  var tt = document.getElementById('tickerTrack');
+  tt.innerHTML = tt.innerHTML + tt.innerHTML;
+
+  /* session log filter */
+  var chips = document.querySelectorAll('.chip[data-filter]');
+  var rows = document.querySelectorAll('#logTable tbody tr');
+  var logCount = document.getElementById('logCount');
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      chips.forEach(function(x){ x.classList.remove('is-active'); });
+      c.classList.add('is-active');
+      var f = c.dataset.filter, shown = 0;
+      rows.forEach(function(r){
+        var ok = (f === 'all') || (r.dataset.status === f);
+        r.style.display = ok ? '' : 'none';
+        if(ok) shown++;
+      });
+      logCount.textContent = 'Записей: ' + shown;
+    });
+  });
+
+  /* search across news + documents */
+  var q = document.getElementById('q');
+  var docEmpty = document.getElementById('docEmpty');
+  q.addEventListener('input', function(){
+    var v = q.value.trim().toLowerCase();
+    var docs = document.querySelectorAll('#docList .doc');
+    var docHits = 0;
+    docs.forEach(function(d){
+      var hit = !v || (d.textContent + ' ' + (d.dataset.search||'')).toLowerCase().indexOf(v) > -1;
+      d.style.display = hit ? '' : 'none';
+      if(hit) docHits++;
+    });
+    if(docEmpty) docEmpty.hidden = !(v && docHits === 0);
+    document.querySelectorAll('#novosti .news-item').forEach(function(n){
+      var hit = !v || (n.textContent + ' ' + (n.dataset.search||'')).toLowerCase().indexOf(v) > -1;
+      n.style.opacity = hit ? '1' : '.25';
+      n.style.filter = hit ? 'none' : 'grayscale(1)';
+    });
+  });
+
+  /* form */
+  var form = document.getElementById('callForm'), ok = document.getElementById('formOk');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('f-name').value.trim();
+    var unit = document.getElementById('f-unit').value.trim();
+    if(!name || !unit){
+      ok.classList.add('is-on');
+      ok.style.borderColor = '#FF6167'; ok.style.color = '#FF6167';
+      ok.textContent = 'Ошибка: заполните фамилию и подразделение.';
+      return;
+    }
+    ok.style.borderColor = ''; ok.style.color = '';
+    var id = 'VKS-2026-' + String(421 + Math.floor(Math.random()*70)).padStart(4,'0');
+    ok.classList.add('is-on');
+    ok.textContent = 'Заявка ' + id + ' принята. Дежурная смена подтвердит время подключения в течение 15 минут.';
+    form.reset();
+  });
+
+  /* rail + nav active section */
+  var sections = ['hero','vozmozhnosti','scenarii','journal','novosti','dokumenty','podderzhka'];
+  var railLinks = document.querySelectorAll('#railList a');
+  var navLinks = document.querySelectorAll('#nav a');
+  var sio = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        railLinks.forEach(function(a){ a.classList.toggle('is-active', a.dataset.rail === e.target.id); });
+        navLinks.forEach(function(a){ a.classList.toggle('is-active', a.getAttribute('href') === '#'+e.target.id); });
+      }
+    });
+  }, {threshold:.35});
+  sections.forEach(function(id){ var el = document.getElementById(id); if(el) sio.observe(el); });
+})();
+</script>
+
+<script type="module">
+let THREE = null;
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hasWebGL = (() => {
+  try {
+    const c = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+  } catch(e){ return false; }
+})();
+
+function show3dFallback(){
+  const f = document.getElementById('shieldFallback');
+  if(f) f.style.display = 'flex';
+  const badge = document.querySelector('.badge3d');
+  if(badge) badge.textContent = 'Статичный режим · без WebGL';
+  const cv = document.getElementById('globe');
+  if(cv) cv.style.display = 'none';
+}
+
+try {
+  THREE = await import('three');
+} catch(err){
+  console.warn('three.js не загрузился:', err);
+  THREE = null;
+}
+
+if(hasWebGL && THREE){
+  try{
+    initGlobe();
+    initShield();
+  } catch(err){
+    console.warn('Ошибка 3D-сцены:', err);
+    show3dFallback();
+  }
+} else {
+  show3dFallback();
+}
+
+/* ==================== GLOBE ==================== */
+function initGlobe(){
+  const canvas = document.getElementById('globe');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  camera.position.set(0, 0.35, 6.4);
+
+  const world = new THREE.Group();
+  world.rotation.z = -0.30;
+  world.rotation.y = -0.6;
+  scene.add(world);
+
+  const R = 1.92;
+
+  /* --- earth --- */
+  const earthMat = new THREE.MeshBasicMaterial({ color: 0x0A1E36 });
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 48), earthMat);
+  world.add(earth);
+
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+  loader.load(
+    'https://unpkg.com/three-globe/example/img/earth-night.jpg',
+    (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      earthMat.map = tex;
+      earthMat.color.setHex(0xCFE0FF);
+      earthMat.needsUpdate = true;
+    },
+    undefined,
+    () => { addDotCloud(); }
+  );
+
+  /* fallback digital globe */
+  function addDotCloud(){
+    const N = 3200, pos = new Float32Array(N*3);
+    for(let i=0;i<N;i++){
+      const u = Math.random(), v = Math.random();
+      const th = 2*Math.PI*u, ph = Math.acos(2*v-1);
+      pos[i*3]   = (R+0.012)*Math.sin(ph)*Math.cos(th);
+      pos[i*3+1] = (R+0.012)*Math.cos(ph);
+      pos[i*3+2] = (R+0.012)*Math.sin(ph)*Math.sin(th);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const m = new THREE.PointsMaterial({color:0x2E8BD6, size:0.02, transparent:true, opacity:.75, depthWrite:false});
+    world.add(new THREE.Points(g, m));
+  }
+
+  /* --- graticule --- */
+  const grat = new THREE.LineSegments(
+    new THREE.WireframeGeometry(new THREE.SphereGeometry(R + 0.006, 36, 22)),
+    new THREE.LineBasicMaterial({color:0x2E8BD6, transparent:true, opacity:0.16})
+  );
+  world.add(grat);
+
+  /* --- atmosphere --- */
+  const atmo = new THREE.Mesh(
+    new THREE.SphereGeometry(R * 1.14, 48, 32),
+    new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vN;
+        void main(){
+          vN = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }`,
+      fragmentShader: `
+        varying vec3 vN;
+        void main(){
+          float i = pow(0.68 - dot(vN, vec3(0.0,0.0,1.0)), 3.0);
+          gl_FragColor = vec4(0.18, 0.54, 0.84, 1.0) * clamp(i, 0.0, 1.4);
+        }`,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false
+    })
+  );
+  world.add(atmo);
+
+  /* --- helpers --- */
+  function toVec(lat, lon, r){
+    const phi = (90 - lat) * Math.PI/180;
+    const theta = (lon + 180) * Math.PI/180;
+    return new THREE.Vector3(
+      -r * Math.sin(phi) * Math.cos(theta),
+       r * Math.cos(phi),
+       r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  const MSK = [55.75, 37.62];
+  const targets = [
+    [43.12,131.89],[48.48,135.08],[62.03,129.73],[52.29,104.28],[55.03,82.92],
+    [56.84,60.65],[47.23,39.72],[54.71,20.51],[68.97,33.09],[43.60,39.73],
+    [42.98,47.50],[55.79,49.11],[56.01,92.87],[57.15,65.53],[59.94,30.31],
+    [54.99,73.37],[48.71,44.51],[64.54,40.54],[45.04,41.97],[64.47,76.53]
+  ];
+
+  const origin = toVec(MSK[0], MSK[1], R + 0.02);
+  const arcs = [];
+
+  targets.forEach((t, idx) => {
+    const end = toVec(t[0], t[1], R + 0.02);
+    const dist = origin.distanceTo(end);
+    const lift = 0.22 + dist * 0.34;
+    const pts = [];
+    const SEG = 72;
+    for(let i=0;i<=SEG;i++){
+      const k = i/SEG;
+      const p = new THREE.Vector3().copy(origin).lerp(end, k);
+      p.normalize().multiplyScalar(R + 0.02 + Math.sin(Math.PI*k) * lift);
+      pts.push(p);
+    }
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const isMain = idx < 4;
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: isMain ? 0xC8A44D : 0x67B7F0,
+      transparent: true,
+      opacity: isMain ? 0.95 : 0.5,
+      depthWrite: false
+    }));
+    geo.setDrawRange(0, 0);
+    world.add(line);
+
+    /* travelling head */
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(isMain ? 0.032 : 0.022, 12, 12),
+      new THREE.MeshBasicMaterial({color: isMain ? 0xFFE6A8 : 0xBFE4FF, transparent:true, opacity:0.95})
+    );
+    head.visible = false;
+    world.add(head);
+
+    arcs.push({pts, line, head, seg:SEG, delay: idx * 0.45, speed: 0.30 + (idx % 5) * 0.045});
+  });
+
+  /* --- nodes --- */
+  const nodeGroup = new THREE.Group();
+  world.add(nodeGroup);
+  const allPts = [MSK].concat(targets);
+  const pulses = [];
+  allPts.forEach((c, i) => {
+    const p = toVec(c[0], c[1], R + 0.02);
+    const isMsk = i === 0;
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(isMsk ? 0.055 : 0.032, 14, 14),
+      new THREE.MeshBasicMaterial({color: isMsk ? 0xD8232A : 0xFFD98A})
+    );
+    dot.position.copy(p);
+    nodeGroup.add(dot);
+
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.055, 0.072, 40),
+      new THREE.MeshBasicMaterial({color: isMsk ? 0xD8232A : 0xC8A44D, transparent:true, opacity:.7, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending})
+    );
+    ring.position.copy(p);
+    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), p.clone().normalize());
+    nodeGroup.add(ring);
+    pulses.push({ring, phase: i * 0.7, base: isMsk ? 1.5 : 1});
+  });
+
+  /* --- star field --- */
+  const sN = 700, sPos = new Float32Array(sN*3);
+  for(let i=0;i<sN;i++){
+    const r = 12 + Math.random()*22;
+    const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    sPos[i*3] = r*Math.sin(ph)*Math.cos(th);
+    sPos[i*3+1] = r*Math.cos(ph);
+    sPos[i*3+2] = r*Math.sin(ph)*Math.sin(th);
+  }
+  const sg = new THREE.BufferGeometry();
+  sg.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xAFC6DE, size:0.09, transparent:true, opacity:.55, depthWrite:false})));
+
+  /* --- interaction --- */
+  let targetRotY = world.rotation.y;
+  let targetRotX = 0;
+  let dragging = false, lastX = 0, lastY = 0, idle = 0;
+  const pointer = {x:0, y:0};
+
+  canvas.addEventListener('pointerdown', e => {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointerup', () => { dragging = false; });
+  canvas.addEventListener('pointercancel', () => { dragging = false; });
+  canvas.addEventListener('pointermove', e => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left)/rect.width - .5);
+    pointer.y = ((e.clientY - rect.top)/rect.height - .5);
+    if(!dragging) return;
+    targetRotY += (e.clientX - lastX) * 0.006;
+    targetRotX += (e.clientY - lastY) * 0.004;
+    targetRotX = Math.max(-0.6, Math.min(0.6, targetRotX));
+    lastX = e.clientX; lastY = e.clientY;
+    idle = 0;
+  });
+
+  function resize(){
+    const w = canvas.clientWidth || canvas.parentElement.clientWidth;
+    const h = canvas.clientHeight || canvas.parentElement.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(h, 1);
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const clock = new THREE.Clock();
+  let t = 0;
+
+  function frame(){
+    const dt = Math.min(clock.getDelta(), 0.05);
+    t += dt;
+    idle += dt;
+
+    if(!dragging && idle > 1.2 && !reduce) targetRotY += dt * 0.055;
+    world.rotation.y += (targetRotY - world.rotation.y) * 0.06;
+    const px = reduce ? 0 : pointer.x, py = reduce ? 0 : pointer.y;
+    world.rotation.x += ((targetRotX + py * 0.18) - world.rotation.x) * 0.05;
+    camera.position.x += (px * 0.5 - camera.position.x) * 0.04;
+    camera.position.y += (0.35 - py * 0.35 - camera.position.y) * 0.04;
+    camera.lookAt(0, 0, 0);
+
+    /* arcs draw */
+    arcs.forEach((a, i) => {
+      const cycle = 4.6;
+      const local = ((t + a.delay) % cycle) / cycle;
+      let drawn = 0;
+      if(local < 0.45) drawn = local / 0.45;
+      else if(local < 0.85) drawn = 1;
+      else drawn = 1 - (local - 0.85)/0.15;
+      drawn = Math.max(0, Math.min(1, drawn));
+      a.line.geometry.setDrawRange(0, Math.floor(drawn * a.seg) + 1);
+      a.line.material.opacity = (i < 4 ? 0.95 : 0.5) * (0.35 + 0.65 * drawn);
+
+      const hp = Math.min(1, local/0.45);
+      a.head.visible = local < 0.45;
+      if(a.head.visible){
+        const idx = Math.floor(hp * a.seg);
+        a.head.position.copy(a.pts[Math.min(idx, a.seg)]);
+      }
+    });
+
+    /* node pulses */
+    pulses.forEach(p => {
+      const k = (Math.sin(t * 1.7 + p.phase) + 1) / 2;
+      const s = (1 + k * 1.7) * p.base;
+      p.ring.scale.set(s, s, s);
+      p.ring.material.opacity = (1 - k) * 0.75;
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+/* ==================== SHIELD ==================== */
+function initShield(){
+  const canvas = document.getElementById('shield');
+  const fallback = document.getElementById('shieldFallback');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 60);
+  camera.position.set(0, 0, 7);
+
+  const group = new THREE.Group();
+  scene.add(group);
+
+  /* sword (behind) */
+  const steel = new THREE.MeshStandardMaterial({color:0xDDE3EA, metalness:1, roughness:0.24});
+  const gold  = new THREE.MeshStandardMaterial({color:0xC8A44D, metalness:0.95, roughness:0.28});
+  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.24, 4.6, 0.09), steel);
+  blade.position.z = -0.30;
+  group.add(blade);
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.5, 4), steel);
+  tip.rotation.y = Math.PI/4;
+  tip.position.set(0, 2.55, -0.30);
+  group.add(tip);
+  const guard = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.20, 0.16), gold);
+  guard.position.set(0, -1.55, -0.28);
+  group.add(guard);
+  const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.24, 24, 18), gold);
+  pommel.position.set(0, -2.42, -0.30);
+  group.add(pommel);
+
+  /* shield shape */
+  const sh = new THREE.Shape();
+  sh.moveTo(-1.25, 1.75);
+  sh.lineTo(1.25, 1.75);
+  sh.lineTo(1.25, -0.25);
+  sh.bezierCurveTo(1.25, -1.35, 0.7, -1.9, 0, -2.15);
+  sh.bezierCurveTo(-0.7, -1.9, -1.25, -1.35, -1.25, -0.25);
+  sh.closePath();
+
+  const rim = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(sh, {depth:0.20, bevelEnabled:true, bevelThickness:0.07, bevelSize:0.10, bevelSegments:4, curveSegments:36}),
+    gold
+  );
+  rim.position.z = -0.22;
+  rim.scale.set(1.09, 1.07, 1);
+  group.add(rim);
+
+  const face = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(sh, {depth:0.26, bevelEnabled:true, bevelThickness:0.06, bevelSize:0.07, bevelSegments:4, curveSegments:36}),
+    new THREE.MeshStandardMaterial({color:0x0B4EA2, metalness:0.5, roughness:0.30})
+  );
+  face.position.z = -0.10;
+  group.add(face);
+
+  /* star */
+  const star = new THREE.Shape();
+  const RO = 0.78, RI = 0.31;
+  for(let i=0;i<10;i++){
+    const ang = -Math.PI/2 + i * Math.PI/5;
+    const r = i % 2 === 0 ? RO : RI;
+    const x = Math.cos(ang)*r, y = Math.sin(ang)*r;
+    i === 0 ? star.moveTo(x, y) : star.lineTo(x, y);
+  }
+  star.closePath();
+  const starMesh = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(star, {depth:0.14, bevelEnabled:true, bevelThickness:0.03, bevelSize:0.035, bevelSegments:2}),
+    new THREE.MeshStandardMaterial({color:0xE0B660, metalness:1, roughness:0.22})
+  );
+  starMesh.position.set(0, 0.16, 0.20);
+  group.add(starMesh);
+
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.2, 32), gold);
+  hub.rotation.x = Math.PI/2;
+  hub.position.set(0, 0.16, 0.30);
+  group.add(hub);
+
+  /* lights */
+  scene.add(new THREE.AmbientLight(0x4A6A94, 0.7));
+  const key = new THREE.DirectionalLight(0xFFF1D6, 2.4); key.position.set(3.5, 4.5, 5); scene.add(key);
+  const back = new THREE.DirectionalLight(0x2E8BD6, 1.9); back.position.set(-4, 1.5, -3); scene.add(back);
+  const fill = new THREE.PointLight(0xC8A44D, 1.1, 22); fill.position.set(0, -2.6, 4); scene.add(fill);
+
+  group.rotation.x = 0.05;
+  let targetY = 0.35, targetX = 0.05, dragging = false, lastX = 0, hover = 0;
+
+  canvas.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointerup', () => { dragging = false; });
+  canvas.addEventListener('pointercancel', () => { dragging = false; });
+  canvas.addEventListener('pointermove', e => {
+    const r = canvas.getBoundingClientRect();
+    hover = ((e.clientY - r.top)/r.height - .5) * 0.5;
+    if(dragging){ targetY += (e.clientX - lastX) * 0.01; lastX = e.clientX; }
+  });
+
+  function resize(){
+    const w = canvas.clientWidth || 300, h = canvas.clientHeight || 300;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(h, 1);
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  if(fallback) fallback.style.display = 'none';
+
+  const clock = new THREE.Clock();
+  function frame(){
+    const dt = Math.min(clock.getDelta(), 0.05);
+    if(!dragging && !reduce) targetY += dt * 0.42;
+    group.rotation.y += (targetY - group.rotation.y) * 0.08;
+    group.rotation.x += ((0.06 + hover) - group.rotation.x) * 0.06;
+    group.position.y = reduce ? 0 : Math.sin(performance.now() * 0.0011) * 0.07;
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>СЭП ИСОД МВД России | Руководство по тренажёру</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+:root{
+  --bg:#f4f7fb;--bg-card:#ffffff;--bg-sub:#edf3f8;
+  --topbar-from:#1a78c4;--topbar-to:#0d4f87;--mod-nav:#093f67;
+  --primary:#146bab;--primary-dark:#0d4f87;--primary-light:#dceaf2;--primary-xl:#eef4f8;
+  --accent:#39718e;--accent-sub:#54889f;
+  --green:#2e7d32;--green-l:#e8f5e9;--green-d:#1b5e20;
+  --orange:#c87f0a;--orange-l:#fff3e0;
+  --red:#c62828;--red-l:#ffebee;
+  --gold:#b8860b;--gold-l:#fff9e6;
+  --txt:#1a2530;--txt-muted:#5a6e7c;--txt-dim:#8aa0ac;
+  --border:#cadbe6;--border-light:#e2ecf2;
+  --shadow-sm:0 1px 3px rgba(13,79,135,.08);
+  --shadow-md:0 6px 18px rgba(13,79,135,.12);
+  --shadow-lg:0 14px 34px rgba(13,79,135,.18);
+  --r-sm:4px;--r-md:8px;--r-lg:12px;
+  --font-h:'Montserrat',sans-serif;
+  --font-b:'PT Sans',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--bg);color:var(--txt);font-size:14.5px;line-height:1.65}
+
+/* Хедер / Герой */
+.hero{
+  background:linear-gradient(135deg,#062c4a 0%,#0d4f87 45%,#1a78c4 100%);
+  color:#fff;padding:52px 24px 72px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 40%,rgba(255,255,255,.08) 0%,transparent 50%),
+             radial-gradient(circle at 80% 60%,rgba(46,125,50,.1) 0%,transparent 45%);
+  pointer-events:none;
+}
+.hero-logo-wrap{
+  display:flex;justify-content:center;align-items:center;
+  margin:0 auto 18px;position:relative;z-index:2;
+}
+.hero-logo{
+  max-width:680px;width:92%;height:auto;display:block;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.38));
+  transition:transform .25s ease;
+}
+.hero-logo:hover{transform:scale(1.015)}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+  color:#e2ecf2;font-family:var(--font-h);font-size:11px;font-weight:700;
+  padding:4px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;
+}
+.hero-title{font-family:var(--font-h);font-size:36px;font-weight:900;letter-spacing:.5px;line-height:1.2;margin-bottom:10px}
+.hero-title span{color:#90caf9}
+.hero-sub{max-width:720px;margin:0 auto 24px;color:rgba(255,255,255,.8);font-size:16px}
+.hero-tags{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;position:relative;z-index:2}
+.hero-tag{
+  padding:5px 12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.18);
+  border-radius:18px;font-family:var(--font-h);font-size:11.5px;font-weight:600;color:#f0f6fa;
+  display:inline-flex;align-items:center;gap:6px;
+}
+
+/* Контейнер */
+.container{max-width:1160px;margin:0 auto;padding:0 20px}
+
+/* Оглавление */
+.toc-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);padding:30px 34px;margin:-40px auto 48px;
+  position:relative;z-index:10;
+}
+.toc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.toc-title{font-family:var(--font-h);font-size:18px;font-weight:800;color:var(--primary-dark);display:flex;align-items:center;gap:8px}
+.toc-search{
+  display:flex;align-items:center;gap:8px;background:var(--bg-sub);
+  border:1px solid var(--border);padding:6px 12px;border-radius:var(--r-sm);width:260px;
+}
+.toc-search input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--txt);width:100%}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.toc-item{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--bg-sub);border:1px solid var(--border-light);border-radius:var(--r-md);
+  text-decoration:none;color:inherit;transition:.18s;
+}
+.toc-item:hover{background:var(--primary-xl);border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.toc-num{
+  width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;font-family:var(--font-h);font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.toc-text{flex:1;overflow:hidden}
+.toc-name{font-family:var(--font-h);font-size:12px;font-weight:700;color:var(--primary-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-desc{font-size:11px;color:var(--txt-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Секция */
+.section{margin-bottom:52px;scroll-margin-top:24px}
+.section-title-wrap{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.section-badge{
+  width:44px;height:44px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--topbar-from),var(--topbar-to));color:#fff;
+  font-family:var(--font-h);font-size:18px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm);
+}
+.section-title{font-family:var(--font-h);font-size:21px;font-weight:800;color:var(--primary-dark);text-transform:uppercase;letter-spacing:.3px}
+.section-desc{font-size:12.5px;color:var(--txt-muted)}
+
+/* Блоки уведомлений */
+.callout{
+  border-radius:var(--r-md);padding:14px 18px;margin:14px 0;
+  display:flex;align-items:flex-start;gap:12px;border-left:4px solid;font-size:13.5px;
+}
+.callout-title{font-family:var(--font-h);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.callout-body{color:var(--txt);line-height:1.55}
+.callout-info{background:var(--primary-xl);border-color:var(--primary)}
+.callout-info .callout-title{color:var(--primary-dark)}
+.callout-warn{background:var(--orange-l);border-color:var(--orange)}
+.callout-warn .callout-title{color:var(--orange)}
+.callout-success{background:var(--green-l);border-color:var(--green)}
+.callout-success .callout-title{color:var(--green-d)}
+.callout-danger{background:var(--red-l);border-color:var(--red)}
+.callout-danger .callout-title{color:var(--red)}
+.callout i{font-size:18px;margin-top:2px;flex-shrink:0}
+
+/* Аккордеон / Карточки шагов */
+.step-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);
+  margin-bottom:12px;box-shadow:var(--shadow-sm);overflow:hidden;transition:.18s;
+}
+.step-card:hover{box-shadow:var(--shadow-md);border-color:var(--accent)}
+.step-head{
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+  background:var(--bg-sub);cursor:pointer;user-select:none;transition:.15s;
+}
+.step-head.open{background:var(--primary-xl);border-bottom:1px solid var(--border-light)}
+.step-idx{
+  width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;
+  font-family:var(--font-h);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step-head-title{font-family:var(--font-h);font-size:13.5px;font-weight:700;color:var(--txt);flex:1}
+.step-head.open .step-head-title{color:var(--primary-dark)}
+.step-points{font-family:var(--font-m);font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:var(--green-l);color:var(--green-d);border:1px solid var(--green)}
+.step-arrow{font-size:13px;color:var(--txt-dim);transition:transform .25s}
+.step-head.open .step-arrow{transform:rotate(180deg);color:var(--primary)}
+.step-body{display:none;padding:18px 20px;font-size:13.5px}
+.step-body.open{display:block;animation:fadeIn .2s ease}
+
+/* Инструкции по шагам */
+.guide-list{list-style:none;margin:10px 0}
+.guide-list li{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.guide-list li:last-child{border-bottom:none}
+.guide-num{
+  width:22px;height:22px;border-radius:50%;background:var(--primary-light);color:var(--primary-dark);
+  font-family:var(--font-h);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+.guide-content{flex:1;color:var(--txt);line-height:1.55}
+.guide-content strong{color:var(--primary-dark);font-family:var(--font-h)}
+.guide-content code{
+  background:#edf3f8;border:1px solid var(--border);border-radius:3px;
+  padding:1px 6px;font-family:var(--font-m);font-size:12px;color:#9c1c1c;
+}
+
+/* Таблицы */
+.table-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-sm)}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card)}
+table.data-table th{
+  background:var(--primary-dark);color:#fff;font-family:var(--font-h);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  padding:9px 12px;text-align:left;border:none;
+}
+table.data-table td{padding:9px 12px;border-bottom:1px solid var(--border-light);color:var(--txt)}
+table.data-table tr:hover td{background:var(--bg-sub)}
+table.data-table tr:last-child td{border-bottom:none}
+.code-cell{font-family:var(--font-m);font-size:11.5px;color:var(--primary-dark);font-weight:600}
+
+/* Сетки карточек */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.card-box{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:14px 16px;box-shadow:var(--shadow-sm);transition:.18s;
+}
+.card-box:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.card-box-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-box-icon{
+  width:32px;height:32px;border-radius:50%;background:var(--primary-light);
+  color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;
+}
+.card-box-name{font-family:var(--font-h);font-size:12.5px;font-weight:700;color:var(--primary-dark)}
+.card-box-desc{font-size:12px;color:var(--txt-muted);line-height:1.45}
+
+/* Горячие клавиши */
+.hotkey-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:14px 0}
+.hk-card{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-sm);box-shadow:var(--shadow-sm);
+}
+.hk-badge{
+  font-family:var(--font-m);font-size:11.5px;font-weight:700;background:var(--primary-dark);color:#fff;
+  padding:3px 9px;border-radius:4px;box-shadow:0 2px 0 rgba(0,0,0,.3);flex-shrink:0;
+}
+.hk-desc{font-size:12px;color:var(--txt)}
+
+/* Бейджи */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--font-h);font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.badge-blue{background:var(--primary-light);color:var(--primary-dark)}
+.badge-green{background:var(--green-l);color:var(--green-d)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-orange{background:var(--orange-l);color:var(--orange)}
+
+/* Sticky навигация */
+.sticky-nav{
+  position:fixed;left:18px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:7px;z-index:90;
+}
+.sn-item{
+  width:10px;height:10px;border-radius:50%;background:rgba(13,79,135,.25);
+  cursor:pointer;transition:.2s;position:relative;
+}
+.sn-item:hover,.sn-item.active{background:var(--primary);transform:scale(1.4)}
+.sn-tooltip{
+  position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);
+  background:var(--primary-dark);color:#fff;font-family:var(--font-h);font-size:10.5px;
+  font-weight:600;padding:3px 8px;border-radius:3px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .15s;box-shadow:var(--shadow-sm);
+}
+.sn-item:hover .sn-tooltip{opacity:1}
+
+/* Кнопка наверх */
+.scroll-top{
+  position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;
+  background:var(--primary);color:#fff;border:none;box-shadow:var(--shadow-md);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  cursor:pointer;opacity:0;pointer-events:none;transition:.22s;z-index:95;
+}
+.scroll-top.show{opacity:1;pointer-events:auto}
+.scroll-top:hover{background:var(--primary-dark);transform:translateY(-2px)}
+
+/* Футер */
+.footer{
+  background:linear-gradient(180deg,#0d4f87 0%,#062c4a 100%);
+  color:rgba(255,255,255,.7);padding:42px 20px 30px;margin-top:64px;text-align:center;font-size:12.5px;
+}
+.footer-logo{font-family:var(--font-h);font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+.footer-sub{color:rgba(255,255,255,.55);margin-bottom:18px}
+.footer-links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.footer-links a{color:rgba(255,255,255,.75);text-decoration:none;font-family:var(--font-h);font-size:11.5px;font-weight:600}
+.footer-links a:hover{color:#fff;text-decoration:underline}
+
+@media(max-width:768px){
+  .hero-logo{max-width:96%;margin-bottom:14px}
+  .hero-title{font-size:26px}
+  .sticky-nav{display:none}
+  .toc-card{padding:20px}
+}
+@media print{
+  .sticky-nav,.scroll-top,.hero-tags,.toc-search{display:none!important}
+  .step-body{display:block!important}
+  body{background:#fff;color:#000}
+  .toc-card,.step-card{box-shadow:none!important;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY NAV -->
+<aside class="sticky-nav" id="sticky-nav" aria-label="Быстрая навигация">
+  <div class="sn-item active" data-sec="s0" onclick="scrollToSec('s0')"><span class="sn-tooltip">Начало</span></div>
+  <div class="sn-item" data-sec="s1" onclick="scrollToSec('s1')"><span class="sn-tooltip">1. Запуск и токен</span></div>
+  <div class="sn-item" data-sec="s2" onclick="scrollToSec('s2')"><span class="sn-tooltip">2. Авторизация (Ур. 0)</span></div>
+  <div class="sn-item" data-sec="s3" onclick="scrollToSec('s3')"><span class="sn-tooltip">3. Интерфейс и модули</span></div>
+  <div class="sn-item" data-sec="s4" onclick="scrollToSec('s4')"><span class="sn-tooltip">4. Квест: 9 уровней</span></div>
+  <div class="sn-item" data-sec="s5" onclick="scrollToSec('s5')"><span class="sn-tooltip">5. Почтовые операции</span></div>
+  <div class="sn-item" data-sec="s6" onclick="scrollToSec('s6')"><span class="sn-tooltip">6. Инструменты (Календарь/Задачи/Правила)</span></div>
+  <div class="sn-item" data-sec="s7" onclick="scrollToSec('s7')"><span class="sn-tooltip">7. Античит и Heatmap</span></div>
+  <div class="sn-item" data-sec="s8" onclick="scrollToSec('s8')"><span class="sn-tooltip">8. Экзамен и Отчёт JSON</span></div>
+  <div class="sn-item" data-sec="s9" onclick="scrollToSec('s9')"><span class="sn-tooltip">9. Достижения и Тест</span></div>
+  <div class="sn-item" data-sec="s10" onclick="scrollToSec('s10')"><span class="sn-tooltip">10. Режим преподавателя и Replay</span></div>
+  <div class="sn-item" data-sec="s11" onclick="scrollToSec('s11')"><span class="sn-tooltip">11. Техническая справка</span></div>
+  <div class="sn-item" data-sec="s12" onclick="scrollToSec('s12')"><span class="sn-tooltip">12. FAQ</span></div>
+</aside>
+
+<!-- КНОПКА СКРОЛЛА НАВЕРХ -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх"><i class="bi bi-arrow-up"></i></button>
+
+<!-- ГЕРОЙ -->
+<header class="hero" id="s0">
+  <div class="hero-logo-wrap">
+    <img src="Generated Image October 29, 2026 - 11_51AM.png" alt="ЦИФРОПОЛ ИСОД МВД России — Сервис электронной почты" class="hero-logo">
+  </div>
+  <div class="hero-badge"><i class="bi bi-patch-check-fill"></i> Инструкция к симулятору</div>
+  <h1 class="hero-title">СЭП ИСОД <span>МВД России</span></h1>
+  <p class="hero-sub">Прикладной сервис функций электронной почты в ИМТС МВД России.<br>Полное практическое руководство к программному симулятору-тренажёру</p>
+  <div class="hero-tags">
+    <span class="hero-tag"><i class="bi bi-award"></i> 9 уровней обучения</span>
+    <span class="hero-tag"><i class="bi bi-key-fill"></i> Проверка токенов</span>
+    <span class="hero-tag"><i class="bi bi-shield-shaded"></i> Античит (FAST / BRUTE)</span>
+    <span class="hero-tag"><i class="bi bi-geo-alt-fill"></i> Heatmap кликов</span>
+    <span class="hero-tag"><i class="bi bi-filetype-json"></i> Верифицируемый отчёт JSON</span>
+    <span class="hero-tag"><i class="bi bi-play-circle-fill"></i> Replay сессий</span>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- ОГЛАВЛЕНИЕ -->
+<nav class="toc-card" aria-label="Оглавление">
+  <div class="toc-header">
+    <div class="toc-title"><i class="bi bi-list-nested"></i> Разделы руководства</div>
+    <div class="toc-search">
+      <i class="bi bi-search" style="color:var(--txt-dim)"></i>
+      <input type="text" id="toc-input" placeholder="Поиск по инструкции..." oninput="filterToc()">
+    </div>
+  </div>
+  <div class="toc-grid" id="toc-grid">
+    <a class="toc-item" href="#s1"><div class="toc-num">1</div><div class="toc-text"><div class="toc-name">Запуск и токен подлинности</div><div class="toc-desc">Первый старт, токен курсанта, ссылка ?token=</div></div></a>
+    <a class="toc-item" href="#s2"><div class="toc-num">2</div><div class="toc-text"><div class="toc-name">Авторизация (Уровень 0)</div><div class="toc-desc">ФИО, взвод, выбор вида интерфейса «Базовый»</div></div></a>
+    <a class="toc-item" href="#s3"><div class="toc-num">3</div><div class="toc-text"><div class="toc-name">Интерфейс тренажёра</div><div class="toc-desc">Модули СЭП, папки, тулбар, правая панель</div></div></a>
+    <a class="toc-item" href="#s4"><div class="toc-num">4</div><div class="toc-text"><div class="toc-name">Прохождение квеста (Ур. 0–8)</div><div class="toc-desc">Все 31 шаг, критерии валидации, подсказки</div></div></a>
+    <a class="toc-item" href="#s5"><div class="toc-num">5</div><div class="toc-text"><div class="toc-name">Работа с почтой</div><div class="toc-desc">Чтение, отправка, вложения, адресная книга</div></div></a>
+    <a class="toc-item" href="#s6"><div class="toc-num">6</div><div class="toc-text"><div class="toc-name">Инструменты СЭП</div><div class="toc-desc">Календарь, задачи, правила автообработки</div></div></a>
+    <a class="toc-item" href="#s7"><div class="toc-num">7</div><div class="toc-text"><div class="toc-name">Античит и Heatmap</div><div class="toc-desc">Пороги таймингов, флаги FAST/BRUTE, координаты</div></div></a>
+    <a class="toc-item" href="#s8"><div class="toc-num">8</div><div class="toc-text"><div class="toc-name">Экзамен и JSON-отчёт</div><div class="toc-desc">Таймер, штрафы за ошибки, скачивание отчёта</div></div></a>
+    <a class="toc-item" href="#s9"><div class="toc-num">9</div><div class="toc-text"><div class="toc-name">Тест (12 вопросов) и достижения</div><div class="toc-desc">Теория по регламентам СЭП, 12 наград</div></div></a>
+    <a class="toc-item" href="#s10"><div class="toc-num">10</div><div class="toc-text"><div class="toc-name">Режим преподавателя и Replay</div><div class="toc-desc">Пропуск шагов, разбор ошибок, плеер сессии</div></div></a>
+    <a class="toc-item" href="#s11"><div class="toc-num">11</div><div class="toc-text"><div class="toc-name">Техническая справка</div><div class="toc-desc">Сетевые адреса post.mvd.ru, протоколы IMAP/SMTP</div></div></a>
+    <a class="toc-item" href="#s12"><div class="toc-num">12</div><div class="toc-text"><div class="toc-name">Часто задаваемые вопросы</div><div class="toc-desc">Типичные ошибки курсантов и их решение</div></div></a>
+  </div>
+</nav>
+
+<!-- РАЗДЕЛ 1: ЗАПУСК И ТОКЕН -->
+<section class="section" id="s1">
+  <div class="section-title-wrap">
+    <div class="section-badge">1</div>
+    <div>
+      <h2 class="section-title">Запуск тренажёра и токен подлинности</h2>
+      <div class="section-desc">Системные требования, загрузочный экран и криптографическая привязка к курсанту</div>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <i class="bi bi-info-circle-fill"></i>
+    <div>
+      <div class="callout-title">Автономность симулятора</div>
+      <div class="callout-body">Тренажёр СЭП ИСОД МВД России представляет собой единый автономный HTML-файл со встроенными стилями, скриптами и векторными эмблемами. Он функционирует целиком в браузере курсанта, не требует развёртывания веб-сервера и подключения к боевой сети ИМТС для проведения учебных занятий.</div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">1</div>
+      <div class="step-head-title">Открытие файла и загрузочный сплэш-экран</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content">Откройте файл <strong>sep_simulation.html</strong> в рекомендованном браузере: <strong>Google Chrome 90+</strong>, <strong>Яндекс.Браузер</strong>, <strong>Mozilla Firefox 88+</strong> или <strong>Microsoft Edge 90+</strong>.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content">При старте запускается заставка со щитом СЭП и прогресс-баром. Внутренний скрипт симулятора проходит 5 этапов инициализации: <code>«Проверка соединения с ИМТС»</code> → <code>«Инициализация СЭП»</code> → <code>«Загрузка компонентов»</code> → <code>«Проверка безопасности»</code> → <code>«Готово!»</code>.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content">Спустя 2.5–3 секунды заставка плавно скрывается и отображается форма авторизации в системе.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">2</div>
+      <div class="step-head-title">Модуль токена доступа (IdentityToken)</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <div class="callout callout-warn">
+        <i class="bi bi-shield-lock-fill"></i>
+        <div>
+          <div class="callout-title">Привязка результатов к курсанту</div>
+          <div class="callout-body">Для защиты от подделки отчётов и сдачи чужих результатов учебный центр может генерировать персональные цифровые токены. Токен содержит ФИО курсанта, номер группы, срок действия и подписан закрытым ключом преподавателя.</div>
+        </div>
+      </div>
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Если вы перешли по персональной ссылке вида</strong> <code>sep_simulation.html?token=eyJ...</code>: симулятор автоматически считывает токен из адресной строки и сохраняет в <code>sessionStorage</code>. Поле «Токен доступа» заполнится само.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Если токен выдан в виде текста</strong>: вставьте строку целиком в верхнее текстовое поле «Токен доступа (если выдан преподавателем)».</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content">При корректном токене поле «ФИО курсанта» <strong>заполняется автоматически и блокируется для редактирования</strong> (фон становится серым, появляется зелёная плашка подтверждения).</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Если токен не выдавался</strong>: оставьте поле токена пустым — тренажёр работает в штатном ручном режиме, вы сможете ввести ФИО самостоятельно.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 2: АВТОРИЗАЦИЯ -->
+<section class="section" id="s2">
+  <div class="section-title-wrap">
+    <div class="section-badge">2</div>
+    <div>
+      <h2 class="section-title">Авторизация в системе (Уровень 0 квеста)</h2>
+      <div class="section-desc">Заполнение идентификационных данных курсанта и успешный вход в систему</div>
+    </div>
+  </div>
+
+  <div class="callout callout-danger">
+    <i class="bi bi-exclamation-octagon-fill"></i>
+    <div>
+      <div class="callout-title">Внимание: обязательные условия прохождения Уровня 0</div>
+      <div class="callout-body">В тренажёре <strong>нет полей логина и пароля</strong> (в отличие от старых версий). Чтобы квест Уровня 0 засчитал выполнение шагов, необходимо: (1) Заполнить ФИО и взвод; (2) Обязательно выбрать режим <strong>«Базовый»</strong>; (3) Нажать кнопку <strong>«Войти в СЭП»</strong>.</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Шаг квеста</th><th>Название</th><th>Условие в коде (Валидация)</th><th>Баллы</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Шаг 1</strong></td><td>Заполните ФИО и номер взвода</td><td>Заполнены оба поля: <code>#cadet-fio</code> и <code>#cadet-platoon</code></td><td>+20 очков</td></tr>
+        <tr><td><strong>Шаг 2</strong></td><td>Выберите вид интерфейса</td><td>Выбран именно интерфейс <code>«Базовый»</code> (<code>APP.user.iface === 'basic'</code>)</td><td>+20 очков</td></tr>
+        <tr><td><strong>Шаг 3</strong></td><td>Нажмите «Войти в СЭП»</td><td>Клик по кнопке входа и активация главного экрана <code>#screen-main.on</code></td><td>+60 очков</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">3</div>
+      <div class="step-head-title">Параметры сессии на экране авторизации</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <div class="cards-grid">
+        <div class="card-box">
+          <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-person-fill"></i></div><div class="card-box-name">ФИО и номер взвода</div></div>
+          <div class="card-box-desc">Обязательны для всех категорий обучаемых. По этим данным платформа верификации идентифицирует курсанта и формирует ведомость.</div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-layout-split"></i></div><div class="card-box-name">Вид интерфейса</div></div>
+          <div class="card-box-desc"><strong>«По умолчанию»</strong>, <strong>«Базовый»</strong>, <strong>«Новый»</strong>. Регламентные стили СЭП ИСОД МВД России (по слайдам ВИСП).</div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-mortarboard-fill"></i></div><div class="card-box-name">Режим тренажёра</div></div>
+          <div class="card-box-desc"><strong>Обучение</strong> (активны подсказки), <strong>Экзамен</strong> (таймер, строгий штраф), <strong>Преподаватель</strong> (разблокированы уровни).</div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-speedometer2"></i></div><div class="card-box-name">Сложность AI</div></div>
+          <div class="card-box-desc"><strong>Начальный</strong>, <strong>Средний</strong> (по умолчанию), <strong>Сложный</strong>. Определяет активность Adversary-событий.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 3: ИНТЕРФЕЙС И МОДУЛИ -->
+<section class="section" id="s3">
+  <div class="section-title-wrap">
+    <div class="section-badge">3</div>
+    <div>
+      <h2 class="section-title">Архитектура интерфейса тренажёра</h2>
+      <div class="section-desc">Расположение рабочих зон в стиле боевого интерфейса СЭП ИСОД (Pronto)</div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-layout-sidebar"></i></div><div class="card-box-name">1. Боковая колонка модулей</div></div>
+      <div class="card-box-desc">Узкая левая панель (<code>#093f67</code>) с иконками переключения: Почта, Контакты, Календарь, Задачи, Файлы, Настройки и вызов Техподдержки.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-folder2"></i></div><div class="card-box-name">2. Дерево папок почты</div></div>
+      <div class="card-box-desc">Кнопка «Написать письмо», папки (Входящие, Важные, Отправленные, Черновики, Нежелательная, Удалённые, Исходящие) и индикатор хранилища.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-envelope-open"></i></div><div class="card-box-name">3. Список и просмотр писем</div></div>
+      <div class="card-box-desc">Верхний тулбар быстрых действий, фильтры «Все / Непрочитанные / С вложениями», мгновенный поиск и область чтения тела письма.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-layout-sidebar-reverse"></i></div><div class="card-box-name">4. Аналитическая правая панель</div></div>
+      <div class="card-box-desc">Вкладки <strong>«Баллы»</strong> (счётчик, кольцевой график, уровни), <strong>«Лог»</strong> (лента событий) и <strong>«Помощь»</strong> (сетевые адреса, поддержка).</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-window-dock"></i></div><div class="card-box-name">5. Топбар управления</div></div>
+      <div class="card-box-desc">Эмблема СЭП, индикаторы уровней 0–8, статус таймера экзамена, профиль курсанта и кнопки: Преп., Replay, Тест, Статистика, Достижения, Экзамен, Отчёт.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-card-checklist"></i></div><div class="card-box-name">6. Нижняя панель инструкций</div></div>
+      <div class="card-box-desc">Квест-навигатор: список шагов текущего уровня, описание задания, всплывающая подсказка, индикатор готовности и кнопка «Далее».</div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">4</div>
+      <div class="step-head-title">Горячие клавиши симулятора</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <div class="hotkey-grid">
+        <div class="hk-card"><span class="hk-badge">N</span><span class="hk-desc">Написать новое письмо</span></div>
+        <div class="hk-card"><span class="hk-badge">R</span><span class="hk-desc">Ответить отправителю</span></div>
+        <div class="hk-card"><span class="hk-badge">F</span><span class="hk-desc">Переслать сообщение</span></div>
+        <div class="hk-card"><span class="hk-badge">Del</span><span class="hk-desc">Удалить письмо в корзину</span></div>
+        <div class="hk-card"><span class="hk-badge">Q</span><span class="hk-desc">Открыть проверочный тест</span></div>
+        <div class="hk-card"><span class="hk-badge">A</span><span class="hk-desc">Открыть достижения</span></div>
+        <div class="hk-card"><span class="hk-badge">S</span><span class="hk-desc">Открыть статистику сессии</span></div>
+        <div class="hk-card"><span class="hk-badge">→ / ←</span><span class="hk-desc">Следующий / предыдущий шаг</span></div>
+        <div class="hk-card"><span class="hk-badge">?</span><span class="hk-desc">Краткая справка по клавишам</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 4: ВСЕ 9 УРОВНЕЙ КВЕСТА -->
+<section class="section" id="s4">
+  <div class="section-title-wrap">
+    <div class="section-badge">4</div>
+    <div>
+      <h2 class="section-title">Пошаговое прохождение 9 уровней квеста</h2>
+      <div class="section-desc">Точный алгоритм выполнения каждого из 31 задания тренажёра</div>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 0 -->
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">0</div>
+      <div class="step-head-title">Уровень 0. Авторизация в системе СЭП (3 шага · 100 баллов)</div>
+      <span class="step-points">+100 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (20 б):</strong> Введите ФИО и номер взвода. Если использован токен — ФИО подтянется автоматически, останется ввести только взвод.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (20 б):</strong> Кликните по плитке <strong>«Базовый»</strong> в блоке «Вид интерфейса». Без выбора именно «Базового» валидатор шага не сработает!</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (60 б):</strong> Нажмите синюю кнопку <strong>«Войти в СЭП»</strong>. Экран авторизации закроется, откроется рабочая среда СЭП, уровень завершится автоматически.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 1 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">1</div>
+      <div class="step-head-title">Уровень 1. Навигация по разделам интерфейса (4 шага · 130 баллов)</div>
+      <span class="step-points">+130 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (30 б):</strong> Изучите интерфейс. Достаточно кликнуть по любой папке в меню или модулю слева — генерируется событие <code>nav</code>.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (40 б):</strong> Кликните в левом меню папку <strong>«Отправленные»</strong>.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (30 б):</strong> Кликните в левом меню папку <strong>«Нежелательная»</strong>.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (30 б):</strong> Кликните в левом меню папку <strong>«Входящие»</strong> для возврата к основной почте.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 2 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">2</div>
+      <div class="step-head-title">Уровень 2. Работа со входящей корреспонденцией (4 шага · 180 баллов)</div>
+      <span class="step-points">+180 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (30 б):</strong> В списке «Входящие» кликните по письму от <strong>Петрова М.С.</strong> («Совещание по вопросам информационной безопасности»). Письмо откроется справа.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (40 б):</strong> Кликните по письму от <strong>Новиковой Е.Д.</strong> («Финансовый отчёт за ноябрь 2024»). Ознакомьтесь с областью прикреплённых файлов в заголовке.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (50 б):</strong> Откройте письмо от <strong>Козловой А.И.</strong> и нажмите кнопку <strong>«⭐ Важное»</strong> в верхнем тулбаре почты.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (60 б):</strong> Перейдите в папку «Нежелательная», откройте спам от <code>spam001@free-money.com</code> и нажмите кнопку <strong>«Удалить»</strong> в тулбаре.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 3 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">3</div>
+      <div class="step-head-title">Уровень 3. Создание и отправка электронного письма (5 шагов · 200 баллов)</div>
+      <span class="step-points">+200 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (20 б):</strong> Нажмите синюю кнопку <strong>«Написать письмо»</strong> вверху левого меню (или клавишу <code>N</code>). Откроется окно создания.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (40 б):</strong> В строке «Кому» введите адрес: <code>petrov.ms@mvd.ru</code>.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (30 б):</strong> В поле «Тема» наберите тему письма длиной не менее 5 символов (например: <code>Участие в совещании подтверждаю</code>).</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (40 б):</strong> В поле текста письма введите официальный текст длиной не менее 20 символов (например: <code>Добрый день! Подтверждаю своё участие в плановом совещании.</code>).</div></li>
+        <li><div class="guide-num">5</div><div class="guide-content"><strong>Шаг 5 (70 б):</strong> Нажмите кнопку <strong>«Отправить»</strong> в нижней панели формы создания. Письмо отправится в папку «Отправленные», а через 3 секунды симулятор сымитирует автоответ от Петрова М.С.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 4 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">4</div>
+      <div class="step-head-title">Уровень 4. Работа с вложениями и адресной книгой (5 шагов · 250 баллов)</div>
+      <span class="step-points">+250 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (20 б):</strong> Снова нажмите кнопку <strong>«Написать письмо»</strong>.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (50 б):</strong> В строке «Кому» нажмите кнопку <strong>«Адресная книга»</strong>. Откроется окно со справочником сотрудников.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (50 б):</strong> Найдите <strong>Алексеева Сергея Геннадьевича</strong> (IT-отдел, <code>alekseev.sg@mvd.ru</code>), кликните по нему и нажмите <strong>«Добавить выбранных»</strong>.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (60 б):</strong> Внизу окна создания нажмите кнопку <strong>«Прикрепить файл»</strong>. В списке появится чип прикреплённого документа.</div></li>
+        <li><div class="guide-num">5</div><div class="guide-content"><strong>Шаг 5 (70 б):</strong> Заполните тему и текст, после чего нажмите <strong>«Отправить»</strong> (регистрируется событие <code>send_with_attach</code>).</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 5 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">5</div>
+      <div class="step-head-title">Уровень 5. Информационная безопасность и спам-фильтр (5 шагов · 280 баллов)</div>
+      <span class="step-points">+280 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (30 б):</strong> Откройте папку «Нежелательная» в левом меню.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (60 б):</strong> Откройте фишинговое письмо от отправителя <strong>«Системное уведомление»</strong> (тема содержит призывы восстановить доступ и опасное вложение <code>вирус.exe</code>).</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (80 б):</strong> Не переходя по ссылкам, нажмите кнопку <strong>«Удалить»</strong> в тулбаре для нейтрализации угрозы (регистрируется событие <code>delete_phishing</code>).</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (60 б):</strong> Вернитесь во «Входящие», откройте любое письмо и нажмите в тулбаре кнопку <strong>«Спам»</strong> (событие <code>mark_spam</code>).</div></li>
+        <li><div class="guide-num">5</div><div class="guide-content"><strong>Шаг 5 (50 б):</strong> Откройте форму создания письма («Написать письмо») и нажмите в панели кнопку <strong>«Проверить»</strong> (событие <code>check_spam</code>). Встроенный AI просканирует текст на спам-триггеры.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 6 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">6</div>
+      <div class="step-head-title">Уровень 6. Правила автоматической обработки (4 шага · 200 баллов)</div>
+      <span class="step-points">+200 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (30 б):</strong> В левом меню перейдите в раздел <strong>«Правила»</strong>.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (40 б):</strong> Нажмите синюю кнопку <strong>«+ Создать правило»</strong>.</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (50 б):</strong> В условии «ЕСЛИ» выберите поле «Отправитель», операцию «содержит» и введите в поле значения: <code>isod.mvd.ru</code>.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (80 б):</strong> Введите название правила (например: <code>Системная почта</code>) и нажмите <strong>«Сохранить правило»</strong>. Правило появится в списке с бейджем «Активно».</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 7 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">7</div>
+      <div class="step-head-title">Уровень 7. Модули «Календарь» и «Задачи» (4 шага · 170 баллов)</div>
+      <span class="step-points">+170 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (30 б):</strong> В левом меню нажмите на раздел <strong>«Календарь»</strong>. Откроется календарная сетка за декабрь 2024 года.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Шаг 2 (50 б):</strong> Кликните на ячейку <strong>15 декабря</strong> в сетке или на событие <strong>«Совещание по ИБ»</strong> в списке ниже (регистрируется событие <code>view_calendar_event</code>).</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Шаг 3 (30 б):</strong> В левом меню откройте раздел <strong>«Задачи»</strong>.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Шаг 4 (60 б):</strong> В списке поручений найдите задачу «Ответить на письмо Петрова М.С.» и кликните по её чекбоксу слева. Задача зачеркнётся, будет начислено +20 очков, а шаг квеста зачтётся.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 8 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">8</div>
+      <div class="step-head-title">Уровень 8. Экзаменационный режим (1 шаг · 200 баллов)</div>
+      <span class="step-points">+200 очков</span>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Шаг 1 (l8s1 · 200 б):</strong> Нажмите в верхнем тулбаре кнопку <strong>«Экзамен»</strong>. В открывшемся модальном окне нажмите <strong>«Начать экзамен»</strong>. Симулятор переключится в строгий режим, запустит таймер и отключит подсказки. После завершения всех уровней выгрузите отчёт.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 5: ПОЧТОВЫЕ ОПЕРАЦИИ -->
+<section class="section" id="s5">
+  <div class="section-title-wrap">
+    <div class="section-badge">5</div>
+    <div>
+      <h2 class="section-title">Функции работы с электронной почтой</h2>
+      <div class="section-desc">Детальный регламент выполнения типовых почтовых операций</div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-reply-fill"></i></div><div class="card-box-name">Ответ и пересылка</div></div>
+      <div class="card-box-desc">Кнопка «Ответить» (<code>R</code>) автоматически подставляет адрес отправителя в поле «Кому» и префикс <code>RE:</code> в тему. Кнопка «Переслать» (<code>F</code>) копирует исходный текст с цитатой.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-file-earmark-text"></i></div><div class="card-box-name">Черновики писем</div></div>
+      <div class="card-box-desc">Кнопка «Черновик» в заголовке формы создания сохраняет незаконченное сообщение в папку «Черновики» без отправки, обновляя бейдж в боковом меню.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-paperclip"></i></div><div class="card-box-name">Вложения файлов</div></div>
+      <div class="card-box-desc">Поддерживается добавление нескольких вложений. Каждое отображается чипом с кнопкой удаления <code>✕</code>. При отправке начисляются бонусные баллы за вложение.</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-funnel"></i></div><div class="card-box-name">Фильтры и поиск</div></div>
+      <div class="card-box-desc">Три быстрых таба над списком писем: «Все», «Непрочитанные», «С вложениями». Поле поиска фильтрует одновременно по теме, отправителю и телу письма.</div>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 6: ИНСТРУМЕНТЫ -->
+<section class="section" id="s6">
+  <div class="section-title-wrap">
+    <div class="section-badge">6</div>
+    <div>
+      <h2 class="section-title">Инструменты СЭП (Календарь, Задачи, Правила, Файлы)</h2>
+      <div class="section-desc">Вспомогательные модули обеспечения служебной деятельности</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Модуль</th><th>Назначение</th><th>Ключевые возможности в тренажёре</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Календарь</strong></td><td>Планирование служебных мероприятий</td><td>Месячная сетка Декабрь 2024, просмотр совещаний (15.12), техобслуживания (16.12) и пресс-конференций (20.12).</td></tr>
+        <tr><td><strong>Задачи</strong></td><td>Учёт служебных поручений</td><td>Список задач с приоритетами (Высокий/Средний/Низкий), отметка выполнения кликом по кружку, создание новых задач.</td></tr>
+        <tr><td><strong>Правила</strong></td><td>Автоматизация входящей почты</td><td>Конструктор условий (ЕСЛИ поле содержит/равно/начинается → ТО переместить/пометить/удалить/спам), статус активности.</td></tr>
+        <tr><td><strong>Файлы</strong></td><td>Структура документооборота</td><td>Разделы: «Общая папка» (12 файлов), «Настройки» (3 файла), «Архив» (45 файлов), «Отчёты» (8 файлов).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 7: АНТИЧИТ И HEATMAP -->
+<section class="section" id="s7">
+  <div class="section-title-wrap">
+    <div class="section-badge">7</div>
+    <div>
+      <h2 class="section-title">Античит-мониторинг и тепловая карта кликов</h2>
+      <div class="section-desc">Механизмы объективного контроля самостоятельности выполнения заданий</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <i class="bi bi-shield-slash-fill"></i>
+    <div>
+      <div class="callout-title">Пороги фиксации нарушений</div>
+      <div class="callout-body">В нижнем правом углу экрана симулятора расположен индикатор <code>#ac-ind</code>. Он непрерывно анализирует тайминги между действиями курсанта:
+        <br>• <strong>FAST (&lt; 350 мс)</strong>: клик или переход выполнен неестественно быстро (признак автоматизации/рандомного прокликивания). Штраф: +7 к риску.
+        <br>• <strong>BRUTE (серия из 4+ действий &lt; 600 мс)</strong>: систематическое скоростное щёлканье без чтения задания. Штраф: +20 к риску.
+        <br>• <strong>Зелёный индикатор</strong>: нормальный рабочий режим (риск &le; 25).
+        <br>• <strong>Жёлтый пульсирующий</strong>: флаги обнаружены (риск 26–60).
+        <br>• <strong>Красный сигнал тревоги</strong>: критический риск (риск &gt; 60), сессия отмечается в отчёте как подозрительная.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">5</div>
+      <div class="step-head-title">Сквозной трекинг координат (Heatmap)</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <p style="font-size:13.5px;color:var(--txt)">Каждый клик курсанта с момента старта страницы фиксируется в массиве <code>APP.heatmap</code> со следующими атрибутами:</p>
+      <ul class="guide-list" style="margin-top:8px">
+        <li><div class="guide-num">t</div><div class="guide-content">Милисекундный Unix-таймштамп события (<code>Date.now()</code>).</div></li>
+        <li><div class="guide-num">x,y</div><div class="guide-content">Точные координаты курсора (<code>clientX</code>, <code>clientY</code>) и разрешение окна (<code>vw</code>, <code>vh</code>).</div></li>
+        <li><div class="guide-num">target</div><div class="guide-content">Селектор и идентификатор элемента интерфейса, по которому совершён клик.</div></li>
+        <li><div class="guide-num">ctx</div><div class="guide-content">Текущий экран (<code>login</code> / <code>main</code>), уровень и шаг квеста на момент клика.</div></li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--txt-muted);margin-top:6px">Эти данные полностью выгружаются в итоговый JSON-отчёт и позволяют преподавателю построить визуальную карту кликов и траекторию внимания обучаемого.</p>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 8: ЭКЗАМЕН И ОТЧЁТ -->
+<section class="section" id="s8">
+  <div class="section-title-wrap">
+    <div class="section-badge">8</div>
+    <div>
+      <h2 class="section-title">Итоговый экзамен и выгрузка JSON-отчёта</h2>
+      <div class="section-desc">Формирование официального файла подтверждения аттестации</div>
+    </div>
+  </div>
+
+  <div class="callout callout-success">
+    <i class="bi bi-file-earmark-check-fill"></i>
+    <div>
+      <div class="callout-title">Как получить и сдать зачётный отчёт</div>
+      <div class="callout-body">После прохождения всех шагов или завершения экзамена нажмите зелёную кнопку <strong>«Отчёт»</strong> в правом верхнем углу топбара. Браузер сгенерирует файл с именем вида:<br>
+      <code>SEP_report_Иванов_Иван_Иванович_vzvod2126_1740000000000.json</code><br>
+      Этот файл отправляется на платформу проверки либо передаётся преподавателю.</div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">6</div>
+      <div class="step-head-title">Структура верифицируемого JSON-отчёта (схема 1.0)</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <div style="background:#0d2035;color:#e6edf3;padding:16px;border-radius:var(--r-md);font-family:var(--font-m);font-size:11.5px;overflow-x:auto;line-height:1.55">
+<pre>{
+  "meta": {
+    "schemaVersion": "1.0",
+    "simulator": "СЭП ИСОД МВД России — Симулятор-Тренажёр",
+    "simulatorVersion": "v9.1",
+    "generatedAt": "2026-10-28T15:30:00.000Z",
+    "sessionId": "S-m3k5q9-8a2f1c",
+    "renderSeq": "a7b9c1d3",
+    "uiInstance": "b1740000000abc"
+  },
+  "token": "eyJhbGciOi...[полный токен, если был введен]",
+  "cadet": {
+    "fio": "Иванов Иван Иванович",
+    "platoon": "2126",
+    "simLogin": "иванов.иван.иванович",
+    "sessionMode": "training",
+    "interface": "basic",
+    "difficulty": 2
+  },
+  "session": {
+    "startedAt": "2026-10-28T15:00:00.000Z",
+    "finishedAt": "2026-10-28T15:30:00.000Z",
+    "durationSec": 1800
+  },
+  "result": {
+    "score": 1710,
+    "maxScore": 1710,
+    "scorePercent": 100,
+    "accuracyPercent": 96,
+    "mistakes": 1,
+    "stepsDone": 31,
+    "stepsTotal": 31,
+    "levelsDone": 9,
+    "levelsTotal": 9,
+    "examCompleted": true
+  },
+  "levels": [ /* детализация по всем 9 уровням с attempts и hintsUsed */ ],
+  "achievements": [ /* статус всех 12 наград */ ],
+  "antiCheat": { "riskScore": 0, "flags": [] },
+  "actionLog": [ /* полный хронологический журнал действий */ ],
+  "heatmap": [ /* координаты и таймштампы всех кликов курсанта */ ]
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 9: ТЕСТ И ДОСТИЖЕНИЯ -->
+<section class="section" id="s9">
+  <div class="section-title-wrap">
+    <div class="section-badge">9</div>
+    <div>
+      <h2 class="section-title">Теоретический тест и 12 достижений</h2>
+      <div class="section-desc">Проверка знаний регламентов СЭП и геймификация обучения</div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-patch-question-fill"></i></div><div class="card-box-name">Тест по СЭП (клавиша Q)</div></div>
+      <div class="card-box-desc">12 вопросов с 4 вариантами ответов по нормативным требованиям: адрес post.mvd.ru, квота памяти 1 ГБ, порты IMAP/SMTP, регламент ЕЦЭ 8 (800) 2000-462. За каждый правильный ответ начисляется +20 баллов. Результат &ge;80% открывает достижение «Знаток СЭП».</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-header"><div class="card-box-icon"><i class="bi bi-award-fill"></i></div><div class="card-box-name">12 служебных достижений (клавиша A)</div></div>
+      <div class="card-box-desc">Каждое открытое достижение даёт +50 очков и сохраняется в статистике. Награды: «Первый вход», «Первое письмо», «Первая отправка», «Борец со спамом», «Мастер вложений», «Автоматизатор», «Адресная книга», «Знаток СЭП», «Мастер СЭП», «Оперативный сотрудник», «Идеальное исполнение», «Исследователь».</div>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 10: РЕЖИМ ПРЕПОДАВАТЕЛЯ И REPLAY -->
+<section class="section" id="s10">
+  <div class="section-title-wrap">
+    <div class="section-badge">10</div>
+    <div>
+      <h2 class="section-title">Инструменты инструктора: Преподаватель и Replay</h2>
+      <div class="section-desc">Демонстрация функций на занятиях и покадровый разбор ошибок</div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head open" onclick="toggleStep(this)">
+      <div class="step-idx">7</div>
+      <div class="step-head-title">Панель управления преподавателя</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body open">
+      <ul class="guide-list">
+        <li><div class="guide-num">1</div><div class="guide-content"><strong>Кнопка «Преп.» в топбаре:</strong> Мгновенно переключает режим между штатным и преподавательским.</div></li>
+        <li><div class="guide-num">2</div><div class="guide-content"><strong>Свободный переход по уровням:</strong> В режиме преподавателя кружки уровней 0–8 в шапке становятся кликабельными — можно сразу перепрыгнуть к нужной теме (например, сразу показать создание правил на Уровне 6).</div></li>
+        <li><div class="guide-num">3</div><div class="guide-content"><strong>Кнопка «Пропустить»:</strong> В нижней панели инструкций активируется оранжевая кнопка пропуска шага для быстрой демонстрации без ручного ввода.</div></li>
+        <li><div class="guide-num">4</div><div class="guide-content"><strong>Плеер «Replay»:</strong> Открывает окно покадрового воспроизведения сессии курсанта. Доступны перемотка по таймлайну, пауза, покадровый шаг и выбор скорости (0.5x, 1x, 2x). Все ошибки подсвечиваются красным маркером.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 11: ТЕХНИЧЕСКАЯ СПРАВКА -->
+<section class="section" id="s11">
+  <div class="section-title-wrap">
+    <div class="section-badge">11</div>
+    <div>
+      <h2 class="section-title">Технические параметры реальной СЭП ИСОД</h2>
+      <div class="section-desc">Нормативные параметры конфигурации почтовых клиентов по материалам ВИСП</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Параметр</th><th>Значение</th><th>Назначение</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WEB-интерфейс</td><td class="code-cell">https://post.mvd.ru</td><td>Основная точка веб-доступа через браузер</td></tr>
+        <tr><td>Протокол IMAP</td><td class="code-cell">imap.mvd.ru:993 (SSL/TLS)</td><td>Входящая почта для настольных клиентов</td></tr>
+        <tr><td>Протокол POP3</td><td class="code-cell">pop.mvd.ru:995 (SSL/TLS)</td><td>Альтернативный протокол выгрузки писем</td></tr>
+        <tr><td>Протокол SMTP</td><td class="code-cell">smtp.mvd.ru:587 (STARTTLS)</td><td>Отправка почтовой корреспонденции</td></tr>
+        <tr><td>Сеть передачи данных</td><td class="code-cell">ИМТС МВД России</td><td>Защищённая ведомственная сеть</td></tr>
+        <tr><td>Служба поддержки</td><td class="code-cell">8 (800) 2000-462</td><td>ЕЦЭ ИСОД МВД России (круглосуточно)</td></tr>
+        <tr><td>Документация</td><td class="code-cell">it.mvd.ru/sections/4</td><td>Раздел портала ВИСП МВД России</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- РАЗДЕЛ 12: FAQ -->
+<section class="section" id="s12">
+  <div class="section-title-wrap">
+    <div class="section-badge">12</div>
+    <div>
+      <h2 class="section-title">Часто задаваемые вопросы (FAQ)</h2>
+      <div class="section-desc">Решение типичных проблем, возникающих при работе с тренажёром</div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">?</div>
+      <div class="step-head-title">Не могу войти: кнопка «Войти в СЭП» не срабатывает</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <p>Проверьте следующие три пункта:</p>
+      <p>1. <strong>Заполнены ли ФИО и номер взвода</strong> (поля не должны быть пустыми).</p>
+      <p>2. <strong>Выбран ли вид интерфейса</strong> (плитка «Базовый», «По умолчанию» или «Новый» должна быть подсвечена синей рамкой).</p>
+      <p>3. Если введён недействительный токен — очистите поле токена или скопируйте его заново без лишних пробелов.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">?</div>
+      <div class="step-head-title">Шаг квеста не засчитывается, кнопка «Далее» заблокирована</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <p>Система проверяет выполнение критерия каждые 2 секунды. Убедитесь в точности выполнения:</p>
+      <p>• На <strong>Уровне 0 Шаг 2</strong> нужно выбрать именно <strong>«Базовый»</strong> интерфейс.</p>
+      <p>• На <strong>Уровне 3 Шаг 2</strong> адрес получателя должен содержать <code>petrov.ms@mvd.ru</code>.</p>
+      <p>• На <strong>Уровне 3 Шаг 3–4</strong> длина темы должна быть не менее 5 символов, а текста — не менее 20 символов.</p>
+      <p>• На <strong>Уровне 5 Шаг 3</strong> нужно удалить именно фишинговое письмо с вложением <code>вирус.exe</code>.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-idx">?</div>
+      <div class="step-head-title">Как сохранить результаты, если занятие прервалось?</div>
+      <span class="step-arrow"><i class="bi bi-chevron-down"></i></span>
+    </div>
+    <div class="step-body">
+      <p>Нажмите кнопку <strong>«Отчёт»</strong> в верхнем тулбаре и сохраните JSON-файл на диск или флеш-накопитель. В файле фиксируются текущий балл, пройденные уровни, журнал действий и статистика сессии.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ФУТЕР -->
+<footer class="footer">
+  <div class="footer-logo">СЭП ИСОД МВД РОССИИ · ТРЕНАЖЁР v2.3</div>
+  <div class="footer-sub">Прикладной сервис функций электронной почты · Информационная система обеспечения деятельности МВД России</div>
+  <div class="footer-links">
+    <a href="#s1">Запуск</a>
+    <a href="#s2">Авторизация</a>
+    <a href="#s3">Интерфейс</a>
+    <a href="#s4">Квест (9 уровней)</a>
+    <a href="#s5">Почта</a>
+    <a href="#s7">Античит</a>
+    <a href="#s8">JSON-отчёт</a>
+    <a href="#s9">Тест</a>
+    <a href="#s11">Справка</a>
+    <a href="#s12">FAQ</a>
+  </div>
+  <div style="font-size:11px;opacity:.45">© 2026 · Учебное руководство для операторов СЭП · Все права защищены</div>
+</footer>
+
+<script>
+// === Раскрытие / сворачивание спойлеров ===
+function toggleStep(head){
+  const card = head.closest('.step-card');
+  const body = card.querySelector('.step-body');
+  head.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// === Плавный скролл к секции ===
+function scrollToSec(id){
+  const el = document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+
+// === Sticky nav подсветка ===
+const sections = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'];
+const navItems = document.querySelectorAll('.sn-item');
+
+function updateActiveNav(){
+  const scrollY = window.scrollY + 120;
+  let current = 's0';
+  for(const id of sections){
+    const el = document.getElementById(id);
+    if(el && el.offsetTop <= scrollY){ current = id; }
+  }
+  navItems.forEach(item => {
+    item.classList.toggle('active', item.dataset.sec === current);
+  });
+}
+window.addEventListener('scroll', updateActiveNav);
+
+// === Кнопка «Наверх» ===
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  if(window.scrollY > 350){ scrollTopBtn.classList.add('show'); }
+  else { scrollTopBtn.classList.remove('show'); }
+});
+
+// === Поиск по оглавлению ===
+function filterToc(){
+  const q = document.getElementById('toc-input').value.toLowerCase().trim();
+  document.querySelectorAll('.toc-item').forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(q) ? 'flex' : 'none';
+  });
+}
+
+// === Горячие клавиши страницы руководства ===
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if(e.key >= '1' && e.key <= '9'){
+    scrollToSec('s' + e.key);
+  }
+  if(e.key === 'Home'){ window.scrollTo({top:0,behavior:'smooth'}); }
+  if(e.key === 'End'){ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }
+});
+
+document.addEventListener('DOMContentLoaded', updateActiveNav);
+</script>
+</body>
+</html>

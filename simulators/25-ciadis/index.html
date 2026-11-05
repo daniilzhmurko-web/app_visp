@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЦИАДИС-МВД | Учебный тренажёр</title>
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/screens/boot.css">
+<link rel="stylesheet" href="css/screens/login.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/modals.css">
+<link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/quest-panel.css">
+<link rel="stylesheet" href="css/mission.css">
+<link rel="stylesheet" href="css/icons.css">
+<link rel="stylesheet" href="css/mvd-theme.css">
+<link rel="stylesheet" href="css/contacts.css">
+<link rel="stylesheet" href="css/notifications.css">
+<link rel="stylesheet" href="css/exam.css">
+</head>
+<body>
+<!-- =========================================================
+     ЭКРАН ЗАГРУЗКИ
+     ========================================================= -->
+<div id="boot">
+  <div class="boot-logo">
+    <img class="boot-logo" src="assets/img/logo-isod-mvd.png" alt="Цифрополь ИСОД — МВД России — ЦИАДИС">
+    <div class="boot-h">ЦИАДИС-МВД</div>
+    <div class="boot-sub">Централизованная интегрированная автоматизированная дактилоскопическая информационная система МВД России</div>
+  </div>
+  <div class="boot-term" id="boot-term"></div>
+  <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+</div>
+
+<!-- =========================================================
+     ЭКРАН ВХОДА
+     ========================================================= -->
+<div id="login">
+  <div class="login-card">
+    <div class="lc-logo">
+      <div class="lc-icon"><i class="fas fa-fingerprint"></i></div>
+      <div class="lc-title">ЦИАДИС-МВД</div>
+      <div class="lc-sys">Тренажёр оператора — Учебный режим v2.9</div>
+    </div>
+    <div class="lc-div"></div>
+    <div class="fg">
+      <label class="fl">Пользователь</label>
+      <input class="fi" id="l-user" value="operator_demo" readonly>
+    </div>
+    <div class="fg">
+      <label class="fl">Пароль</label>
+      <input class="fi" type="password" id="l-pass" value="••••••••" readonly>
+    </div>
+    <div class="lc-div"></div>
+    <div class="fg">
+      <label class="fl">Токен доступа (если выдан преподавателем)</label>
+      <textarea class="fi" id="l-token" rows="2" placeholder="Вставьте токен целиком — если его не выдавали, оставьте поле пустым" style="font-family:Consolas,monospace;font-size:11px;resize:vertical"></textarea>
+      <div id="l-token-err" style="display:none;color:var(--red);font-size:11px;margin-top:4px;"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg> Не удалось распознать токен — проверьте, что он скопирован полностью.</div>
+      <div id="l-token-ok" style="display:none;font-size:11px;margin-top:4px;"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">ФИО курсанта</label>
+      <input class="fi" id="l-fio" placeholder="Иванов Иван Иванович" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Номер взвода</label>
+      <input class="fi" id="l-platoon" placeholder="Например: 214" autocomplete="off">
+    </div>
+    <div class="fg">
+      <label class="fl">Режим работы</label>
+      <select class="fs" id="l-mode" onchange="setMode(this.value)">
+        <option value="training">Обучение</option>
+        <option value="exam">Экзамен</option>
+      </select>
+      <div class="mode-note" id="l-mode-note"></div>
+    </div>
+    <div class="fg" id="l-variant-box" style="display:none">
+      <label class="fl">Вариант задания</label>
+      <select class="fs" id="l-variant"></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Роль пользователя</label>
+      <select class="fs" id="l-role">
+        <option value="external">Сторонний пользователь</option>
+        <option value="operator">Оператор ЦИАДИС-МВД ГИАЦ/ИЦ</option>
+        <option value="territorial">Оператор территориальной станции</option>
+        <option value="foiv">Оператор ФОИВ</option>
+        <option value="sysadmin">Системный администратор ЦИАДИС-МВД</option>
+        <option value="security">Администратор безопасности</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="l-btn" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i>&nbsp; Войти в систему
+    </button>
+    <div class="lc-warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L2 20h20L12 3z"/><path d="M12 10v5M12 17.5v.5"/></svg> ТРЕНАЖЁР — ДЕМОНСТРАЦИОННЫЙ РЕЖИМ<br>Данные являются учебными</div>
+  </div>
+</div>
+
+<!-- =========================================================
+     ГЛАВНЫЙ ВОРКСПЕЙС
+     ========================================================= -->
+<div id="ws">
+  <!-- Топ-бар -->
+  <div id="topbar">
+    <div class="tb-logo" onclick="go('dash')" title="Главная панель">
+      <img class="tb-logo-img" src="assets/img/logo-isod-mvd.png" alt="Цифрополь ИСОД — МВД России — ЦИАДИС">
+    </div>
+    <div class="tb-sp"></div>
+    <div class="tb-clock" id="tb-clock"></div>
+    <div class="tb-item" id="role-btn" onclick="toggleRS()">
+      <span class="rbadge" id="rb-top">—</span>
+      <span id="rn-top" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
+      <i class="fas fa-chevron-down" style="font-size:9px"></i>
+    </div>
+    <div class="tb-item" id="report-btn" onclick="downloadReport()" title="Скачать журнал сессии в формате JSON">
+      <i class="fas fa-file-export" style="font-size:14px"></i>
+      <span style="font-size:11px">Отчёт</span>
+    </div>
+    <div class="tb-item" id="nf-btn" style="position:relative" onclick="toggleNotif(event)" title="Уведомления">
+      <i class="fas fa-bell" style="font-size:15px"></i>
+      <span class="notif-dot" id="nc">0</span>
+    </div>
+    <div class="tb-item">
+      <div class="uavatar" id="uav">О</div>
+      <span id="un-top" style="font-size:12px">—</span>
+    </div>
+    <div class="tb-item" onclick="doLogout()" style="color:#C0392B">
+      <i class="fas fa-sign-out-alt"></i>
+    </div>
+  </div>
+
+  <!-- Основной контейнер -->
+  <div id="main">
+    <!-- Боковая панель -->
+    <div id="sidebar">
+      <div class="sb-sec">Навигация</div>
+      <div class="sb-item active" onclick="go('dash')" id="n-dash"><i class="fas fa-tachometer-alt"></i> Главная панель</div>
+      <div class="sb-item" onclick="go('search')" id="n-search"><i class="fas fa-search"></i> Поиск дактилокарт</div>
+      <div class="sb-item" onclick="go('cards')" id="n-cards"><i class="fas fa-id-card"></i> База дактилокарт <span class="sb-badge">247к</span></div>
+      <div class="sb-sec">Операции</div>
+      <div class="sb-item" onclick="go('requests')" id="n-requests"><i class="fas fa-file-alt"></i> Запросы на актуализацию <span class="sb-badge" id="req-badge">2</span></div>
+      <div class="sb-item" onclick="go('statistics')" id="n-statistics"><i class="fas fa-chart-bar"></i> Статистика</div>
+      <div class="sb-item" onclick="go('log')" id="n-log"><i class="fas fa-list-alt"></i> Журнал операций</div>
+      <div class="sb-sec adm-only" id="sa-sec">Администрирование</div>
+      <div class="sb-item adm-only" onclick="go('users')" id="n-users"><i class="fas fa-users-cog"></i> Управление доступом</div>
+      <div class="sb-item adm-only" onclick="go('system')" id="n-system"><i class="fas fa-server"></i> Состояние системы</div>
+      <div class="sb-bot">
+        <div class="sb-item" onclick="go('help')"><i class="fas fa-question-circle"></i> Справка</div>
+      </div>
+    </div>
+
+    <!-- Контент -->
+    <div id="content"></div>
+  </div>
+</div>
+
+<!-- Role Switcher Dropdown -->
+<div class="rs-drop" id="rs-drop"></div>
+<div class="nf-drop" id="nf-drop"></div>
+
+<!-- Модальное окно: запрос на редактирование -->
+<div class="overlay" id="m-edit">
+  <div class="modal">
+    <div class="modal-title"><i class="fas fa-edit" style="color:#003F8A"></i> Запрос на редактирование</div>
+    <div class="modal-sub">Заполните данные для изменения записи в базе ЦИАДИС-МВД</div>
+    <div class="fg2">
+      <label class="fl2">Идентификатор дактилокарты</label>
+      <input class="fi2" id="m-cid" readonly>
+    </div>
+    <div class="fg2">
+      <label class="fl2">Тип изменения</label>
+      <select class="fs2" id="m-ctype" onchange="syncOldValue()">
+        <option value="">— Выберите тип —</option>
+        <option value="fio">Изменение ФИО</option>
+        <option value="dob">Изменение даты рождения</option>
+        <option value="region">Изменение региона</option>
+        <option value="status">Изменение статуса записи</option>
+        <option value="other">Прочие изменения</option>
+      </select>
+    </div>
+    <div class="fg2">
+      <label class="fl2">Текущее значение</label>
+      <input class="fi2" id="m-oval" readonly>
+    </div>
+    <div class="fg2">
+      <label class="fl2">Новое значение</label>
+      <input class="fi2" id="m-nval" placeholder="Введите новое значение...">
+    </div>
+    <div class="fg2">
+      <label class="fl2">Основание для изменения</label>
+      <textarea class="fi2" id="m-reason" rows="3" placeholder="Укажите номер документа, приказа и т.д..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-blue" onclick="submitEdit()"><i class="fas fa-paper-plane"></i> Отправить запрос</button>
+      <button class="btn btn-out" onclick="closeM('m-edit')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: подтверждение запроса -->
+<div class="overlay" id="m-confirm">
+  <div class="modal">
+    <div class="modal-title"><i class="fas fa-check-circle" style="color:#1E8449"></i> Рассмотрение запроса</div>
+    <div class="modal-sub">Проверьте данные запроса перед принятием решения</div>
+    <div id="m-confirm-body"></div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-green" onclick="confirmReq()"><i class="fas fa-check"></i> Подтвердить</button>
+      <button class="btn btn-red" onclick="rejectReq()"><i class="fas fa-times"></i> Отклонить</button>
+      <button class="btn btn-out" onclick="closeM('m-confirm')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Экран: миссия выполнена -->
+<div id="mscreen">
+  <div class="mc-card">
+    <div class="mc-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5l8-3z"/><path d="M8 12l3 3 5-6"/></svg></div>
+    <div class="mc-title">Миссия выполнена!</div>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:4px">Вы прошли полный рабочий цикл в системе ЦИАДИС-МВД</p>
+    <div class="mc-stats">
+      <div class="mc-stat"><div class="mc-sv" id="f-xp">0</div><div class="mc-sl">Очков XP</div></div>
+      <div class="mc-stat"><div class="mc-sv" id="f-steps">14</div><div class="mc-sl">Шагов</div></div>
+      <div class="mc-stat"><div class="mc-sv" id="f-hints">0</div><div class="mc-sl">Подсказок</div></div>
+    </div>
+    <div class="mc-rank-box">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">ПРИСВОЕН РАНГ</div>
+      <div class="mc-rank" id="f-rank">Стажёр</div>
+    </div>
+    <button class="btn btn-blue" style="width:100%;justify-content:center;padding:12px;margin-bottom:10px"
+      onclick="downloadReport()"><i class="fas fa-file-export"></i>&nbsp; Отчёт (скачать JSON)</button>
+    <button class="btn btn-out" style="width:100%;justify-content:center;padding:12px"
+      onclick="location.reload()"><i class="fas fa-redo"></i>&nbsp; Начать заново</button>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- =========================================================
+     КВЕСТ-ПАНЕЛЬ
+     ========================================================= -->
+<div id="qpanel">
+  <div class="qp-head" onclick="toggleQP()">
+    <i class="fas fa-crosshairs" style="color:#58A6FF;font-size:13px"></i>
+    <span class="qp-title">Инструкции — Тренажёр ЦИАДИС-МВД</span>
+    <div class="qp-prog"><div class="qp-prog-fill" id="qpfill"></div></div>
+    <div class="qp-stats">
+      <div class="qp-stat">Шаг <span class="v" id="qstep">1/14</span></div>
+      <div class="qp-xp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.2 9.4l6.1-.8L12 3z"/></svg> <span id="qxp">0</span> XP</div>
+    </div>
+    <i class="fas fa-chevron-up" id="q-chevron" style="color:#58A6FF;font-size:11px;margin-left:6px"></i>
+  </div>
+  <div id="qbody" class="qp-body">
+    <div class="qp-info">
+      <div class="qp-step-title" id="q-stitle">Загрузка...</div>
+      <div class="qp-desc" id="q-desc">—</div>
+      <div class="qp-obj">
+        <div class="qp-obj-lbl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg> Задание</div>
+        <div id="q-obj">—</div>
+      </div>
+      <div class="qp-hint" id="q-hint"></div>
+    </div>
+    <div class="qp-ctrl">
+      <div class="qst qst-wait" id="q-status"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg> Ожидание действия</div>
+      <button class="qbtn qbtn-hint" onclick="showHint()"><i class="fas fa-lightbulb"></i> Подсказка</button>
+      <button class="qbtn qbtn-tog" onclick="toggleQP()"><i class="fas fa-compress-alt"></i> Свернуть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОДУЛЬ ПРИЁМА ТОКЕНА ПОДЛИННОСТИ — единая форма входа.
+     Поле «Токен доступа» в той же карточке, что и ФИО/взвод/роль.
+     Если токен указан (подставился по ссылке или вставлен
+     курсантом) — ФИО подтягивается из него и блокируется; если
+     поле пустое — форма работает как обычно.
+     Плюс: скрытые метки (render_seq/sync_tag), привязанные к токену
+     хешем, и метка браузера (ui_instance) для обнаружения подмены
+     исполнителя — под совместимость с universal_checker.html.
+     (файл использует snake_case для полей отчёта — метки названы
+     так же, чекер понимает оба стиля именования)
+     ══════════════════════════════════════════════════════════ -->
+
+
+<!-- =========================================================
+     JAVASCRIPT — ВСЯ ЛОГИКА СИМУЛЯТОРА
+     ========================================================= -->
+
+<script src="js/core/utils.js"></script>
+<script src="js/core/logger.js"></script>
+<script src="js/auth/identity-token.js"></script>
+<script src="js/config/constants.js"></script>
+<script src="js/config/roles.js"></script>
+<script src="js/config/modes.js"></script>
+<script src="data/cards.js"></script>
+<script src="data/feed.js"></script>
+<script src="data/exam-variants.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/quest/steps.js"></script>
+<script src="js/quest/scoring.js"></script>
+<script src="js/quest/engine.js"></script>
+<script src="js/quest/exam.js"></script>
+<script src="js/quest/mission.js"></script>
+<script src="js/core/report.js"></script>
+<script src="js/ui/toast.js"></script>
+<script src="js/core/router.js"></script>
+<script src="js/screens/boot.js"></script>
+<script src="js/ui/notifications.js"></script>
+<script src="js/screens/login.js"></script>
+<script src="js/screens/dashboard.js"></script>
+<script src="js/screens/search.js"></script>
+<script src="js/screens/cards-db.js"></script>
+<script src="js/screens/requests.js"></script>
+<script src="js/screens/stats.js"></script>
+<script src="js/screens/journal.js"></script>
+<script src="js/screens/users.js"></script>
+<script src="js/screens/system.js"></script>
+<script src="js/screens/help.js"></script>
+<script src="js/screens/request-modals.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
