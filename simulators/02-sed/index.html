@@ -130,6 +130,8 @@ table.cal{width:100%;border-collapse:collapse;table-layout:fixed}.cal th{backgro
 .ovb .opw>span:first-child{font-size:14px}.ovb>.opw:first-child>span:first-child{font-size:18px}
 
 .dd.open .dm{display:block}.dm a:hover{background:#eef4fb}
+.kbar{padding:0!important}.kbar .dd{height:34px;display:flex;align-items:center;padding:0 12px;font-weight:700;font-size:14px;color:#333}.kbar .dm{top:34px;left:auto;right:0;font-weight:400;z-index:40}
+.f2 button{cursor:pointer;color:#444}.f2 button:hover{background:#dcdcdc;color:#222}.xh{clear:both;margin:12px 0 0;padding:10px 14px;background:#fcf8e3;border:1px solid #faebcc;border-radius:4px;color:#8a6d3b;font-size:13px;line-height:1.5}.xh p{margin:2px 0}.xh ul{margin:4px 0 6px;padding-left:20px}.xh a{color:#337ab7;cursor:pointer;text-decoration:underline}.doc .fdr{color:#5b4b8a;font-size:12px;margin-top:4px}#ov .pv .tb2{flex-wrap:wrap;height:auto;min-height:32px;row-gap:2px;padding-top:2px;padding-bottom:2px}
 .rt{width:100%;border-collapse:collapse;font-size:14px}.rt th{background:#428bca;color:#fff;text-align:left;padding:8px 10px;font-weight:600;white-space:nowrap}.rt td{border-bottom:1px solid #e3e3e3;padding:8px 10px;vertical-align:top}.rt tr.lk{cursor:pointer}.rt tr.lk:hover td{background:#eef4fb}
 .lite main{padding-bottom:90px}
 
@@ -179,8 +181,8 @@ const DCAT=['Приказы МВД','По умолчанию','По умолча
 const card=(d,i,f)=>`<div class="doc ${d[9]?'urg':''}" data-y="${d[1].slice(-4)}" data-f="${DCAT[i]||'По умолчанию'}" onclick="location.hash='#/doc'"><div class="d1">${ic('chk')}<span>Экз ${d[6]}</span>${d[8]?'<span class="tag g">подлинник</span><span class="tag k">новый</span>':''}</div>
 <div class="d2"><h3>${d[0]} от ${d[1]}</h3><p>${d[2]}<br>${d[3]}</p>${d[9]?'<p>21/12/11850 от 26.06.2025</p><p class="urgt">Срочно</p>':'<p class="mut">нет информации о поступившем документе</p>'}</div>
 <div class="d3"><p>${d[4]}</p><p class="${d[5][0]=='н'?'mut':''}">${d[5]}</p></div><div class="n">${i+1} ${d[7]?ic('clip'):''}${ic('list')}${f?ic('fwd'):''}</div></div>`;
-const bar=(sel,extra)=>`<div class="sr"><input id="qk" oninput="yf()" placeholder="Ключевые слова"><span>${extra||'Возвращенные с доклада'}</span>${sel?'<span style="width:220px;justify-content:space-between">по срочности ▾</span>':''}<span>К</span><button>+</button><button onclick="yf()">${'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>'}</button></div>
-<div class="f2">${yr()}<input id="qb" oninput="yf()" placeholder="Штрихкод"><input id="qr" oninput="yf()" placeholder="Рег. номер"><button>Все документы</button></div>`;
+const bar=(sel,extra)=>`<div class="sr"><input id="qk" oninput="yf()" placeholder="Ключевые слова"><span>${extra||'Возвращенные с доклада'}</span>${sel?'<span style="width:220px;justify-content:space-between">по срочности ▾</span>':''}<span class="kbar"><span class="dd" onclick="toggleDd(event,this)" title="Контроль — меню контроля сроков">К<div class="dm"><a href="#/control">Документы на контроле</a><a href="#/overdue">Просроченные документы</a><a href="#/report/exec">Исполнительская дисциплина</a></div></span></span><button>+</button><button onclick="yf()">${'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>'}</button></div>
+<div class="f2">${yr()}<input id="qb" oninput="yf()" placeholder="Штрихкод"><input id="qr" oninput="yf()" placeholder="Рег. номер"><button type="button" onclick="goSearch('#/all')" title="Искать по ключевым словам, штрихкоду и рег. номеру во всех папках">Все документы</button></div>`;
 const list=(t,n,items,al,sel,ex)=>`<div class="panel"><h1>${t}</h1>${al?`<div class="al"><span class="x">✕</span><h4>Внимание!</h4>Имеются документы с истекающим сроком исполнения! Документов: контрольных <b>2</b>.<br><b>Перейти к контрольным документам.</b></div>`:''}${bar(sel,ex)}<div><span class="lnk">выделить</span><span class="lnk">очистить</span><span class="found">Найдено: <b>${n}</b></span></div><div style="margin-top:14px">${items}</div></div>`;
 const tg=(t,off)=>`<button class="tgl ${off?'off':''}" onclick="this.classList.toggle('off')">${t}</button>`;
 const S=(icn,t,body,btn=1)=>`<div class="set"><h5>${ic(icn)} ${t}</h5><div class="row"><div class="in">${body}</div>${btn?'<button class="btn" onclick="alert(\'Сохранено\')">Сохранить</button>':''}</div></div>`;
@@ -280,7 +282,7 @@ const m=r.match(/^#\/doc(?:\/(\d+))?$/),l=liteR(r),wasDoc=ov.classList.contains(
 if(!m){route0();lastHash=r;if(wasDoc)scrollTo(0,savedY)}
 else{if(!wasDoc)savedY=window.scrollY;if(!document.getElementById('main').innerHTML.trim())route0(lastHash)}
 ov.classList.toggle('show',!!m);
-if(m){const d=BYID[m[1]]||DOCS[0];if(!CUR||CUR.id!=d.id){dp=0;pgNum=1;txtV=false;rtab='res'}CUR=d;ov.innerHTML=docHtml(dp)}}
+if(m){const d=BYID[m[1]]||DOCS[0];if(!wasDoc||!CUR||CUR.id!=d.id){dp=0;pgNum=1;txtV=false;rtab='res'}CUR=d;ov.innerHTML=docHtml(dp)}}
 
 let YS=new Set([2026,2025,2024]);const YL=[2026,2025,2024,2023,2022,2021,2020];
 const ylab=()=>[...YS].sort((a,b)=>b-a).join(', ')||'Все годы';
@@ -323,7 +325,7 @@ function dcard(d,i){const att=d.att&&d.att.length,isNew=d.st=='на доклад
  return `<div class="doc ${d.urgent?'urg':''}" data-id="${d.id}" data-y="${d.date.slice(-4)}" data-f="${d.cat}" data-s="${esc(s)}" data-bc="${d.bc}" data-reg="${esc(d.reg)}" onclick="location.hash='#/doc/${d.id}'">
 <div class="d1">${ic('chk')}<span>Экз 1</span>${isNew?'<span class="tag g">подлинник</span><span class="tag k">новый</span>':''}</div>
 <div class="d2"><h3>${esc(d.reg)} от ${d.date}</h3><p>${esc(d.frm)}<br><span class="mut">Кому: ${esc(d.to)}</span></p>${d.ext?`<p>${esc(d.ext)} от ${d.extd}</p>`:`<p class="mut">${esc(d.kt)}</p>`}${d.urgent?'<p class="urgt">Срочно</p>':''}</div>
-<div class="d3"><p>${esc(d.subj)}</p>${d.res?`<p class="mut">✓ ${esc(d.res)}${d.dl?` — <b class="urgt">${d.dl}</b>`:''}</p>`:`<p class="mut">${d.comment?esc(d.comment):'нет комментария'}</p>`}</div>
+<div class="d3"><p>${esc(d.subj)}</p>${ALLV?`<p class="fdr">Папка: ${foldersOf(d).join(', ')}</p>`:''}${d.res?`<p class="mut">✓ ${esc(d.res)}${d.dl?` — <b class="urgt">${d.dl}</b>`:''}</p>`:`<p class="mut">${d.comment?esc(d.comment):'нет комментария'}</p>`}</div>
 <div class="n">${i+1} ${att?ic('clip'):''}${ic('list')}${ic('fwd')}</div></div>`}
 function listPage(r){const L=LISTS[r];const a=sortList(DOCS.filter(L.f),L.sort);LASTIDS=a.map(d=>d.id);
  const nu=a.filter(d=>d.urgent).length;
@@ -362,7 +364,7 @@ function goPage(i){dp=i;pgNum=1;rerender()}
 function closeDoc(){location.hash=lastHash||'#/'}
 function nav(dir){const i=LASTIDS.indexOf(CUR.id),j=i+dir;if(i>=0&&j>=0&&j<LASTIDS.length)location.hash='#/doc/'+LASTIDS[j]}
 function toggleFav(el){const id=CUR.id;FAV.has(id)?FAV.delete(id):FAV.add(id);el.classList.toggle('on',FAV.has(id))}
-function openOrig(){const d=CUR;if(location.protocol=='file:')window.open('docs/'+d.f,'_blank');else alert('Оригинал PDF: docs/'+d.f+'\nОткройте файл из каталога docs рядом с html-файлом прототипа.')}
+function openOrig(){const d=CUR;if(location.protocol=='file:')window.open('docs/'+d.f,'_blank');alert('Скачивание оригинала PDF: docs/'+d.f+'\nЕсли файл не открылся, откройте его из каталога docs рядом с html-файлом тренажёра.')}
 function docHtml(p){const d=CUR,pg=pagesOf(d),cur=pg[p]||pg[0],tot=1;
 return `<div class="ov-h"><h2><span>${esc(d.reg)} от ${d.date} (${esc(d.kt)})</span><b onclick="nav(-1)" style="cursor:pointer">‹</b><b onclick="nav(1)" style="cursor:pointer">›</b></h2><span class="x" onclick="closeDoc()">✕</span>
 <div style="font-size:14px">информационная карточка | ➦</div><div class="ov-t"><span><b class="tb ${rtab=='res'?'on':''}" onclick="setTab('res')">Резолюции</b>&nbsp;|&nbsp;<b class="tb ${rtab=='ctl'?'on':''}" onclick="setTab('ctl')">Контроль</b> <i class="ic-add" onclick="alert('Добавление резолюции (прототип)')">✚</i> <a onclick="location.hash='#/messages'" style="color:inherit">${ic('mail')}</a><br><small>моего подразделения | других подразделений</small></span><span style="margin-left:60px">Электронные образы <i class="ic-add" onclick="alert('Добавление электронного образа (прототип)')">✚</i>&nbsp;|&nbsp;<i class="ic-grid ${gridV?'on':''}" onclick="toggleGrid()" title="Вид плиткой">${ic('list')}</i></span><span class="eb ${txtV?'on':''}" onclick="toggleTxt()">Текстовый редактор</span></div></div>
@@ -410,6 +412,8 @@ const MENUS={
  'Справочники':[['Адресная книга','#/ref/people'],['Номенклатура дел','#/ref/nomen'],['Журналы регистрации','#/ref/journals'],['Шаблоны резолюций','#/settings']],
  'Администрирование':[['Пользователи и роли','#/access'],['Настройки','#/settings'],['Журнал активности','#/activity'],['Календарь','#/calendar'],['Портал ИСОД','#/portal']]};
 const TB5=['Операции','Контроль','Отчеты','Справочники','Администрирование'];
+/* верхнее меню и на страницах раздела «Администрирование» — иначе после «Календаря» меню пропадало (сценарий 9) */
+['#/calendar','#/activity','#/settings'].forEach(k=>{const f=P[k];if(f)P[k]=()=>tbar(TB5)+f()});
 function closeDd(){document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'))}
 function toggleDd(ev,el){ev.stopPropagation();const on=el.classList.contains('open');closeDd();if(!on)el.classList.add('open')}
 document.addEventListener('click',closeDd);
@@ -419,6 +423,30 @@ LISTS['#/control']={t:'Контроль :: Документы на контро�
 LISTS['#/overdue']={t:'Контроль :: Просроченные документы',f:d=>!!(d.dl2&&d.dl2<TODAY)&&d.st!='исполнено',sort:'urg'};
 JOURNALS.forEach((j,i)=>LISTS['#/journal/'+i]={t:'Журнал :: '+j,f:d=>d.j==j});
 Object.keys(LISTS).forEach(k=>{if(!P[k])P[k]=()=>listPage(k)});
+/* ---- поиск по всем папкам: кнопка «Все документы» и подсказка, если в открытой папке ничего не найдено ---- */
+const FOLDERS=['#/','#/route','#/registered','#/folder','#/done'];
+const fname=k=>(LISTS[k]?LISTS[k].t:'').replace(/^.*?::\s*/,'');
+const foldersOf=d=>FOLDERS.filter(k=>LISTS[k].f(d)).map(k=>'«'+fname(k)+'»');
+let QCARRY=null,ALLV=0;
+function qvals(){const g=id=>((document.getElementById(id)||{}).value||'').trim();return{qk:g('qk'),qb:g('qb'),qr:g('qr')}}
+function goSearch(h){QCARRY=qvals();if((location.hash||'#/')==h)route();else location.hash=h}
+function relaxFor(d){urgOnly=false;const y=+d.date.slice(-4);if(YS.size&&!YS.has(y))YS.add(y);if(d.cat)FIL.add(d.cat)}
+function goFolder(id){const d=BYID[id];if(!d)return;relaxFor(d);goSearch(FOLDERS.find(k=>LISTS[k].f(d))||'#/all')}
+function showHidden(ids){ids.forEach(i=>BYID[i]&&relaxFor(BYID[i]));goSearch(location.hash||'#/')}
+LISTS['#/all']={t:'Поиск :: Все документы',f:()=>true,ex:'Во всех папках'};
+P['#/all']=()=>{ALLV=1;try{return listPage('#/all')}finally{ALLV=0}};
+const r2=route;route=function(){r2();if(QCARRY){const c=QCARRY;QCARRY=null;['qk','qb','qr'].forEach(k=>{const e=document.getElementById(k);if(e)e.value=c[k]||''});yf()}};
+function xhint(){const f=document.getElementById('fcnt'),old=document.getElementById('xh'),r=location.hash||'#/',L=LISTS[r];
+ const v=qvals(),q=v.qk.toLowerCase(),bc=v.qb.toLowerCase(),rg=v.qr.toLowerCase();
+ if(!f||!L||+f.textContent>0||!(q||bc||rg)){if(old)old.remove();return}
+ const M=DOCS.filter(d=>{const s=[d.reg,d.subj,d.frm,d.to,d.ext,d.kt,d.res].join(' ').toLowerCase();return(!q||s.includes(q))&&(!bc||String(d.bc||'').toLowerCase().includes(bc))&&(!rg||String(d.reg||'').toLowerCase().includes(rg))});
+ const here=M.filter(L.f),other=M.filter(d=>!L.f(d));let h='';
+ if(here.length)h+=`<p>В этой папке есть подходящие документы (${here.length}), но они скрыты фильтрами (год, категория или «контрольные»). <a onclick="showHidden([${here.map(d=>d.id)}])">Показать</a></p>`;
+ if(other.length)h+=`<p>В папке «${esc(fname(r))}» не найдено. Найдено в других папках: <b>${other.length}</b></p><ul>${other.slice(0,6).map(d=>`<li><a onclick="goFolder(${d.id})">${esc(d.reg)} от ${d.date}</a> — ${esc(d.kt)}; папка: ${foldersOf(d).join(', ')}</li>`).join('')}</ul>${other.length>6?`<p>…и ещё ${other.length-6}.</p>`:''}<p><a onclick="goSearch('#/all')">Показать все результаты («Все документы»)</a></p>`;
+ if(!M.length)h=`<p>Ни в одной папке ничего не найдено — проверьте написание (рег. номер вводится как на карточке, например 2/2583).</p>`;
+ let el=old;if(!el){el=document.createElement('div');el.id='xh';el.className='xh';const row=f.closest('div');row.parentNode.insertBefore(el,row.nextSibling)}
+ el.innerHTML=h}
+const yf0=yf;yf=function(){yf0();xhint()};
 const tblHtml=(head,rows)=>`<div style="overflow:auto"><table class="rt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr ${r.go?`class="lk" onclick="location.hash='${r.go}'"`:''}>${r.c.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 const tpage=(title,body,note)=>tbar(TB5)+`<div class="panel lp l"><h1>${title}</h1>${note?`<p class="mut" style="margin:8px 0 14px">${note}</p>`:''}${body}</div>`+lf;
 const rfInp='<input class="inp" style="width:100%;margin:6px 0 12px" placeholder="Поиск по таблице" oninput="rowFilter(this)">';
@@ -539,7 +567,9 @@ addEventListener('hashchange',()=>route());route();
 .so{display:block;width:100%;text-align:left;background:#f3f6f9;border:1px solid #cfd8df;border-radius:4px;padding:9px 12px;margin:6px 0;cursor:pointer;font:inherit;color:#222}.so.ok{background:#dff0d8;border-color:#5cb85c}.so.no{background:#f2dede;border-color:#a94442}
 .smc textarea{width:100%;padding:8px;margin:4px 0 8px;border:1px solid #bbb;border-radius:4px;font:11px Consolas,monospace;box-sizing:border-box}.smc input[type=radio]{width:auto;margin:0 8px 0 0}.smc label.r{display:block;margin:4px 0}.sf{margin-top:8px;padding:8px 10px;background:#fff8e1;border-left:4px solid #f0ad4e}
 .smx{position:fixed;top:70px;right:12px;width:min(320px,calc(100vw - 24px));background:#fff;color:#222;border-radius:8px;box-shadow:0 6px 24px #0005;z-index:99990;font:13px/1.4 "Segoe UI",Roboto,Arial,sans-serif;border-top:4px solid #f39c12}
-.smx header{all:unset;display:flex;justify-content:space-between;padding:8px 12px;background:#eef3f7;font-weight:600;color:#1c69a8}.smx .bd{padding:10px 12px}.smx .i{color:#666;font-size:12px;margin-top:6px}.smx .e{color:#a94442;margin-top:6px;font-weight:600}
+.smx header{all:unset;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:#eef3f7;font-weight:600;color:#1c69a8;cursor:move;touch-action:none;user-select:none}.smx .bd{padding:10px 12px}
+.smx .smtg{all:unset;display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;border-radius:4px;cursor:pointer;font:700 16px/1 Arial;color:#1c69a8;flex:none}.smx .smtg:hover{background:#d8e6f2}.smx .smtg::before{content:"–"}.smx.min .smtg::before{content:"+"}
+.smx.min{width:auto}.smx.min .bd{display:none}.smx.min header{padding:6px 10px}.smx .i{color:#666;font-size:12px;margin-top:6px}.smx .e{color:#a94442;margin-top:6px;font-weight:600}.smx .dn{margin-top:8px;padding:5px 8px;background:#fcf8e3;border-left:4px solid #f0ad4e;color:#8a6d3b;font-weight:600}
 .smx .pg{height:5px;background:#dde;border-radius:3px;margin-bottom:8px}.smx .pg i{display:block;height:5px;background:#3f8f2a;border-radius:3px}
 .sim-hl{outline:3px solid #f39c12!important;outline-offset:2px;animation:smp 1s infinite}@keyframes smp{50%{outline-color:#fff0;box-shadow:0 0 14px 4px #f39c12aa}}
 .smt{font-weight:700;color:#a94442}.sg td{padding:4px 8px;border-bottom:1px solid #e3e3e3;vertical-align:top}
@@ -552,17 +582,39 @@ const fd=s=>typeof s=='function'?s():Q(s);
 /* ---------- помощники сценариев ---------- */
 const OK='#dlgo',O='.ovb .opd',M2='[onclick*="toggleOpm(\'m2\'"]',D=id=>`.doc[data-id="${id}"]`,A=k=>`a[onclick*="opAct('${k}')"]`,B=t=>`.tbtn[title${t}]`,N=h=>`#nav a[href="${h}"]`,L=h=>`.tbar a[href="${h}"]`;
 const DD=n=>()=>[...document.querySelectorAll('.tbar .dd')].find(x=>x.firstChild&&x.firstChild.textContent==n);
+const LM=(n,h)=>()=>{const d=DD(n)();return d&&d.querySelector('a[href="'+h+'"]')};
 const st=(id,to)=>e=>e.t=='st'&&e.id==id&&e.to==to,inp=id=>e=>e.t=='in'&&e.id==id;
 const pdd=v=>{const a=(v||'').split('.');return new Date(+a[2],+a[1]-1,+a[0])};
+/* --- гарантия видимости документа на шаге «Откройте …»: сбрасывает мешающие фильтры и переводит в нужную папку --- */
+const DOCRE=/^\.doc\[data-id="(\d+)"\]$/;
+function resetListFilters(){urgOnly=false;['qk','qb','qr'].forEach(k=>{const e=document.getElementById(k);if(e)e.value=''});YS=new Set([2026,2025,2024]);FIL=new Set(FILTERS)}
+function ensureTargetDoc(){
+ if(!cur||typeof cur.s!='string')return;
+ const m=DOCRE.exec(cur.s);if(!m)return;
+ const d=BYID[+m[1]];if(!d)return;
+ const el=Q(cur.s);if(el&&el.style.display!='none')return;
+ let dirty=false;
+ if(urgOnly){urgOnly=false;dirty=true}
+ ['qk','qb','qr'].forEach(k=>{const e=document.getElementById(k);if(e&&e.value){e.value='';dirty=true}});
+ const y=+d.date.slice(-4);if(YS.size&&!YS.has(y)){YS.add(y);dirty=true}
+ if(d.cat&&!FIL.has(d.cat)){FIL.add(d.cat);dirty=true}
+ const r=location.hash||'#/';
+ if(!(LISTS[r]&&LISTS[r].f(d))){
+  const sh=SC[SN]&&SC[SN][1];
+  const t=(LISTS[sh]&&LISTS[sh].f(d))?sh:Object.keys(LISTS).find(k=>LISTS[k].f(d));
+  if(t&&t!=r){location.hash=t;return}
+ }
+ if(dirty)route();
+}
 /* вопрос: «текст|верный|неверный|неверный|норма»; ловушки: те же, баллы +10/−8/−12 */
 const T={
- srok:'Срок — «3 рабочих дня», документ получен в пятницу. Когда он истекает?|В следующую среду|В понедельник|В воскресенье|Во вторник|Инструкция по делопроизводству в ОВД: сроки исчисляются в рабочих днях',
- fail:'«Соединение с сервером потеряно». Что делать?|Сохранить черновик и дождаться восстановления|Закрыть браузер и перезагрузить ПК|Продолжить ввод данных|Выключить питание ПК|Регламент работы с ГИС',
- eds:'Сертификат вашей ЭП истекает через 2 дня, документ срочный. Как поступить?|Подписать сейчас и подать заявку на продление|Отказаться от подписания|Подписать сертификатом коллеги|Передать токен секретарю|ФЗ № 63-ФЗ «Об электронной подписи»'};
+ srok:'Срок — «3 рабочих дня», документ получен в пятницу. Когда он истекает?|В следующую среду|В понедельник утром|В воскресенье вечером|Во вторник после обеда|Инструкция по делопроизводству в ОВД: сроки исчисляются в рабочих днях',
+ fail:'«Соединение с сервером потеряно». Что делать?|Сохранить черновик и дождаться восстановления|Закрыть браузер и перезагрузить компьютер|Продолжить ввод данных без сохранения|Выключить питание ПК и включить заново|Регламент работы с ГИС',
+ eds:'Сертификат вашей ЭП истекает через 2 дня, документ срочный. Как поступить?|Подписать сейчас и подать заявку на продление|Отказаться от подписания до продления|Подписать документ сертификатом коллеги|Передать токен секретарю для подписания|ФЗ № 63-ФЗ «Об электронной подписи»'};
 /* ---------- 14 сценариев, 108 практических шагов: [селектор, инструкция, {e: условие, q: вопрос, tr: ловушка, i: справка}] ---------- */
 const SC=[
 ['1. Навигация: боковая панель и шапка','#/','Рабочее место Иванова И.И., начальника кафедры. Освоим боковую панель и значки шапки.',[
- ['#side a[href="#/done"]','Нажмите «Исполненные обращения» в боковой панели.',{q:'Для чего предназначена СЭД ИСОД?|Для электронного документооборота в ОВД|Для хранения оперативных баз|Для видеонаблюдения|Для бухгалтерского учёта'}],
+ ['#side a[href="#/done"]','Нажмите «Исполненные обращения» в боковой панели.',{q:'Для чего предназначена СЭД ИСОД?|Для электронного документооборота в ОВД|Для автоматизации кадрового учёта в ОВД|Для хранения оперативных баз данных|Для бухгалтерского учёта и отчётности'}],
  ['#side a[href="#/"]','Вернитесь в «На доклад» — здесь документы, ожидающие вашего рассмотрения.'],
  ['#tg','Скройте боковую панель кнопкой-стрелкой.'],['#tg','Верните боковую панель.'],
  [N('#/fav'),'Значок «звезда» — «Избранное».'],[N('#/sort'),'Значок сортировки — режимы упорядочивания списка.'],[N('#/tools'),'Значок «ключ» — раздел «Сервис».'],[N('#/menu'),'Значок меню — полный перечень разделов.']]],
@@ -578,14 +630,14 @@ const SC=[
 ['3. Срочные документы и контроль','#/','Часть документов с истекающим или истёкшим сроком. Найдём их и поставим на контроль.',[
  ['.al b[onclick*="toggleUrg"]','В жёлтом окне «Внимание!» нажмите «Перейти к контрольным документам».'],
  ['.al .x','Закройте окно «Внимание!» крестиком.'],
- [DD('Контроль'),'Откройте верхнее меню «Контроль» (если его нет на странице — значок меню в шапке).'],
- [L('#/overdue'),'Выберите «Просроченные документы».',{tr:'srok'}],
- [D(66),'Откройте письмо рег. 7987 — срок истёк 30.09.2026.',{q:'Какой документ рассматривают первым?|Срочный, с истекающим сроком|Строго по порядку поступления|С меньшим номером|Тот, что пришёл последним'}],
+ ['.kbar .dd','Откройте меню «Контроль» — кнопка «К» в строке поиска.'],
+ ['.kbar a[href="#/overdue"]','Выберите «Просроченные документы».',{tr:'srok'}],
+ [D(66),'Откройте письмо рег. 7987 — срок истёк 30.09.2026.',{q:'Какой документ рассматривают первым?|Срочный, с истекающим сроком|Строго по порядку поступления|С наименьшим номером регистрации|Тот, что пришёл последним'}],
  ['.ovb .kb','Нажмите «К» внизу карточки — «Поставить на контроль».',{e:e=>e.t=='ctl'}],[OK,'Нажмите OK.']]],
 ['4. Карточка документа','#/','Изучаем карточку: резолюции, контроль, образы.',[
  [D(61),'Откройте письмо рег. 7961 «О представлении информации о вакантных должностях».'],
  ['b.tb[onclick*="\'ctl\'"]','Вкладка «Контроль»: срок, статус, ожидаемое действие.'],
- ['b.tb[onclick*="\'res\'"]','Вкладка «Резолюции»: маршрут и бланки резолюций.',{q:'Что обязательно в резолюции?|Исполнитель, задание, срок, подпись|Только ФИО|Только текст задания|Только гриф и дату'}],
+ ['b.tb[onclick*="\'res\'"]','Вкладка «Резолюции»: маршрут и бланки резолюций.',{q:'Что обязательно в резолюции?|Исполнитель, задание, срок, подпись|Только фамилия исполнителя и дата|Только текст задания и гриф документа|Только срок исполнения и подпись'}],
  [B('="Панель резолюций"'),'Скройте левую панель резолюций.'],[B('="Панель резолюций"'),'Покажите её снова.'],
  ['.ov-t .ic-add','Значок ✚ рядом с вкладками — добавление резолюции.'],[OK,'Нажмите OK.'],
  ['.ic-grid','Переключите вид электронных образов (плитка / список).']]],
@@ -615,36 +667,36 @@ const SC=[
  [DD('Справочники'),'Откройте «Справочники» ещё раз.'],[L('#/ref/nomen'),'Выберите «Номенклатура дел».']]],
 ['9. Журналы, календарь, активность','#/ref/nomen','Администрирование и служебные журналы.',[
  [DD('Справочники'),'Откройте «Справочники».'],[L('#/ref/journals'),'Выберите «Журналы регистрации».'],
- [DD('Администрирование'),'Откройте «Администрирование».'],[L('#/calendar'),'Выберите «Календарь».'],
- [DD('Администрирование'),'Откройте «Администрирование».'],[L('#/activity'),'Выберите «Журнал активности» — здесь фиксируются ваши действия.'],
- [DD('Администрирование'),'Откройте «Администрирование».'],[L('#/settings'),'Выберите «Настройки».']]],
+ [DD('Администрирование'),'Откройте «Администрирование».'],[LM('Администрирование','#/calendar'),'Выберите «Календарь».'],
+ [DD('Администрирование'),'Откройте «Администрирование».'],[LM('Администрирование','#/activity'),'Выберите «Журнал активности» — здесь фиксируются ваши действия.'],
+ [DD('Администрирование'),'Откройте «Администрирование».'],[LM('Администрирование','#/settings'),'Выберите «Настройки».']]],
 ['10. Настройки и сообщения','#/settings','Настройки учётной записи и обмен сообщениями.',[
  ['.tgl','Переключите первую настройку.'],['.tgl','Верните её обратно.'],
  ['.set .btn','Нажмите «Сохранить».'],[OK,'Нажмите OK.'],
  ['#side a.mail,'+N('#/messages'),'Откройте «Мои сообщения» (значок конверта).'],
  [N('#/'),'Вернитесь на главную («домик»).']]],
 ['11. Маршрут: отправить и вернуть','#/','Рапорт на отпуск Н.А. Дмитриевой (рег. 2/2791): согласовать и направить; затем вернуть на доработку.',[
- [D(2),'Откройте рапорт рег. 2/2791.',{q:'Что делает начальник с рапортом на отпуск?|Согласовывает и направляет в отдел кадров|Списывает в дело|Возвращает без причин|Подписывает приказ об отпуске'}],
+ [D(2),'Откройте рапорт рег. 2/2791.',{q:'Что делает начальник с рапортом на отпуск?|Согласовывает и направляет в отдел кадров|Списывает в дело без направления в кадры|Возвращает заявителю без рассмотрения|Подписывает приказ о предоставлении отпуска'}],
  [O,'Откройте меню «Операции» внизу карточки.'],
  [A('route'),'Выберите «Отправить по маршруту».',{e:st(2,'на подписании')}],[OK,'Нажмите OK.'],
  [O,'Откройте «Операции».'],
  [A('return'),'Выберите «Вернуть на доработку».',{e:st(2,'на доклад')}],[OK,'Нажмите OK.'],
  [O,'Откройте «Операции».'],[A('print'),'Выберите «Выгрузить лист согласования».']]],
 ['12. Резолюция, срок, контроль','#/','Входящее письмо рег. 7954 «О предоставлении документов»: срок 30.09.2026 истёк.',[
- [D(63),'Откройте письмо рег. 7954.'],
- [O,'Откройте «Операции».',{tr:'fail'}],
+ [D(63),'Откройте письмо рег. 7954.',{tr:'fail'}],
+ [O,'Откройте «Операции».'],
  [A('resolve'),'Выберите «Наложить резолюцию…».'],
  ['#dlgi','Впишите: исполнитель (Орлова О.О.), задание, срок дд.мм — не менее 50 символов. OK.',{e:e=>e.t=='res'&&e.id==63?((e.v.length>=50&&/Орлов/.test(e.v)&&/\d\d\.\d\d/.test(e.v))?true:'Нужны исполнитель (Орлова О.О.), чёткое задание, срок дд.мм, от 50 символов.'):0,i:'«Разобраться» — не резолюция: нужен результат и срок.'}],
  [M2,'Откройте «Работа с обращениями».'],[A('extend'),'Выберите «Продлить срок исполнения…».'],
  ['#dlgi','Введите дату позже 05.10.2026 (дд.мм.гггг) и OK.',{e:e=>e.t=='dl'&&e.id==63?(pdd(e.v)>TODAY?true:'Дата должна быть позже 05.10.2026.'):0}],
  ['.ovb .kb','Нажмите «К» — поставить на контроль.'],[OK,'Нажмите OK.']]],
 ['13. Обращение гражданина','#/','Обращение рег. 3/266105981151 (трудоустройство преподавателем): перенаправить и подготовить единый ответ.',[
- [D(74),'Откройте обращение рег. 3/266105981151.',{q:'Срок рассмотрения обращения гражданина?|30 дней со дня регистрации|3 рабочих дня|До конца квартала|90 календарных дней'}],
+ [D(74),'Откройте обращение рег. 3/266105981151.',{q:'Срок рассмотрения обращения гражданина?|30 дней со дня регистрации|3 рабочих дня со дня поступления|До конца текущего квартала|90 календарных дней с регистрации'}],
  [M2,'Откройте «Работа с обращениями».'],[A('redirect'),'Выберите «Перенаправить исполнителю…».'],
  [OK,'Впишите ФИО исполнителя (Орлова Ольга Олеговна) и нажмите OK.'],[OK,'Нажмите OK.'],
  [M2,'Снова откройте «Работа с обращениями».'],[A('answer'),'Выберите «Подготовить единый ответ».',{e:e=>e.t=='h'&&e.h=='#/new/12'}]]],
 ['14. Подписание ЭП и списание в дело','#/route','Служебная записка рег. 2/2829 на подписании; подписант — вы.',[
- [D(21),'Откройте записку рег. 2/2829.',{q:'Токен ЭП у секретаря, документ срочный. Как поступить?|Забрать свой токен и подписать самому|Попросить секретаря подписать|Использовать сертификат коллеги|Отложить до конца недели'}],
+ [D(21),'Откройте записку рег. 2/2829.',{q:'Токен ЭП у секретаря, документ срочный. Как поступить?|Забрать свой токен и подписать самому|Попросить секретаря подписать документ|Использовать сертификат ЭП коллеги|Отложить подписание до конца недели'}],
  [O,'Откройте «Операции».'],
  [A('sign'),'Выберите «Подписать (зарегистрировать)».',{e:st(21,'зарегистрировано'),tr:'eds'}],[OK,'Нажмите OK.'],
  [O,'Откройте «Операции».'],[A('file'),'Выберите «Списать в дело».'],[OK,'Подтвердите списание — нажмите OK.',{e:st(21,'исполнено')}]]]
@@ -654,7 +706,9 @@ const TOT=SC.reduce((a,s)=>a+s[3].length,0);
 
 function XS(){
  const ACT={};DOCS.forEach(d=>ACT[d.k]=ACT[d.k]||d.act);
- const kq=d=>'Какое действие ожидается по документу «'+d.kt+'»?|'+d.act+'|'+[...new Set(Object.values(ACT).filter(a=>a!=d.act))].sort((a,b)=>(a.length*7+d.id)%5-(b.length*7+d.id)%5).slice(0,3).join('|');
+ const kq=d=>{const pool=[...new Set(Object.values(ACT).filter(a=>a!=d.act))];const o=pool.slice().sort((a,b)=>(a.length*7+d.id)%5-(b.length*7+d.id)%5).slice(0,3);
+  if(o.every(a=>a.length<=d.act.length)){const lng=pool.filter(a=>a.length>d.act.length).sort((a,b)=>a.length-b.length)[0];if(lng){o.sort((a,b)=>a.length-b.length);o[0]=lng}}
+  return 'Какое действие ожидается по документу «'+d.kt+'»?|'+d.act+'|'+o.join('|')};
  const X_='.ov-h .x',kd=(h,ids)=>ids.flatMap(i=>{const d=BYID[i];return[[D(i),`Откройте «${d.kt}» рег. ${d.reg}.`,{q:kq(d)}],[X_,'Закройте карточку крестиком в правом верхнем углу.']]});
  const sg=(h,ids)=>ids.flatMap(i=>{const d=BYID[i];return[[D(i),`Откройте «${d.kt}» рег. ${d.reg}.`],[O,'Откройте «Операции».'],[A('sign'),'Выберите «Подписать (зарегистрировать)».',{e:st(i,'зарегистрировано')}],[OK,'Нажмите OK.'],[X_,'Закройте карточку.']]});
  const NV=h=>[N('#/menu'),'Откройте меню (значок в шапке).'],ML=(h,t)=>['.ml a[href="'+h+'"]',t];
@@ -671,7 +725,7 @@ function XS(){
   [B('="Ещё"'),'Откройте меню «Ещё».'],['a[onclick*="moreAct(\'props\')"]','Выберите «Свойства документа».'],[OK,'Нажмите OK.'],
   [B('="Ещё"'),'Откройте «Ещё».'],['a[onclick*="moreAct(\'text\')"]','Выберите «Показать текст документа».']]],
  ['18. Электронные образы и вложения','#/','Список образов документа: просмотр, скачивание, редактирование.',[
-  [D(61),'Откройте письмо рег. 7961.'],['.th b.e','Нажмите «глаз» — просмотр образа.'],['.th b.d','Нажмите «скачать».'],[OK,'Закройте уведомление (если оно появилось).'],
+  [D(61),'Откройте письмо рег. 7961.'],['.th b.e','Нажмите «глаз» — просмотр образа.'],['.th b.d','Нажмите «скачать».'],[OK,'Закройте уведомление о скачивании — нажмите OK.'],
   ['.th b.s','Нажмите «редактировать».'],[OK,'Нажмите OK.'],[B('^="Скачать"'),'Нажмите «Скачать страницу с пометками».']]],
  ['19. Папки и списки через меню','#/','Все папки документов: зарегистрированные, обработанные, на маршруте, исполненные.',[
   NV(),ML('#/registered','Выберите «Зарегистрированные».'),NV(),ML('#/folder','Выберите «Обработанные».'),
@@ -679,7 +733,7 @@ function XS(){
  ['20. Избранное и исполнение без ответа','#/','Избранное и закрытие документа без отправки ответа.',[
   [D(63),'Откройте письмо рег. 7954.'],['.ovb .fav','Нажмите ★ — добавить в избранное.'],[X_,'Закройте карточку.'],[N('#/fav'),'Откройте «Избранное» (звезда в шапке).'],
   [D(63),'Откройте письмо в избранном.'],['.ovb .fav','Нажмите ★ — убрать из избранного.'],[N('#/'),'Вернитесь на главную.'],
-  [D(75),'Откройте обращение рег. 3/266105981304.'],['[onclick*="opAct(\'finish\')"]','Нажмите «Исполнить без ответа».'],[OK,'Подтвердите — OK.'],[OK,'Нажмите OK.',{e:st(75,'исполнено')}]]],
+  [D(75),'Откройте обращение рег. 3/266105981304.'],['[onclick*="opAct(\'finish\')"]','Нажмите «Исполнить без ответа».'],[OK,'Подтвердите — OK.',{e:st(75,'исполнено')}],[OK,'Нажмите OK в уведомлении «Документ исполнен без ответа…».']]],
  ['21. Комментарий к документу','#/','Служебный комментарий в карточке.',[
   [D(76),'Откройте обращение рег. 3/266105981455.'],[M2,'Откройте «Работа с обращениями».'],[A('comment'),'Выберите «Добавить комментарий…».'],[OK,'Введите комментарий и нажмите OK.']]],
  ['22. Виды документов: на доклад','#/','Ожидаемое действие зависит от вида документа.',kd('#/',[7,13,61,67,73])],
@@ -723,7 +777,22 @@ addEventListener('click',ev=>{if(!U)return;const t=ev.target.closest?ev.target:e
  setTimeout(diff,90)},true);
 addEventListener('input',e=>{if(U)emit({t:'in',id:e.target.id,tag:e.target.tagName})},true);
 addEventListener('hashchange',()=>{if(!U)return;emit({t:'h',h:location.hash});const m=/^#\/doc\/(\d+)/.exec(location.hash);if(m)emit({t:'open',id:+m[1]})});
-setInterval(()=>{document.querySelectorAll('.sim-hl').forEach(x=>x.classList.remove('sim-hl'));if(mode=='t'&&cur){let el=null;try{el=fd(cur.s)}catch(_){}if(el){el.classList.add('sim-hl');const k=location.hash+SN+'.'+SI;if(cur._k!==k){cur._k=k;el.scrollIntoView({block:'center',behavior:'smooth'})}}}},300);
+/* подсветка цели шага: + незакрытое уведомление (сначала OK), + закрывшееся меню (подсветить кнопку его открытия),
+   + раскрытый список лет поверх цели (закрыть через 1,5 с), + плашка не должна закрывать цель (отъезжает в свободный угол) */
+const vis=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0};
+const ovl=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+const opener=el=>{const m=el.closest('.opm,.dm,#menu');if(!m)return null;if(m.id=='menu')return Q('#fab');if(m.classList.contains('dm'))return m.closest('.dd');const p=m.previousElementSibling;return p&&vis(p)?p:null};
+function smxAvoid(el){const c=Q('#smx');if(!c||c._drag||!el)return;const a=el.getBoundingClientRect(),b=c.getBoundingClientRect();if(!a.width||!ovl(a,b))return;
+ const m=12,w=b.width,h=b.height,P=[[innerWidth-w-m,70],[m,70],[innerWidth-w-m,innerHeight-h-m],[m,innerHeight-h-m]];
+ const p=P.find(([x,y])=>!ovl(a,{left:x,right:x+w,top:y,bottom:y+h}));if(p){c.style.right='auto';c.style.bottom='auto';c.style.left=Math.max(0,p[0])+'px';c.style.top=Math.max(0,p[1])+'px'}}
+setInterval(()=>{document.querySelectorAll('.sim-hl').forEach(x=>x.classList.remove('sim-hl'));if(mode=='t'&&cur){let el=null;try{el=fd(cur.s)}catch(_){}if(el&&typeof cur.s=='string'&&DOCRE.test(cur.s)&&el.style.display=='none')el=null;if(!el)ensureTargetDoc();
+ const dl=Q('#dlg.show');let dang=false,note='';
+ if(dl&&!(el&&dl.contains(el))&&!Q('#smb')){const o=dl.querySelector('#dlgo');if(o){el=o;dang=true;note='Сначала закройте открытое уведомление — нажмите OK.'}}
+ else if(el&&!vis(el)){const alt=typeof cur.s=='string'?[...document.querySelectorAll(cur.s)].find(vis):null;if(alt)el=alt;else{const op=opener(el);if(op)el=op}}
+ if(el&&!dang){const ov=Q('#ov.show');if(ov&&!ov.contains(el)&&!el.closest('#dlg,#smx,#smb')){const x=ov.querySelector('.ov-h .x');if(x){el=x;dang=true;note='Сначала закройте карточку документа — крестик ✕ справа вверху.'}}}
+ if(el&&!dang){const ym=Q('.ym.show');if(ym&&!ym.contains(el)&&ovl(el.getBoundingClientRect(),ym.getBoundingClientRect())){cur._ym=cur._ym||Date.now();if(Date.now()-cur._ym>1500){ym.classList.remove('show');cur._ym=0}}}
+ const c=Q('#smx');if(c){let n=c.querySelector('.dn');if(note){if(!n){n=document.createElement('div');n.className='dn';const bd=c.querySelector('.bd');bd&&bd.appendChild(n)}if(n.textContent!=note)n.textContent=note}else if(n)n.remove()}
+ if(el){el.classList.add('sim-hl');const k=location.hash+SN+'.'+SI+(dang?'d':'');if(cur._k!==k){cur._k=k;el.scrollIntoView({block:'center',behavior:'smooth'})}smxAvoid(el)}}},300);
 /* токен доступа — устроен как в sops_simulator_with_token.html: base64(JSON{fio,grp,task,exp}).подпись */
 (function(){const b64=b=>{try{return decodeURIComponent(escape(atob(b)))}catch(e){return null}},
 parse=s=>{if(!s)return null;const p=String(s).trim().split('.');if(p.length<2)return null;const j=b64(p[0]);if(!j)return null;try{return{raw:String(s).trim(),payload:JSON.parse(j)}}catch(e){return null}},
@@ -765,10 +834,27 @@ function ask(o,cb,trap){let done=0,left=trap?35:0;const b=box(`<h2>${trap?'Ло�
  if(left){const u=()=>{const e=Q('#stm');e&&(e.textContent='Осталось: '+left+' с');if(--left<0)fin(-1,1)};u();tmr=setInterval(u,1000)}}
 /* обучение: все шаги подряд, без выбора разделов */
 function trainBegin(){sc=100;PEN=0;SN=0;SI=0;G=0;errs=0;notes=[];SK=0;QN=0;QOK=0;STL=[];mode='t';scIntro()}
-function scIntro(){const s=SC[SN];box(`<h2>Сценарий ${SN+1} из ${SC.length}: ${X(s[0].replace(/^\d+\.\s*/,''))}</h2><p>${X(s[2])}</p><p>Шагов в сценарии: ${s[3].length}. Пройдено всего: ${G} из ${TOT}. Нажимайте подсвеченный элемент интерфейса.</p><button class="sbt" id="sgo">Продолжить</button>`);Q('#sgo').onclick=()=>{unbox();const h=s[1];if(location.hash==h)route();else location.hash=h;show()}}
+function scIntro(){const s=SC[SN];box(`<h2>Сценарий ${SN+1} из ${SC.length}: ${X(s[0].replace(/^\d+\.\s*/,''))}</h2><p>${X(s[2])}</p><p>Шагов в сценарии: ${s[3].length}. Пройдено всего: ${G} из ${TOT}. Нажимайте подсвеченный элемент интерфейса.</p><button class="sbt" id="sgo">Продолжить</button>`);Q('#sgo').onclick=()=>{unbox();resetListFilters();const h=s[1];if(location.hash==h)route();else location.hash=h;show()}}
 function show(){const r=SC[SN][3][SI];cur={s:r[0],x:r[1],o:r[2],t0:Date.now(),er:0};coach();const o=cur.o||{};if(o.q)ask(qz(o.q),()=>{})}
-function coach(err){let c=Q('#smx');if(!c){c=document.createElement('div');c.id='smx';c.className='smx';W.appendChild(c)}const s=SC[SN],n=s[3].length;
- c.innerHTML=`<header><span>${X(s[0].split('.')[0])}/${SC.length}</span><span>${Math.max(0,100-PEN)} б.</span></header><div class="bd"><div class="pg"><i style="width:${100*G/TOT}%"></i></div><b>Шаг ${G+1} из ${TOT}</b> <span class="i">(в сценарии ${SI+1}/${n})</span><br>${X(cur.x)}${cur.o&&cur.o.i?`<div class="i">ℹ ${X(cur.o.i)}</div>`:''}${err?`<div class="e">${X(err)}</div>`:''}<div style="margin-top:8px"><button class="sbt g" id="smk">Пропустить</button><button class="sbt g" id="smm">Завершить</button></div></div>`;
+/* плашка шагов: сворачивание (кнопка «–»/«+» или двойной клик по заголовку) и перетаскивание за заголовок */
+let smxMin=false;
+function smxInit(c){
+ if(c._init)return;c._init=1;
+ c.addEventListener('click',e=>{if(e.target.closest('.smtg')){e.stopPropagation();smxMin=!smxMin;c.classList.toggle('min',smxMin)}});
+ c.addEventListener('dblclick',e=>{if(e.target.closest('header')&&!e.target.closest('.smtg')){smxMin=!smxMin;c.classList.toggle('min',smxMin)}});
+ c.addEventListener('pointerdown',e=>{
+  const hd=e.target.closest('header');if(!hd||e.target.closest('.smtg'))return;
+  e.preventDefault();c._drag=1;
+  const r=c.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;
+  c.style.right='auto';c.style.bottom='auto';c.style.userSelect='none';
+  const move=ev=>{let x=ev.clientX-dx,y=ev.clientY-dy;x=Math.max(0,Math.min(x,innerWidth-r.width));y=Math.max(0,Math.min(y,innerHeight-36));c.style.left=x+'px';c.style.top=y+'px'};
+  const up=()=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up);c.style.userSelect='';c._drag=0};
+  addEventListener('pointermove',move);addEventListener('pointerup',up);
+ });
+}
+function coach(err){let c=Q('#smx');if(!c){c=document.createElement('div');c.id='smx';c.className='smx';W.appendChild(c)}smxInit(c);const s=SC[SN],n=s[3].length;
+ c.innerHTML=`<header><span>${X(s[0].split('.')[0])}/${SC.length} · ${Math.max(0,100-PEN)} б.</span><button class="smtg" type="button" title="Свернуть/развернуть панель (или перетащите заголовок)"></button></header><div class="bd"><div class="pg"><i style="width:${100*G/TOT}%"></i></div><b>Шаг ${G+1} из ${TOT}</b> <span class="i">(в сценарии ${SI+1}/${n})</span><br>${X(cur.x)}${cur.o&&cur.o.i?`<div class="i">ℹ ${X(cur.o.i)}</div>`:''}${err?`<div class="e">${X(err)}</div>`:''}<div style="margin-top:8px"><button class="sbt g" id="smk">Пропустить</button><button class="sbt g" id="smm">Завершить</button></div></div>`;
+ c.classList.toggle('min',smxMin);
  Q('#smk').onclick=()=>adv(1);Q('#smm').onclick=()=>{box('<h2>Завершить досрочно?</h2><p>Будет сформирован JSON-отчёт по пройденным шагам.</p><button class="sbt" id="y">Да</button><button class="sbt g" id="n">Продолжить</button>');Q('#y').onclick=()=>fin('aborted');Q('#n').onclick=unbox}}
 function adv(skip){if(!cur||cur.d)return;cur.d=1;const t=cur.o&&cur.o.tr;
  STL.push({no:G+1,sc:SN,scenario:SC[SN][0],step:SI+1,text:cur.x,result:skip?'skipped':'done',durationMs:Date.now()-cur.t0,errorsAtStep:cur.er});
@@ -777,8 +863,9 @@ function adv(skip){if(!cur||cur.d)return;cur.d=1;const t=cur.o&&cur.o.tr;
  if(t&&!skip)ask(qz(T[t]),nx,1);else nx()}
 /* экзамен */
 function examStart(){mode='x';ERL=[];sc=1000;XI=0;T0=Date.now();unbox();resetDocs();EX=mkEx();X0=LOG.length;document.getElementById('side').innerHTML=side('#/');if(location.hash=='#/')route();else location.hash='#/';xp()}
-function xp(){let c=Q('#smx');if(!c){c=document.createElement('div');c.id='smx';c.className='smx';W.appendChild(c)}
- c.innerHTML=`<header><span>Экзамен</span><span id="smt"></span></header><div class="bd"><b>Задание ${XI+1} из ${EX.length}</b><br>${X(EX[XI].t)}<div style="margin-top:8px"><button class="sbt g" id="sp" ${XI?'':'disabled'}>◀</button><button class="sbt g" id="sn" ${XI<EX.length-1?'':'disabled'}>▶</button><button class="sbt" id="sf">Завершить</button></div><div class="i">Задания — в любом порядке. Подсказок нет. Набор документов индивидуален.</div></div>`;
+function xp(){let c=Q('#smx');if(!c){c=document.createElement('div');c.id='smx';c.className='smx';W.appendChild(c)}smxInit(c);
+ c.innerHTML=`<header><span>Экзамен · <span id="smt"></span></span><button class="smtg" type="button" title="Свернуть/развернуть панель (или перетащите заголовок)"></button></header><div class="bd"><b>Задание ${XI+1} из ${EX.length}</b><br>${X(EX[XI].t)}<div style="margin-top:8px"><button class="sbt g" id="sp" ${XI?'':'disabled'}>◀</button><button class="sbt g" id="sn" ${XI<EX.length-1?'':'disabled'}>▶</button><button class="sbt" id="sf">Завершить</button></div><div class="i">Задания — в любом порядке. Подсказок нет. Набор документов индивидуален.</div></div>`;
+ c.classList.toggle('min',smxMin);
  Q('#sp').onclick=()=>{XI--;xp()};Q('#sn').onclick=()=>{XI++;xp()};Q('#sf').onclick=()=>{box('<h2>Завершить экзамен?</h2><p>Действия нельзя отменить.</p><button class="sbt" id="y">Да</button><button class="sbt g" id="n">Продолжить</button>');Q('#y').onclick=examEnd;Q('#n').onclick=unbox}}
 setInterval(()=>{const t=Q('#smt');if(t&&mode=='x'){const s=Math.floor((Date.now()-T0)/1000);t.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}},1000);
 function examEnd(){const L=LOG.slice(X0),res=EX.map(x=>x.g(L));let sc2=1000,fat=0,ok=0;res.forEach((r,i)=>{if(r[0]=='ok')ok++;else{sc2-=r[1];ER('exam_'+r[0],EX[i].t+' — '+(r[2]||''),r[1])}if(r[0]=='fatal')fat++});sc2=Math.max(sc2,0);
@@ -786,4 +873,4 @@ function examEnd(){const L=LOG.slice(X0),res=EX.map(x=>x.g(L));let sc2=1000,fat=
 login();
 })();
 </script>
-</body></html>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5875db41ced167e',t:'MTc5NDMzNzkxOA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5875db41ced167e',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
