@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СЭКО / АДИС «Папилон» — Учебный симулятор МВД России</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/icons.css">
+</head>
+<body>
+
+<!-- ===== ЭКРАН 1: АВТОРИЗАЦИЯ КУРСАНТА ===== -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo">
+    <div class="emblem">🏛️</div>
+    <h1>МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ</h1>
+    <p>Учебный симулятор СЭКО / АДИС «Папилон» • Вход для курсантов</p>
+  </div>
+  <div class="login-card fade-in">
+    <h2>🎓 АВТОРИЗАЦИЯ КУРСАНТА</h2>
+    <div class="subtitle">Введите учётные данные для входа в учебный симулятор. Все действия фиксируются в журнале и передаются наставнику/платформе проверки.</div>
+    <div class="form-group">
+      <label>Идентификационный токен (если выдан наставником)</label>
+      <textarea id="login-token" rows="2" placeholder="Вставьте токен из платформы проверки (необязательно)" style="width:100%; resize:vertical; font-family:monospace; font-size:11px;"></textarea>
+      <div id="login-token-err" style="color:var(--accent-red); font-size:11px; margin-top:2px;"></div>
+      <div id="login-token-ok" style="color:var(--accent-green, #2e7d32); font-size:11px; margin-top:2px;"></div>
+    </div>
+    <div class="form-group">
+      <label>ФИО курсанта <span style="color:var(--accent-red)">*</span></label>
+      <input type="text" id="login-fullname" placeholder="Иванов Иван Иванович" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Номер взвода <span style="color:var(--accent-red)">*</span></label>
+      <input type="text" id="login-squad" placeholder="например: 312" autocomplete="off" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label>Учебная группа / специализация</label>
+      <select id="login-group">
+        <option value="eks">Экспертно-криминалистическая</option>
+        <option value="sled">Следственная</option>
+        <option value="oper">Оперативная</option>
+        <option value="uch">Учебная (демо)</option>
+      </select>
+    </div>
+    <button class="btn-login" id="btn-do-login" onclick="doLogin()">▶ ВОЙТИ В СИМУЛЯТОР</button>
+    <div class="security-banner">
+      ⚠️ Внимание! Все действия курсанта в симуляторе протоколируются и сохраняются в отчёт. По окончании занятия нажмите кнопку «📊 Отчёт» для выгрузки результатов. Несанкционированный доступ преследуется по закону.
+    </div>
+    <div class="login-status" id="login-status"></div>
+  </div>
+</div>
+
+
+
+<!-- ===== ЭКРАН 2: ГЛАВНЫЙ РАБОЧИЙ СТОЛ ===== -->
+<div id="screen-main" class="screen">
+  <!-- БОКОВАЯ ПАНЕЛЬ -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sys-name">🔬 СЭКО</div>
+      <div class="sys-sub">АДИС «Папилон» · МВД России</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="avatar" id="sidebar-avatar">К</div>
+      <div class="user-info">
+        <div class="name" id="sidebar-name">Курсант</div>
+        <div class="role" id="sidebar-role">Взвод: —</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Основные модули</div>
+      <div class="nav-item active" onclick="switchModule('dashboard')" id="nav-dashboard">
+        <span class="icon">🏠</span> Рабочий стол
+      </div>
+      <div class="nav-item" onclick="switchModule('cases')" id="nav-cases">
+        <span class="icon">📁</span> Управление делами
+      </div>
+      <div class="nav-item" onclick="switchModule('registration')" id="nav-registration">
+        <span class="icon">➕</span> Регистрация следа
+      </div>
+      <div class="nav-item" onclick="switchModule('coding')" id="nav-coding">
+        <span class="icon">🎯</span> Кодирование (Разметка)
+      </div>
+      <div class="nav-item" onclick="switchModule('search')" id="nav-search">
+        <span class="icon">🔍</span> Поиск АДИС
+      </div>
+      <div class="nav-item" onclick="switchModule('hitlist')" id="nav-hitlist">
+        <span class="icon">📋</span> Список кандидатов
+      </div>
+      <div class="nav-item" onclick="switchModule('comparison')" id="nav-comparison">
+        <span class="icon">⚖️</span> Сравнение / Верификация
+      </div>
+      <div class="nav-item" onclick="switchModule('report')" id="nav-report">
+        <span class="icon">📄</span> Экспертная справка
+      </div>
+      <div class="nav-section-title">Обучение</div>
+      <div class="nav-item" onclick="switchModule('missions')" id="nav-missions">
+        <span class="icon">🎓</span> Миссии
+      </div>
+      <div class="nav-item" onclick="switchModule('journal')" id="nav-journal">
+        <span class="icon">📝</span> Журнал действий
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="doLogout()">⬅️ Выйти из системы</button>
+    </div>
+  </div>
+
+  <!-- ГЛАВНАЯ ОБЛАСТЬ -->
+  <div class="main-area">
+    <div class="top-bar">
+      <div class="breadcrumb">СЭКО · <strong id="module-title">Рабочий стол</strong></div>
+      <div class="top-indicators">
+        <div class="indicator"><div class="dot dot-green"></div>Региональная АДИС</div>
+        <div class="indicator"><div class="dot dot-green"></div>Федеральная БД</div>
+        <div class="indicator"><div class="dot dot-amber"></div>СЭД</div>
+        <div class="indicator" id="clock-indicator">⏰ --:--</div>
+        <button class="btn-report-top" id="btn-report-top" onclick="downloadReport()" title="Скачать JSON-отчёт о действиях курсанта">
+          📊 ОТЧЁТ <span class="badge-count" id="report-action-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- КОНТЕНТНАЯ ОБЛАСТЬ -->
+    <div class="content-area" id="content-area">
+      <!-- Загружается динамически -->
+    </div>
+  </div>
+</div>
+
+<!-- ===== ПЛАВАЮЩИЙ НАСТАВНИК ===== -->
+<button class="mentor-btn-float" onclick="toggleMentor()" id="mentor-toggle-btn" style="display:none" title="Открыть наставника">🤖</button>
+<div class="mentor-panel hidden" id="mentor-panel">
+  <div class="mentor-header">
+    <h4>🤖 Наставник СЭКО</h4>
+    <button onclick="toggleMentor()" style="background:none;color:#fff;font-size:16px">✕</button>
+  </div>
+  <div class="mentor-body" id="mentor-body">
+    <div class="mentor-msg">Добро пожаловать! Я ваш виртуальный наставник. Задавайте вопросы о работе СЭКО или нажмите на подсказку.</div>
+  </div>
+  <div class="mentor-input">
+    <input type="text" id="mentor-input" placeholder="Задать вопрос..." onkeydown="if(event.key==='Enter')sendMentorMsg()">
+    <button class="btn btn-primary btn-sm" onclick="sendMentorMsg()">→</button>
+  </div>
+</div>
+
+<!-- ===== ИНСТРУКЦИОННАЯ ПАНЕЛЬ ===== -->
+<div class="instruction-panel" id="instruction-panel" style="display:none">
+  <div class="instr-header" onclick="toggleInstrPanel()">
+    <h4>📋 ИНСТРУКТОР · <span id="instr-mission-name">Миссия 1</span></h4>
+    <div class="instr-progress-wrap">
+      <div class="instr-progress-bar"><div class="instr-progress-fill" id="instr-progress-fill" style="width:0%"></div></div>
+      <div class="instr-progress-text" id="instr-progress-text">0 / 0</div>
+      <span id="instr-toggle-icon" style="font-size:14px;color:rgba(255,255,255,0.7)">▲</span>
+    </div>
+  </div>
+  <div class="instr-body">
+    <div class="instr-steps" id="instr-steps-list"></div>
+    <div class="instr-content">
+      <p id="instr-current-text">Ожидание задачи...</p>
+      <div class="hint" id="instr-hint"></div>
+    </div>
+  </div>
+  <div class="instr-nav">
+    <button class="btn btn-outline btn-sm" onclick="instrPrev()">◀ Назад</button>
+    <button class="btn btn-primary btn-sm" onclick="instrNext()" id="instr-next-btn">Далее ▶</button>
+    <button class="btn btn-success btn-sm" onclick="instrFinish()" id="instr-finish-btn" style="display:none">✓ Завершить</button>
+  </div>
+</div>
+
+<!-- ===== RLPOSITIVE ДИАЛОГ ===== -->
+<div class="rlpositive-dialog hidden" id="rlpositive-dialog">
+  <div class="rlpositive-box">
+    <h3>✅ АВТОРИЗАЦИЯ СОВПАДЕНИЯ (RL_POSITIVE)</h3>
+    <p>Подтверждение совпадения несёт юридическую ответственность. Заполните обязательные поля.</p>
+    <div class="form-group">
+      <label class="form-label">Количество совпадающих признаков (мин. 8)</label>
+      <input type="number" class="form-control" id="rlp-count" min="1" max="30" value="10">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Уровень достоверности</label>
+      <select class="form-control" id="rlp-confidence">
+        <option value="">— Выберите —</option>
+        <option value="high">Высокая (≥ 90%)</option>
+        <option value="medium">Средняя (70–89%)</option>
+        <option value="low">Низкая (&lt; 70%) — требует дополн. экспертизы</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Обоснование эксперта</label>
+      <textarea class="form-control" id="rlp-reason" rows="3" placeholder="Опишите характерные совпадающие признаки папиллярного узора..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-success" onclick="confirmRLPositive()">✅ Подтвердить</button>
+      <button class="btn btn-outline" onclick="cancelRLPositive()">Отмена</button>
+    </div>
+    <div id="rlp-error" style="color:var(--accent-red);font-size:12px;margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY ЗАГРУЗКИ ===== -->
+<div class="loading-overlay" id="loading-overlay" style="display:none">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    <p id="loading-text">Выполняется поиск АДИС...</p>
+    <small id="loading-sub">Сравнение по базе данных</small>
+  </div>
+</div>
+
+<script src="data/data.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>

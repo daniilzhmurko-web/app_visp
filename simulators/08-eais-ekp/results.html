@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Результаты курсантов — АДИС «Папилон»</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+body{margin:0;font:14px/1.5 system-ui,Segoe UI,sans-serif;background:#f0f4f8;color:#1b2430}
+header{background:#0f2a52;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+header a{color:#cfe0f7;text-decoration:none;font-size:13px}main{padding:24px;max-width:1200px;margin:auto}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d5dde8}th,td{padding:8px 10px;border-bottom:1px solid #e6ebf2;text-align:left;font-size:13px}
+th{background:#e8edf3;font-weight:600}td.n{text-align:center}.ok{color:#1f7a4d;font-weight:600}.no{color:#9aa5b4}.msg{padding:24px;color:#6b7686}
+</style></head><body>
+<header><b>Результаты курсантов</b><a href="index.html">← К симулятору</a></header>
+<main><div id="out" class="msg">Загрузка…</div></main>
+<script>
+(async()=>{const out=document.getElementById('out');const key=new URLSearchParams(location.search).get('key')||'';
+ try{const r=await fetch('api/results'+(key?'?key='+encodeURIComponent(key):''));
+  if(r.status===403){out.textContent='Доступ закрыт. Добавьте ?key=<ключ администратора> к адресу.';return;}
+  if(!r.ok)throw 0;const rows=await r.json();
+  if(!rows.length){out.textContent='Пока нет данных: ни один курсант ещё не работал в симуляторе.';return;}
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let h='<table><tr><th>Курсант</th><th>Взвод</th><th>Действий</th>';for(let i=1;i<=10;i++)h+='<th class="n">М'+i+'</th>';h+='<th>Активность</th></tr>';
+  for(const c of rows){const m={};c.missions.forEach(x=>m[x.mission_id]=x);
+   h+='<tr><td>'+esc(c.full_name)+'</td><td>'+esc(c.squad)+'</td><td class="n">'+c.actions+'</td>';
+   for(let i=1;i<=10;i++){const x=m[i];h+=x&&x.score!=null?'<td class="n '+(x.done?'ok':'no')+'">'+x.score+'</td>':'<td class="n no">—</td>';}
+   h+='<td>'+esc(c.last_seen.replace('T',' ').slice(0,16))+'</td></tr>';}
+  out.outerHTML=h+'</table>';
+ }catch(e){out.textContent='API недоступно. Запустите сайт через server.py (start.bat / start.sh).';}})();
+</script></body></html>
