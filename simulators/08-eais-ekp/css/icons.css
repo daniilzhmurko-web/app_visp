@@ -1,0 +1,25 @@
+/* Иконки в строгом стиле: линейные, монохромные, наследуют цвет текста */
+.ic{width:1.15em;height:1.15em;vertical-align:-0.2em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-ok{color:#1f7a4d}.ic-warn{color:#b7791f}.ic-err{color:#b42318}
+.ic-c-green{color:#1f9d55}.ic-c-amber{color:#c28a00}.ic-c-blue{color:#2563eb}.ic-c-orange{color:#d9660b}.ic-c-dark{color:#374151}
+.emblem .ic{width:56px;height:56px;stroke-width:1.3}
+.mentor-btn-float .ic{width:26px;height:26px}
+.tool-btn.active svg:not(.ic) circle,.tool-btn.active svg:not(.ic) path,.tool-btn.active svg:not(.ic) polygon,.tool-btn.active svg:not(.ic) rect{fill:#fff}
+.tool-btn.active svg:not(.ic) line{stroke:#fff}
+
+/* ===== Окно «База отпечатков» и карточка выбранного источника ===== */
+.fplib-overlay{position:fixed;inset:0;background:rgba(10,24,48,.55);z-index:3000;display:flex;align-items:center;justify-content:center;padding:24px}
+.fplib{background:#fff;border-radius:10px;width:min(1080px,100%);max-height:100%;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.fplib-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #dde4ee;background:#0f2a52;color:#fff}
+.fplib-head h3{margin:0;font-size:15px}.fplib-head .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+.fplib-tools{padding:12px 18px;border-bottom:1px solid #eef1f6}
+.fplib-grid{padding:16px 18px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.fplib-tile{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:3px;text-align:left;background:#f7f9fc;border:1px solid #d5dde8;border-radius:8px;padding:8px;cursor:pointer;font:inherit;color:#1b2430}
+.fplib-tile:hover{border-color:#2563eb;background:#eef4ff}.fplib-tile.selected{border-color:#2563eb;box-shadow:0 0 0 2px #2563eb inset}
+.fplib-img{width:100%;aspect-ratio:5/6;object-fit:cover;background:#fff;border:1px solid #e1e6ee;border-radius:4px}
+.fplib-id{font-weight:700;font-size:13px;margin-top:4px}.fplib-name{font-size:12px}.fplib-meta{font-size:11px;color:#6b7686}
+.fplib-empty{grid-column:1/-1;text-align:center;color:#6b7686;padding:32px}
+.fp-mirror{transform:scaleX(-1)}
+.reg-source-card{display:flex;gap:14px;align-items:flex-start;border:1px solid #d5dde8;border-radius:8px;padding:12px;background:#f7f9fc}
+.reg-source-img img{width:120px;aspect-ratio:5/6;object-fit:cover;border:1px solid #e1e6ee;border-radius:4px;background:#fff}
+.reg-source-info{flex:1;font-size:13px}.reg-source-info .muted{font-size:12px;color:#6b7686}
