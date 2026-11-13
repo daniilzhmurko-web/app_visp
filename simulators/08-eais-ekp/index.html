@@ -13,15 +13,15 @@
 <!-- ===== ЭКРАН 1: АВТОРИЗАЦИЯ КУРСАНТА ===== -->
 <div id="screen-login" class="screen active">
   <div class="login-logo">
-    <div class="emblem">🏛️</div>
-    <h1>МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ</h1>
+    <img class="login-logo-img" src="assets/logo-full.png" alt="ЦИФРОПОЛ ИСОД · МВД России · АДИС «Папилон»">
+    <h1 class="sr-only">МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ</h1>
     <p>Учебный симулятор СЭКО / АДИС «Папилон» • Вход для курсантов</p>
   </div>
   <div class="login-card fade-in">
     <h2>🎓 АВТОРИЗАЦИЯ КУРСАНТА</h2>
     <div class="subtitle">Введите учётные данные для входа в учебный симулятор. Все действия фиксируются в журнале и передаются наставнику/платформе проверки.</div>
     <div class="form-group">
-      <label>Идентификационный токен (если выдан наставником)</label>
+      <label>Идентификационный токен</label>
       <textarea id="login-token" rows="2" placeholder="Вставьте токен из платформы проверки (необязательно)" style="width:100%; resize:vertical; font-family:monospace; font-size:11px;"></textarea>
       <div id="login-token-err" style="color:var(--accent-red); font-size:11px; margin-top:2px;"></div>
       <div id="login-token-ok" style="color:var(--accent-green, #2e7d32); font-size:11px; margin-top:2px;"></div>
@@ -58,8 +58,7 @@
   <!-- БОКОВАЯ ПАНЕЛЬ -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="sys-name">🔬 СЭКО</div>
-      <div class="sys-sub">АДИС «Папилон» · МВД России</div>
+      <img class="sidebar-logo-img" src="assets/logo-mark.png" alt="МВД России · АДИС «Папилон»">
     </div>
     <div class="sidebar-user">
       <div class="avatar" id="sidebar-avatar">К</div>

@@ -607,3 +607,10 @@ canvas.compare-canvas { max-width: 100%; max-height: 100%; }
 /* ===== Подписи кнопок — по центру (значок + текст) ===== */
 button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
 .btn, .tool-btn, .mission-btn { justify-content: center; text-align: center; }
+
+/* ===== Логотип ===== */
+.login-logo-img { display: block; width: min(660px, 88vw); height: auto; margin: 0 auto 12px; filter: drop-shadow(0 2px 8px rgba(0,0,0,.35)); }
+.sidebar-logo { padding-top: 14px; padding-bottom: 12px; }
+.sidebar-logo-img { display: block; width: 100%; max-width: 188px; height: auto; margin: 0 auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.login-logo { padding-top: 20px; }
