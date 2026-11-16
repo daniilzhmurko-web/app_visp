@@ -1542,14 +1542,22 @@ ${signBlocks(doc, rec, opts.emblemUrl || '../../_assets/emblem.png')}
 
   { id:11, cat:'complaints', title:'Дубликат обращения', diff:'Средний',
     desc:'Найдите повторное обращение заявителя, сверьте с первичным и закройте дубликат.',
-    bind: H => { const d = H.pick(H.DB.complaints.filter(c => c.dupOf && c.status !== 'closed')) || H.DB.complaints[0]; return { dup: d, orig: H.DB.complaints.find(c => c.id === d.dupOf) || d }; },
+    bind: H => { const byId = id => H.DB.complaints.find(c => c.id === id);
+      // дубликат — только более позднее обращение, первичное — более раннее и существующее
+      const pool = H.DB.complaints.filter(c => c.dupOf && c.status !== 'closed' && byId(c.dupOf) && byId(c.dupOf).date < c.date);
+      const d = H.pick(pool) || H.DB.complaints[0]; return { dup: d, orig: byId(d.dupOf) || d }; },
     scenario: x => `В работе находится обращение ${x.dup.id} (${x.dup.source}, «${x.dup.subject}»). Есть подозрение, что это повторное обращение. Найдите первичное, сравните и закройте дубликат.`,
     steps: [
       { k:'dup', t:'Откройте обращение-дубликат', d:x=>x.dup.id, h:x=>`Используйте поиск по номеру ${x.dup.id}.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.dup.id },
-      { k:'orig', t:'Найдите и откройте первичное обращение', d:'Тот же заявитель и предмет.', h:x=>`Первичное обращение: тот же источник «${x.dup.source}» и предмет; поиск по предмету.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.orig.id },
+      { k:'orig', t:'Найдите и откройте первичное обращение', d:'Тот же заявитель и предмет.', h:x=>`Первичное обращение: тот же источник «${x.dup.source}» и предмет, дата раньше. Ищите по предмету (не по номеру) и поставьте фильтр «Все годы» — первичное могло поступить в другом году.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.orig.id },
       { k:'close', t:'Закройте дубликат с причиной «Дубликат»', d:'Карточка обращения → «Закрыть обращение».', h:'Закрывать нужно именно повторное (более позднее) обращение.', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&e.reason==='Дубликат' }
     ],
-    traps: [ { k:'t1', block:true, pen:5, cat:'procedural', msg:'Закрыть как дубликат можно только повторное обращение, а не первичное.', w:(e,x)=>e.type==='comp.close'&&e.id===x.orig.id&&e.reason==='Дубликат'&&x.orig.id!==x.dup.id } ] },
+    traps: [
+      { k:'t1', block:true, pen:5, cat:'procedural', msg:'Закрыть как дубликат можно только повторное обращение, а не первичное.', w:(e,x)=>e.type==='comp.close'&&e.id===x.orig.id&&e.reason==='Дубликат'&&x.orig.id!==x.dup.id },
+      // защита от тупика: обращение нельзя закрыть до сверки с первичным или с другой причиной — иначе шаг уже не выполнить
+      { k:'t2', block:true, pen:2, cat:'procedural', msg:'Сначала найдите и откройте первичное обращение и сверьте его с дубликатом.', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&typeof currentMissionState!=='undefined'&&!currentMissionState.completedKeys.has('orig') },
+      { k:'t3', block:true, pen:3, cat:'procedural', msg:'Повторное обращение нужно закрыть с причиной «Дубликат» — выберите её в списке «Причина закрытия».', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&e.reason!=='Дубликат' }
+    ] },
 
   { id:12, cat:'complaints', title:'Анонимное обращение о коррупции', diff:'Продвинутый',
     desc:'Зарегистрируйте анонимное обращение с признаками коррупции с верной подведомственностью и создайте дело.',
@@ -1957,11 +1965,16 @@ function updateAuditWidget() {
 function showToast(type, title, msg, duration=4000) {
   const icons = { success:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>', error:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>', warning:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19L12 3.5z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>', info:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>' };
   const c = document.getElementById('toastContainer');
+  // одинаковое уведомление не дублируем (повторные клики) — продлеваем показ существующего
+  const tkey = type + '|' + title + '|' + msg;
+  const dup = [...c.children].find(el => el.dataset.tkey === tkey && !el.dataset.dying);
+  if (dup) { clearTimeout(dup._tm); dup._tm = setTimeout(() => { dup.dataset.dying='1'; dup.style.opacity='0'; dup.style.transform='translateX(100%)'; dup.style.transition='all 0.3s'; setTimeout(()=>dup.remove(),300); }, duration); return; }
   const t = document.createElement('div');
+  t.dataset.tkey = tkey;
   t.className = `toast ${type}`;
   t.innerHTML = `<div class="toast-icon">${icons[type]}</div><div class="toast-body"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(100%)'; t.style.transition='all 0.3s'; setTimeout(()=>t.remove(),300); }, duration);
+  t._tm = setTimeout(() => { t.dataset.dying='1'; t.style.opacity='0'; t.style.transform='translateX(100%)'; t.style.transition='all 0.3s'; setTimeout(()=>t.remove(),300); }, duration);
 }
 
 // ============================================================
@@ -2102,6 +2115,7 @@ function doTFA() {
 }
 
 function doLogout() {
+  restoreMissionRole();
   logAudit('Выход из системы', 'СОДП СБ', 'Сеанс завершён пользователем');
   closeCurrentPageVisit();
   currentPageContext = 'login';
@@ -2464,6 +2478,23 @@ const MISSION_DATA = {
 
 let currentMissionState = { missionId: null, completedKeys: new Set(), pendingAction: null };
 
+// Миссия 5 требует роль «Начальник отдела»/«Офицер ИБ» — на время миссии (вне экзамена) назначаем её автоматически,
+// иначе курсант с ролью «Сотрудник ОСБ» не может заблокировать учётную запись и миссия зависает.
+function applyMissionRole(missionId) {
+  restoreMissionRole();
+  if (missionId !== 5 || DB.examMode || !DB.currentUser) return;
+  if (['supervisor','security'].includes(DB.currentUser.role)) return;
+  DB._roleBeforeMission = { role: DB.currentUser.role, roleLabel: DB.currentUser.roleLabel };
+  DB.currentUser.role = 'security'; DB.currentUser.roleLabel = 'Офицер ИБ';
+  const el = document.getElementById('userRoleSidebar'); if (el) el.textContent = DB.currentUser.roleLabel;
+  showToast('info','Роль на время миссии','Для этой миссии вам временно назначена роль «Офицер ИБ» — она нужна для блокировки учётной записи.', 6000);
+}
+function restoreMissionRole() {
+  const b = DB._roleBeforeMission; if (!b || !DB.currentUser) { DB._roleBeforeMission = null; return; }
+  DB.currentUser.role = b.role; DB.currentUser.roleLabel = b.roleLabel;
+  const el = document.getElementById('userRoleSidebar'); if (el) el.textContent = b.roleLabel;
+  DB._roleBeforeMission = null;
+}
 function startMission(missionId) {
   const def = V2_DEFS.find(d => d.id === missionId);
   if (def) MISSION_DATA[missionId] = buildV2Mission(def);
@@ -2471,6 +2502,7 @@ function startMission(missionId) {
   if (!md) { showToast('info','Миссия в разработке','Эта миссия будет добавлена в следующем обновлении.'); return; }
   currentMissionState = { missionId, completedKeys: new Set(), pendingAction: null, v2: !!def, fired: new Set() };
   DB.missionProgress.current = missionId;
+  applyMissionRole(missionId);
   document.getElementById('fabMissionBadge').textContent = missionId;
   document.getElementById('mpMissionNum').textContent = missionId;
   document.getElementById('mpTitle').textContent = md.title;
@@ -2610,6 +2642,7 @@ function completeMissionStep(key) {
 }
 
 function completeMission(id) {
+  restoreMissionRole();
   const md = MISSION_DATA[id];
   const firstTime = !DB.missionProgress.completedMissions.includes(id);
   if (firstTime) DB.missionProgress.completedMissions.push(id);
@@ -3016,7 +3049,11 @@ function saveNote(id) {
   logAudit('Примечание', id, 'Сохранено примечание к делу'); showToast('success','Сохранено','Примечание добавлено в дело.');
   mEmit('case.note', { id, len: text.length });
   openCaseDetail(id);
-  if (DB.missionProgress.current===4 && id==='ГУСБ-2024-0312') completeMissionStep('fix_in_case_4');
+  if (DB.missionProgress.current===4) {
+    if (id==='ГУСБ-2024-0312') completeMissionStep('fix_in_case_4');
+    else if (!currentMissionState.completedKeys.has('fix_in_case_4') && currentMissionState.completedKeys.has('make_decision_4'))
+      showToast('warning','Не то дело','Для миссии нужно дело ГУСБ-2024-0312 — по нему просрочено задание. Откройте его в «Реестре дел» и добавьте примечание там.', 7000);
+  }
 }
 function submitFindings(id) {
   if (!requireWrite('cases','Направление заключения на утверждение')) return;
@@ -3506,6 +3543,9 @@ function openCandidateCard(id) {
           <div class="alert-icon">${recIcon(cn.recommendation)}</div>
           <div class="alert-body"><strong>${cn.recommendation}</strong>${cn.notes}</div>
         </div>
+        ${cn.status==='approval'
+          ? `<div class="alert alert-info" style="margin-top:12px"><div class="alert-body"><strong>Направлено на утверждение</strong> Заключение передано начальнику отдела.</div></div>`
+          : `<div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-blue" onclick="submitCandidateApproval('${id}')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 12h7M8.5 16h5"/></svg> Направить на утверждение</button></div>`}
       `:`
         <div class="form-group"><label class="form-label">Рекомендация *</label>
           <select class="form-select" id="candidateRec">
@@ -3562,9 +3602,10 @@ function saveConclusion(id) {
 }
 
 function submitCandidateApproval(id) {
-  if (id==='КАН-2024-0095' && !isActiveStep(1,'submit_approval')) return;
   const cn = DB.candidates.find(x=>x.id===id);
-  if (!cn?.recommendation) { showToast('error','Заключение не составлено','Сначала сформируйте и сохраните заключение.'); return; }
+  if (!cn?.recommendation) { showToast('error','Заключение не сохранено','Сначала нажмите «Сохранить заключение», затем направьте его на утверждение.'); return; }
+  if (cn.status==='approval') { showToast('info','Уже направлено','Заключение уже передано начальнику отдела.'); return; }
+  if (id==='КАН-2024-0095' && !isActiveStep(1,'submit_approval')) return;
   cn.status = 'approval';
   logAudit('Утверждение', id, 'Заключение направлено начальнику отдела на утверждение', 'info');
   showToast('success','Направлено на утверждение','Заключение передано начальнику отдела. Ожидайте решения.');

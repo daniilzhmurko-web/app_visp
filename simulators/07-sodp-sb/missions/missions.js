@@ -74,14 +74,22 @@
 
   { id:11, cat:'complaints', title:'Дубликат обращения', diff:'Средний',
     desc:'Найдите повторное обращение заявителя, сверьте с первичным и закройте дубликат.',
-    bind: H => { const d = H.pick(H.DB.complaints.filter(c => c.dupOf && c.status !== 'closed')) || H.DB.complaints[0]; return { dup: d, orig: H.DB.complaints.find(c => c.id === d.dupOf) || d }; },
+    bind: H => { const byId = id => H.DB.complaints.find(c => c.id === id);
+      // дубликат — только более позднее обращение, первичное — более раннее и существующее
+      const pool = H.DB.complaints.filter(c => c.dupOf && c.status !== 'closed' && byId(c.dupOf) && byId(c.dupOf).date < c.date);
+      const d = H.pick(pool) || H.DB.complaints[0]; return { dup: d, orig: byId(d.dupOf) || d }; },
     scenario: x => `В работе находится обращение ${x.dup.id} (${x.dup.source}, «${x.dup.subject}»). Есть подозрение, что это повторное обращение. Найдите первичное, сравните и закройте дубликат.`,
     steps: [
       { k:'dup', t:'Откройте обращение-дубликат', d:x=>x.dup.id, h:x=>`Используйте поиск по номеру ${x.dup.id}.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.dup.id },
-      { k:'orig', t:'Найдите и откройте первичное обращение', d:'Тот же заявитель и предмет.', h:x=>`Первичное обращение: тот же источник «${x.dup.source}» и предмет; поиск по предмету.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.orig.id },
+      { k:'orig', t:'Найдите и откройте первичное обращение', d:'Тот же заявитель и предмет.', h:x=>`Первичное обращение: тот же источник «${x.dup.source}» и предмет, дата раньше. Ищите по предмету (не по номеру) и поставьте фильтр «Все годы» — первичное могло поступить в другом году.`, w:(e,x)=>e.type==='comp.open'&&e.id===x.orig.id },
       { k:'close', t:'Закройте дубликат с причиной «Дубликат»', d:'Карточка обращения → «Закрыть обращение».', h:'Закрывать нужно именно повторное (более позднее) обращение.', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&e.reason==='Дубликат' }
     ],
-    traps: [ { k:'t1', block:true, pen:5, cat:'procedural', msg:'Закрыть как дубликат можно только повторное обращение, а не первичное.', w:(e,x)=>e.type==='comp.close'&&e.id===x.orig.id&&e.reason==='Дубликат'&&x.orig.id!==x.dup.id } ] },
+    traps: [
+      { k:'t1', block:true, pen:5, cat:'procedural', msg:'Закрыть как дубликат можно только повторное обращение, а не первичное.', w:(e,x)=>e.type==='comp.close'&&e.id===x.orig.id&&e.reason==='Дубликат'&&x.orig.id!==x.dup.id },
+      // защита от тупика: обращение нельзя закрыть до сверки с первичным или с другой причиной — иначе шаг уже не выполнить
+      { k:'t2', block:true, pen:2, cat:'procedural', msg:'Сначала найдите и откройте первичное обращение и сверьте его с дубликатом.', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&typeof currentMissionState!=='undefined'&&!currentMissionState.completedKeys.has('orig') },
+      { k:'t3', block:true, pen:3, cat:'procedural', msg:'Повторное обращение нужно закрыть с причиной «Дубликат» — выберите её в списке «Причина закрытия».', w:(e,x)=>e.type==='comp.close'&&e.id===x.dup.id&&e.reason!=='Дубликат' }
+    ] },
 
   { id:12, cat:'complaints', title:'Анонимное обращение о коррупции', diff:'Продвинутый',
     desc:'Зарегистрируйте анонимное обращение с признаками коррупции с верной подведомственностью и создайте дело.',

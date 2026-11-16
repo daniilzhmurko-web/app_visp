@@ -2,320 +2,1114 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Сервис ЦАФАП — Учебный тренажёр (6 этапов)</title>
-<link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
-<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="css/main.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Учебный тренажёр ЦАФАП — Руководство пользователя</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #1565C0;
+    --primary-dark: #0D47A1;
+    --primary-light: #1976D2;
+    --primary-lighter: #E3F2FD;
+    --secondary: #1A237E;
+    --accent: #F57C00;
+    --accent-red: #C62828;
+    --success: #2E7D32;
+    --warning: #F9A825;
+    --purple: #6A1B9A;
+    --surface: #FFFFFF;
+    --bg: #EEF2F7;
+    --bg2: #DDE4EF;
+    --border: #C5D0E0;
+    --border2: #E2E8F0;
+    --text: #1A2332;
+    --text2: #546E7A;
+    --text3: #90A4AE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  /* ── TOP HEADER (mirrors app header) ── */
+  .app-header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: #fff;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(13,71,161,.35);
+  }
+  .hdr-logo {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hdr-logo .live-dot {
+    width: 8px; height: 8px;
+    background: #4CAF50;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(76,175,80,.4);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{box-shadow:0 0 0 2px rgba(76,175,80,.4);}
+    50%{box-shadow:0 0 0 5px rgba(76,175,80,.15);}
+  }
+  .hdr-sep { width:1px; height:24px; background:rgba(255,255,255,.25); }
+  .hdr-title {
+    font-size: 13px;
+    opacity: .9;
+    font-weight: 500;
+  }
+  .hdr-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: calc(100vh - 52px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sb-brand {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .sb-brand-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .sb-brand-sub {
+    font-size: 10.5px;
+    color: var(--text3);
+  }
+  .sb-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    padding: 10px 16px 4px;
+  }
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    font-size: 12.5px;
+    color: var(--text2);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+    text-decoration: none;
+  }
+  .sb-item:hover { background: var(--primary-lighter); color: var(--primary); }
+  .sb-item.active {
+    background: var(--primary-lighter);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+  }
+  .sb-item .ico { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
+  .sb-stage-badge {
+    margin-left: auto;
+    background: var(--primary);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; overflow-y: auto; padding: 20px 24px; max-width: 960px; }
+
+  /* ── PAGE HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    color: #fff;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.06);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 60px;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .hero-label {
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: .75;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .hero h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -.3px;
+  }
+  .hero p {
+    font-size: 13px;
+    opacity: .85;
+    max-width: 580px;
+    line-height: 1.65;
+  }
+  .hero-pills {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .hero-pill {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .card-hdr {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg);
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-title i { color: var(--primary); font-size: 13px; }
+  .card-body { padding: 16px; }
+
+  /* ── SECTION ANCHORS ── */
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-lighter);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .section-title i { color: var(--primary); }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-content { flex: 1; }
+  .step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .step-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* ── STAGE CARDS ── */
+  .stages-grid { display: flex; flex-direction: column; gap: 12px; }
+  .stage-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .stage-card:hover { box-shadow: 0 3px 12px rgba(21,101,192,.12); }
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    background: var(--surface);
+    border-bottom: 1px solid transparent;
+    transition: background .15s;
+  }
+  .stage-header:hover { background: var(--bg); }
+  .stage-header.open { border-bottom-color: var(--border2); background: var(--bg); }
+  .stage-num {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .stage-info { flex: 1; }
+  .stage-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .stage-desc { font-size: 11.5px; color: var(--text2); margin-top: 1px; }
+  .stage-steps-count {
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg2);
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .stage-chevron {
+    color: var(--text3);
+    font-size: 11px;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .stage-chevron.open { transform: rotate(180deg); }
+  .stage-body { display: none; padding: 14px 16px; }
+  .stage-body.open { display: block; }
+
+  .stage-steps-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .task-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--text2);
+  }
+  .task-pill .task-n {
+    width: 18px; height: 18px;
+    background: var(--primary-lighter);
+    color: var(--primary);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stage-tips {
+    background: var(--primary-lighter);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .stage-tips strong { color: var(--primary-dark); }
+
+  /* ── ROLES TABLE ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .role-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .role-ico {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .role-name { font-size: 12.5px; font-weight: 700; color: var(--text); }
+  .role-desc { font-size: 11.5px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+
+  /* ── ALERTS / TIPS ── */
+  .tip {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 11px 14px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .tip i { margin-top: 1px; flex-shrink: 0; }
+  .tip.info { background: #E3F2FD; border: 1px solid #90CAF9; color: #0D47A1; }
+  .tip.warn { background: #FFF3E0; border: 1px solid #FFCC80; color: #E65100; }
+  .tip.success { background: #E8F5E9; border: 1px solid #A5D6A7; color: #1B5E20; }
+
+  /* ── UI ANATOMY ── */
+  .ui-zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .zone {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 11px 13px;
+  }
+  .zone-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .zone-desc { font-size: 11.5px; color: var(--text2); line-height: 1.55; }
+
+  /* ── PROGRESS EXAMPLE ── */
+  .progress-bar-wrap {
+    background: var(--bg2);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transition: width .5s;
+  }
+
+  /* ── BADGE STYLES ── */
+  .sbadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .sb-done { background: #E8F5E9; color: #2E7D32; }
+  .sb-proc { background: #FFF3E0; color: #E65100; }
+  .sb-new  { background: var(--primary-lighter); color: var(--primary); }
+  .sb-err  { background: #FFEBEE; color: var(--accent-red); }
+
+  /* ── KEYBOARD HINTS ── */
+  kbd {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+  }
+
+  /* ── FOOTER ── */
+  .manual-footer {
+    background: var(--primary-dark);
+    color: rgba(255,255,255,.7);
+    text-align: center;
+    padding: 16px;
+    font-size: 11.5px;
+    margin-top: 24px;
+  }
+  .manual-footer strong { color: #fff; }
+
+  /* ── PRINT ── */
+  @media print {
+    .sidebar, .app-header { display: none; }
+    .main { padding: 0; max-width: 100%; }
+    .stage-body { display: block !important; }
+  }
+
+  /* scroll smooth */
+  html { scroll-behavior: smooth; }
+
+  /* highlight code */
+  code {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    color: var(--primary-dark);
+  }
+
+  /* ── дополнения для расширенного руководства ── */
+  .mtable{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}
+  .mtable th{background:#F1F6FD;color:var(--primary-dark);text-align:left;padding:8px 10px;border-bottom:2px solid #D6E4F7;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
+  .mtable td{padding:7px 10px;border-bottom:1px solid #E8EEF6;vertical-align:top;line-height:1.5}
+  .mtable tr:hover td{background:#FAFCFF}
+  .mtable code,code{background:#EEF3FA;border:1px solid #DCE6F3;border-radius:4px;padding:1px 6px;font-size:11.5px;font-family:Consolas,'Courier New',monospace}
+  kbd{background:#fff;border:1px solid #C5D2E3;border-bottom-width:2px;border-radius:4px;padding:1px 6px;font-size:11.5px;font-family:inherit}
+  .plate{display:inline-block;background:#fff;border:1.5px solid #222;border-radius:3px;padding:1px 7px;font:700 12.5px 'Courier New',monospace;letter-spacing:.5px}
+  .wf{display:grid;grid-template-columns:120px 1fr;grid-template-rows:34px 1fr 62px;gap:6px;background:#EEF3FA;border:1px solid #D6E4F7;border-radius:10px;padding:8px;margin:10px 0;min-height:230px}
+  .wf>div{border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;text-align:center;padding:4px;line-height:1.3}
+  .wf .h{grid-column:1/3;background:#1565C0;color:#fff}.wf .s{background:#fff;border:1px solid #CBD9EC;color:#1565C0}
+  .wf .m{background:#fff;border:1px dashed #9DB6D8;color:#52627A}.wf .b{grid-column:1/3;background:#0D47A1;color:#fff}
+  .num-list{counter-reset:n;list-style:none;margin:8px 0 0 0;padding:0}
+  .num-list li{counter-increment:n;position:relative;padding:5px 0 5px 32px;font-size:12.5px;color:var(--text2);line-height:1.55}
+  .num-list li:before{content:counter(n);position:absolute;left:0;top:5px;width:22px;height:22px;border-radius:50%;background:var(--primary-lighter);color:var(--primary-dark);font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:900px){.two{grid-template-columns:1fr}}
+  .tip.err{background:#FFEBEE;border-color:#EF9A9A}.tip.err>i{color:#C62828}
+  .faq-q{font-weight:700;color:var(--primary-dark);margin:12px 0 3px;font-size:13px}
+  .faq-a{font-size:12.5px;color:var(--text2);line-height:1.6}
+  .print-btn{margin-left:auto;background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px}
+  @media print{.sidebar,.app-header,.print-btn{display:none!important}.main{margin:0!important;max-width:none!important}.stage-body{display:block!important}.card,.stage-card{break-inside:avoid}}
+</style>
 </head>
 <body>
-<div id="loginScreen" class="screen">
-  <!-- Декоративный городской фон -->
-  <svg class="city-bg" viewBox="0 0 1400 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="90" width="55" height="130" fill="#BFCFDF" rx="2"/>
-    <rect x="15" y="65" width="40" height="28" fill="#BFCFDF"/>
-    <rect x="20" y="72" width="8" height="8" fill="#8EB4D0"/>
-    <rect x="32" y="72" width="8" height="8" fill="#8EB4D0"/>
-    <rect x="60" y="50" width="80" height="170" fill="#C8D8E8" rx="2"/>
-    <rect x="70" y="60" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="60" width="12" height="12" fill="#8EB4D0"/>
-    <rect x="70" y="80" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="80" width="12" height="12" fill="#8EB4D0"/>
-    <rect x="70" y="100" width="12" height="12" fill="#8EB4D0"/><rect x="88" y="100" width="12" height="12" fill="#8EB4D0"/>
-    <rect x="145" y="110" width="55" height="110" fill="#B8CADA" rx="2"/>
-    <rect x="205" y="75" width="70" height="145" fill="#C0D0E0" rx="2"/>
-    <rect x="280" y="130" width="45" height="90" fill="#B5C8D8" rx="2"/>
-    <!-- Дорога -->
-    <rect x="0" y="175" width="1400" height="45" fill="#A8BDD0" opacity=".35"/>
-    <rect x="80" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
-    <rect x="230" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
-    <rect x="380" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
-    <rect x="900" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
-    <rect x="1100" y="191" width="90" height="6" fill="#fff" opacity=".5" rx="2"/>
-    <!-- Столб с камерой -->
-    <rect x="500" y="95" width="4" height="80" fill="#A0B0C0"/>
-    <rect x="494" y="88" width="16" height="9" fill="#909FA8" rx="2"/>
-    <rect x="489" y="80" width="12" height="10" fill="#1565C0" rx="2"/>
-    <circle cx="493" cy="85" r="3" fill="#fff" opacity=".6"/>
-    <!-- Здания справа -->
-    <rect x="900" y="60" width="90" height="160" fill="#C8D8E8" rx="2"/>
-    <rect x="910" y="70" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="70" width="14" height="14" fill="#8EB4D0"/>
-    <rect x="910" y="92" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="92" width="14" height="14" fill="#8EB4D0"/>
-    <rect x="910" y="114" width="14" height="14" fill="#8EB4D0"/><rect x="930" y="114" width="14" height="14" fill="#8EB4D0"/>
-    <rect x="995" y="85" width="65" height="135" fill="#BDD0E0" rx="2"/>
-    <rect x="1065" y="55" width="80" height="165" fill="#C5D5E5" rx="2"/>
-    <rect x="1150" y="100" width="60" height="120" fill="#B8CADA" rx="2"/>
-    <rect x="1215" y="125" width="185" height="95" fill="#C0D2E2" rx="2"/>
-    <!-- Зелень -->
-    <circle cx="450" cy="185" r="18" fill="#A8D5A0" opacity=".6"/>
-    <circle cx="455" cy="195" r="8" fill="#8BBF88" opacity=".5"/>
-    <circle cx="870" cy="183" r="20" fill="#A8D5A0" opacity=".6"/>
-  </svg>
 
-  <div class="security-bar">
-    <i class="fas fa-lock" style="color:var(--success)"></i>
-    Защищённое соединение · ГАС «Правосудие» · МВД России · ГИБДД ОДД
-    <span style="color:var(--text3);">|</span>
-    <span style="color:var(--success); font-weight:700;">TLS 1.3</span>
+<header class="app-header">
+  <div class="hdr-logo"><div class="live-dot"></div>ЦАФАП</div>
+  <div class="hdr-sep"></div>
+  <div class="hdr-title">Учебный тренажёр — Руководство пользователя</div>
+  <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> Печать / PDF</button>
+  
+</header>
+
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sb-brand"><div class="sb-brand-title">Навигация</div><div class="sb-brand-sub">Руководство пользователя</div></div>
+  <div class="sb-section-label">Начало работы</div>
+  <a class="sb-item active" href="#intro"><span class="ico"><i class="fas fa-info-circle"></i></span>О тренажёре</a>
+  <a class="sb-item" href="#start"><span class="ico"><i class="fas fa-play-circle"></i></span>Быстрый старт</a>
+  <a class="sb-item" href="#login"><span class="ico"><i class="fas fa-sign-in-alt"></i></span>Вход в систему</a>
+  <a class="sb-item" href="#interface"><span class="ico"><i class="fas fa-desktop"></i></span>Интерфейс</a>
+
+  <div class="sb-section-label">Этапы обучения</div>
+  <a class="sb-item" href="#stage1"><span class="ico"><i class="fas fa-tachometer-alt"></i></span>Этап 1: Дашборд <span class="sb-stage-badge">12</span></a>
+  <a class="sb-item" href="#stage2"><span class="ico"><i class="fas fa-camera"></i></span>Этап 2: Нарушения <span class="sb-stage-badge">12</span></a>
+  <a class="sb-item" href="#stage3"><span class="ico"><i class="fas fa-file-signature"></i></span>Этап 3: Постановления <span class="sb-stage-badge">12</span></a>
+  <a class="sb-item" href="#stage4"><span class="ico"><i class="fas fa-mail-bulk"></i></span>Этап 4: Почта/ФССП <span class="sb-stage-badge">12</span></a>
+  <a class="sb-item" href="#stage5"><span class="ico"><i class="fas fa-chart-bar"></i></span>Этап 5: Аналитика <span class="sb-stage-badge">12</span></a>
+  <a class="sb-item" href="#stage6"><span class="ico"><i class="fas fa-cog"></i></span>Этап 6: Администрирование <span class="sb-stage-badge">12</span></a>
+
+  <div class="sb-section-label">Данные и снимки</div>
+  <a class="sb-item" href="#databases"><span class="ico"><i class="fas fa-database"></i></span>Базы данных</a>
+  <a class="sb-item" href="#evidence"><span class="ico"><i class="fas fa-images"></i></span>Снимки и фотоматериал</a>
+
+  <div class="sb-section-label">Справка</div>
+  <a class="sb-item" href="#roles"><span class="ico"><i class="fas fa-users"></i></span>Роли пользователей</a>
+  <a class="sb-item" href="#tips"><span class="ico"><i class="fas fa-lightbulb"></i></span>Советы и подсказки</a>
+  <a class="sb-item" href="#progress"><span class="ico"><i class="fas fa-trophy"></i></span>Прогресс и оценка</a>
+  <a class="sb-item" href="#teacher"><span class="ico"><i class="fas fa-chalkboard-teacher"></i></span>Для преподавателя</a>
+  <a class="sb-item" href="#faq"><span class="ico"><i class="fas fa-question-circle"></i></span>Частые вопросы</a>
+  <a class="sb-item" href="#glossary"><span class="ico"><i class="fas fa-book"></i></span>Словарь терминов</a>
+</nav>
+
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-label"><i class="fas fa-graduation-cap" style="margin-right:5px;"></i>Учебный тренажёр</div>
+    <h1>Система ЦАФАП — Руководство пользователя</h1>
+    <p>Полное руководство по работе с симулятором Центра автоматизированной фиксации административных правонарушений: от входа до итогового теста и сертификата. Освойте все 6 этапов — от обработки снимка с камеры до администрирования системы.</p>
+    <div class="hero-pills">
+      <span class="hero-pill"><i class="fas fa-layer-group" style="margin-right:5px;"></i>6 этапов</span>
+      <span class="hero-pill"><i class="fas fa-tasks" style="margin-right:5px;"></i>72 задания</span>
+      <span class="hero-pill"><i class="fas fa-clock" style="margin-right:5px;"></i>~2–3 часа</span>
+      <span class="hero-pill"><i class="fas fa-user-shield" style="margin-right:5px;"></i>7 ролей</span>
+      <span class="hero-pill"><i class="fas fa-database" style="margin-right:5px;"></i>учебные базы данных</span>
+    </div>
   </div>
 
-  <div class="login-card">
-    <div class="login-logo login-logo-img-wrap">
-      <img class="login-logo-img" src="assets/img/logo-cafan.png" alt="Цифрополь ИСОД · МВД России · ЦАФАН — Центр автоматизированной фиксации административных правонарушений">
+  <!-- ══ О ТРЕНАЖЁРЕ ══ -->
+  <section class="section" id="intro">
+    <div class="section-title"><i class="fas fa-info-circle"></i>О тренажёре</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-bullseye"></i>Цель и назначение</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:10px;">Тренажёр <strong>ЦАФАП</strong> — интерактивный симулятор рабочего места сотрудника Центра автоматизированной фиксации административных правонарушений. Он проводит через весь жизненный цикл дела: от снимка с камеры фотовидеофиксации до подписанного постановления, оплаты и передачи в ФССП, а затем — аналитика и администрирование системы.</p>
+        <p>Тренажёр предназначен для:</p>
+        <ul style="margin:8px 0 0 18px;color:var(--text2);font-size:12.5px;line-height:1.8;">
+          <li>первичного обучения новых сотрудников и курсантов;</li>
+          <li>отработки навыков работы с системой без риска ошибок на реальных данных;</li>
+          <li>подготовки к проверке знаний (итоговый тест и именной сертификат);</li>
+          <li>изучения жизненного цикла дела об административном правонарушении.</li>
+        </ul>
+      </div>
     </div>
+    <div class="ui-zones">
+      <div class="zone"><div class="zone-name"><i class="fas fa-server"></i>Интеграции (имитируются)</div><div class="zone-desc">ФИС ГИБДД-М, РЭО ГИБДД, ГИС ГМП, ФССП, Почта России. Запросы выполняются по учебным базам с реалистичными задержками 1–3 секунды.</div></div>
+      <div class="zone"><div class="zone-name"><i class="fas fa-database"></i>Учебные базы данных</div><div class="zone-desc">Более 2 800 транспортных средств, 2 300 владельцев, 3 200 начислений, реестр розыска и камер. Все данные <strong>вымышленные</strong>. См. раздел «Базы данных».</div></div>
+      <div class="zone"><div class="zone-name"><i class="fas fa-camera"></i>Снимки фиксации</div><div class="zone-desc">247 нарушений в очереди; для каждого — снимок, результат OCR и «фотоматериал» из четырёх кадров, как в реальных комплексах.</div></div>
+      <div class="zone"><div class="zone-name"><i class="fas fa-chart-line"></i>Аналитика и администрирование</div><div class="zone-desc">Дашборды, тепловая карта, KPI, карта камер Москвы, роли и права, НСИ, журнал аудита, итоговый тест.</div></div>
+    </div>
+    <div class="tip warn"><i class="fas fa-exclamation-triangle"></i><div><strong>Важно:</strong> тренажёр учебный. Персональные данные, госномера, VIN и документы в нём вымышлены; совпадения с реальными лицами и транспортными средствами случайны.</div></div>
+  </section>
 
-    <div style="text-align:center;font-size:14px;color:var(--text2);margin-bottom:15px;font-weight:600;">Авторизация</div>
+  <!-- ══ БЫСТРЫЙ СТАРТ ══ -->
+  <section class="section" id="start">
+    <div class="section-title"><i class="fas fa-play-circle"></i>Быстрый старт</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-rocket"></i>Как начать за 4 шага</div></div>
+      <div class="card-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Откройте сайт тренажёра</div><div class="step-desc">Распакуйте архив с сайтом и откройте файл <code>index.html</code> двойным щелчком (рекомендуются Chrome или Edge). Сервер не нужен. Интернет требуется только для подложки карты на этапе 5.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Укажите ФИО и номер взвода</div><div class="step-desc">Если преподаватель выдал <strong>токен доступа</strong>, вставьте его в верхнее поле — ФИО заполнится автоматически и будет заблокировано. Отдельные логин и пароль не нужны.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Выберите роль и регион</div><div class="step-desc">Для основного сценария: <strong>«Оператор ЦАФАП»</strong>, регион <strong>«77 — г. Москва»</strong>. Нажмите <strong>«Войти в систему»</strong> и дождитесь загрузки рабочей среды.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Следуйте нижней панели</div><div class="step-desc">Учебная панель внизу экрана всегда показывает текущий шаг и подсказку. Выполняйте действия — шаги засчитываются автоматически. В конце скачайте отчёт кнопкой «Отчёт».</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tip info"><i class="fas fa-info-circle"></i><div><strong>Совет:</strong> проходите этапы по порядку 1 → 6. Каждый этап — 12 шагов; всего 72 шага. На прохождение ориентировочно нужно 2–3 часа.</div></div>
+  </section>
 
-    <div class="form-group">
-      <label class="form-label" for="loginToken">Токен доступа (если выдан преподавателем)</label>
-      <textarea class="form-control" id="loginToken" rows="2" autocomplete="off" spellcheck="false" placeholder="Вставьте токен целиком — если его не выдавали, оставьте поле пустым" style="font-family:Consolas,monospace;font-size:11px;resize:vertical;"></textarea>
-      <div id="tokenErr" style="display:none;color:#C62828;font-size:11.5px;margin-top:4px;">❌ Не удалось распознать токен — проверьте, что он скопирован полностью.</div>
-      <div id="tokenOkHint" style="display:none;font-size:11.5px;margin-top:4px;"></div>
+  <!-- ══ ВХОД ══ -->
+  <section class="section" id="login">
+    <div class="section-title"><i class="fas fa-sign-in-alt"></i>Вход в систему</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-id-card"></i>Экран авторизации</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Экран входа содержит поля:</p>
+        <table class="mtable">
+          <tr><th style="width:26%">Поле</th><th>Что ввести</th></tr>
+          <tr><td><strong>Токен доступа</strong></td><td>Необязательное. Строка, выданная преподавателем. Если токен распознан, ФИО берётся из него и блокируется (появляется зелёная отметка). Неверный токен подсвечивается ошибкой; просроченный — предупреждением, но вход возможен.</td></tr>
+          <tr><td><strong>ФИО курсанта</strong></td><td>Фамилия Имя Отчество полностью. Попадает в отчёт и сертификат, в шапке отображается как «Иванов И.И.».</td></tr>
+          <tr><td><strong>Номер взвода</strong></td><td>Например, <code>214</code>. Попадает в имя файла отчёта.</td></tr>
+          <tr><td><strong>Внутренняя / СУДИР</strong></td><td>Тип авторизации (учебная имитация: «Внутренняя» — рекомендуется).</td></tr>
+          <tr><td><strong>Тип пользователя</strong></td><td>Одна из ролей: Оператор ЦАФАП, Инспектор ЦАФАП, Старший инспектор, Региональный администратор, Дежурный федеральный администратор, Аналитик мониторинга, Специалист почтовой обработки.</td></tr>
+          <tr><td><strong>Регион</strong></td><td>77 — Москва (основной сценарий), 50, 78, 23, 16, 63, 52, 05.</td></tr>
+        </table>
+        <div class="tip info"><i class="fas fa-info-circle"></i><div>Номер взвода и ФИО обязательны: без них отчёт сформировать нельзя, а вход не выполняется («Укажите ФИО и номер взвода курсанта»).</div></div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">ФИО курсанта</label>
-      <input type="text" class="form-control" id="cadetFio" placeholder="Иванов Иван Иванович" autocomplete="off">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-key"></i>Токен доступа</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Токен — это строка вида <code>данные.подпись</code>, в которой закодированы ФИО курсанта, группа, срок действия. Его можно:</p>
+        <ul style="margin:6px 0 0 18px;color:var(--text2);font-size:12.5px;line-height:1.8;">
+          <li>вставить в поле «Токен доступа» на экране входа;</li>
+          <li>открыть сайт по ссылке вида <code>index.html?token=…</code> — токен подставится сам.</li>
+        </ul>
+        <p style="margin-top:8px;">В отчёт попадают токен и контрольные метки (<code>renderSeq</code>, <code>syncTag</code>, <code>uiInstance</code>), по которым проверяющий убеждается, что отчёт сформирован именно этим курсантом и не изменён.</p>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Номер взвода</label>
-      <input type="text" class="form-control" id="cadetPlatoon" placeholder="Например, 214" autocomplete="off">
-    </div>
-    <div class="auth-tabs">
-      <div class="auth-tab active" onclick="selTab(this,'int')">Внутренняя</div>
-      <div class="auth-tab" onclick="selTab(this,'sud')">СУДИР</div>
-    </div>
+  </section>
 
-    <div class="form-group">
-      <label class="form-label">Тип пользователя</label>
-      <select class="form-select" id="roleSelect" onchange="onRoleChange()">
-        <option value="">— Выберите роль —</option>
-        <option value="operator">Оператор ЦАФАП</option>
-        <option value="inspector">Инспектор ЦАФАП</option>
-        <option value="senior">Старший инспектор</option>
-        <option value="reg_admin">Региональный администратор</option>
-        <option value="fed_admin">Дежурный федеральный администратор</option>
-        <option value="analyst">Аналитик мониторинга</option>
-        <option value="postal">Специалист почтовой обработки</option>
-      </select>
+  <!-- ══ ИНТЕРФЕЙС ══ -->
+  <section class="section" id="interface">
+    <div class="section-title"><i class="fas fa-desktop"></i>Интерфейс</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-th-large"></i>Зоны экрана</div></div>
+      <div class="card-body">
+        <div class="wf">
+          <div class="h">Шапка: ЦАФАП · регион · вкладки этапов 1–6 · таймер · уведомления · пользователь и роль · Базы · Отчёт · выход</div>
+          <div class="s">Боковое меню этапа</div>
+          <div class="m">Рабочая область этапа (таблицы, карточки, снимки, графики)</div>
+          <div class="b">Учебная панель: Задание · Подсказки · Прогресс · Справочник · кружки шагов · «Далее →» · «↻»</div>
+        </div>
+        <table class="mtable">
+          <tr><th style="width:24%">Элемент</th><th>Назначение</th></tr>
+          <tr><td><strong>Вкладки «Этап 1…6»</strong></td><td>Переход между этапами. Активный этап подсвечен.</td></tr>
+          <tr><td><strong>Таймер</strong></td><td>Время текущей сессии (чч:мм:сс).</td></tr>
+          <tr><td><strong>🔔 Уведомления</strong></td><td>Счётчик событий; клик показывает список.</td></tr>
+          <tr><td><strong>Пользователь и роль</strong></td><td>Ваше имя (Фамилия И.О.) и роль. Роль меняется автоматически по этапам: 1–2 — Оператор, 3 — Инспектор, 4 — Спец. почты, 5 — Аналитик, 6 — Фед. администратор.</td></tr>
+          <tr><td><strong>«Базы»</strong></td><td>Открывает в новой вкладке просмотр учебных баз данных (ФИС ГИБДД-М, ГИС ГМП, ФССП и др.).</td></tr>
+          <tr><td><strong>«Отчёт»</strong></td><td>Скачивает JSON-отчёт о прохождении (см. «Прогресс и оценка»).</td></tr>
+          <tr><td><strong>Выход</strong></td><td>Завершает сессию и перезагружает страницу. Сначала скачайте отчёт!</td></tr>
+          <tr><td><strong>Боковое меню</strong></td><td>Разделы текущего этапа. Красные и оранжевые бейджи показывают число дел, писем, камер с проблемами и т. п.</td></tr>
+        </table>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Регион</label>
-      <select class="form-select" id="regSelect">
-        <option value="">— Выберите регион —</option>
-        <option value="77">77 — г. Москва</option>
-        <option value="50">50 — Московская область</option>
-        <option value="78">78 — г. Санкт-Петербург</option>
-        <option value="23">23 — Краснодарский край</option>
-        <option value="16">16 — Республика Татарстан</option>
-        <option value="63">63 — Самарская область</option>
-        <option value="52">52 — Нижегородская область</option>
-        <option value="05">05 — Республика Дагестан</option>
-      </select>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-graduation-cap"></i>Учебная панель внизу экрана</div></div>
+      <div class="card-body">
+        <table class="mtable">
+          <tr><th style="width:24%">Вкладка / элемент</th><th>Что показывает</th></tr>
+          <tr><td><strong>📋 Задание</strong></td><td>Описание текущего этапа, 12 кружков шагов (зелёная галочка — выполнен, синий — текущий) и текст текущего шага.</td></tr>
+          <tr><td><strong>💡 Подсказки</strong></td><td>Краткие пояснения по теме этапа (например, пороги OCR, что такое ЛВОК, РЭО ГИБДД).</td></tr>
+          <tr><td><strong>📊 Прогресс</strong></td><td>Общий прогресс в процентах и по каждому этапу (из 72 шагов).</td></tr>
+          <tr><td><strong>📚 Справочник</strong></td><td>Словарь терминов: ЦАФАП, OCR, ЭЦП, ФИС ГИБДД-М, РЭО, ЛВОК, ФССП, КоАП, ГИС ГМП, РТМ, УИН, НСИ, СМЭВ, SHA-256.</td></tr>
+          <tr><td><strong>«Далее →»</strong></td><td>Переходит к следующему шагу. Обзорные шаги (например, «Изучение дашборда») закрываются именно этой кнопкой.</td></tr>
+          <tr><td><strong>«↻»</strong></td><td>Сбрасывает прогресс текущего этапа — для повторной тренировки.</td></tr>
+          <tr><td><strong>Стрелка ⌃ / ⌄</strong></td><td>Сворачивает и разворачивает панель.</td></tr>
+          <tr><td><strong>«Прогресс: N%»</strong></td><td>Общий процент прохождения (в правом верхнем углу панели).</td></tr>
+        </table>
+      </div>
     </div>
-    <div id="loginHint" style="font-size:11px;color:var(--text2);min-height:18px;margin-bottom:8px;text-align:center;"></div>
-    <button class="btn-login" onclick="doLogin()">
-      <i class="fas fa-sign-in-alt"></i> Войти в систему
-    </button>
+  </section>
+
+
+  <section class="section" id="stage1">
+    <div class="section-title"><i class="fas fa-layer-group"></i>Этапы обучения — подробное описание</div>
+    <div class="stages-grid">
+      <div class="stage-card" id="stage1-card">
+        <div class="stage-header open" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:var(--primary);">1</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-tachometer-alt" style="margin-right:6px;color:var(--primary);"></i>Этап 1 — Авторизация и дашборд ЦАФАП</div>
+            <div class="stage-desc">Знакомство с рабочим местом: показатели, камеры, очередь нарушений, поиск дела и запрос в ФИС ГИБДД-М</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron open"></i>
+        </div>
+        <div class="stage-body open">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Авторизация в системе</div><div class="task-pill"><div class="task-n">2</div>Изучение дашборда</div><div class="task-pill"><div class="task-n">3</div>Проверка камер</div><div class="task-pill"><div class="task-n">4</div>Журнал аудита</div><div class="task-pill"><div class="task-n">5</div>Очередь нарушений</div><div class="task-pill"><div class="task-n">6</div>Поиск дела</div><div class="task-pill"><div class="task-n">7</div>Запрос ФИС</div><div class="task-pill"><div class="task-n">8</div>Уведомления</div><div class="task-pill"><div class="task-n">9</div>Статус подсистем</div><div class="task-pill"><div class="task-n">10</div>Лента активности</div><div class="task-pill"><div class="task-n">11</div>Фильтрация</div><div class="task-pill"><div class="task-n">12</div>Этап 2</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Авторизация в системе</div><div class="step-desc">Выполняется при входе: вы указали ФИО и номер взвода (или вставили токен) и нажали «Войти в систему». Шаг засчитывается автоматически.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Изучение дашборда</div><div class="step-desc">На главной странице пять счётчиков: <strong>Нарушений сегодня</strong>, <strong>В очереди</strong>, <strong>Обработано</strong>, <strong>Неоплаченных</strong>, <strong>Камер онлайн</strong>. Изучите их и нажмите <kbd>Далее →</kbd> в нижней панели.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Проверка камер</div><div class="step-desc">В боковом меню откройте <strong>«Камеры ФВФ»</strong> (красный бейдж — число камер с проблемами). Страница показывает сеть камер региона 77 со статусами и диаграмму «Нарушений по камерам (последние 2 часа)».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Журнал аудита</div><div class="step-desc">Откройте <strong>«Журнал аудита»</strong> и найдите запись с результатом <strong>«Отказано»</strong>. Журнал — неизменяемая запись действий; доступны <em>Фильтр</em> и <em>Экспорт</em>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">Очередь нарушений</div><div class="step-desc">В таблице «Входящая очередь нарушений» нажмите кнопку <strong>👁</strong> в строке любого дела — откроется карточка дела.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Поиск дела</div><div class="step-desc">В «Быстрых действиях» нажмите <strong>«Поиск дела»</strong>, введите номер дела, ФИО владельца или госномер и нажмите «Найти». Пример: <span class="plate">О917ММ177</span> — по нему в очереди есть несколько дел. Номер можно вводить латиницей (<code>O917MM177</code>).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Запрос ФИС</div><div class="step-desc">В «Быстрых действиях» нажмите <strong>«Запрос ФИС ГИБДД-М»</strong>. В окне введите госномер, VIN или ФИО владельца — система ищет в учебной базе ФИС (можно ввести часть номера, например «М5»). Нажмите строку результата, чтобы увидеть карточку ТС и владельца. Примеры: <span class="plate">А177МС77</span> (в розыске), <span class="plate">К567ЕЕ99</span>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Уведомления</div><div class="step-desc">В правой панели изучите блок <strong>«Уведомления»</strong> — на дашборде три активных уведомления.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">Статус подсистем</div><div class="step-desc">Блок <strong>«Статус подсистем»</strong> показывает состояние компонентов. Найдите подсистему со статусом <strong>«ЗАДЕРЖКА»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Лента активности</div><div class="step-desc">Блок <strong>«Лента активности» (LIVE)</strong> показывает события в реальном времени. Изучите ленту и нажмите <kbd>Далее →</kbd>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">Фильтрация</div><div class="step-desc">Над таблицей очереди выберите в списке типов <strong>«Превышение скорости»</strong>. Второй фильтр — по статусу (Новые, В обработке, Готовы).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Этап 2</div><div class="step-desc">Нажмите вкладку <strong>«Этап 2: Нарушения»</strong> в шапке или пункт «Этап 2» в боковом меню.</div></div></div></div>
+          <div class="stage-tips"><div class="tip info"><i class="fas fa-info-circle"></i><div>Кнопка «Обработать» над таблицей и «OCR-верификация» в быстрых действиях сразу ведут на Этап 2.</div></div><div class="tip success"><i class="fas fa-check-circle"></i><div>Номера в симуляторе можно вводить латиницей: <code>A177MC77</code> автоматически превращается в <code>А177МС77</code>.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stage2">
+    
+    <div class="stages-grid">
+      <div class="stage-card" id="stage2-card">
+        <div class="stage-header" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:#00838F;">2</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-camera" style="margin-right:6px;color:#00838F;"></i>Этап 2 — OCR-верификация и обработка нарушений</div>
+            <div class="stage-desc">Проверка распознанных номеров по снимкам, поиск владельца в ФИС, создание административного дела</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron"></i>
+        </div>
+        <div class="stage-body">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Выбор нарушения</div><div class="task-pill"><div class="task-n">2</div>Подтверждение г/н</div><div class="task-pill"><div class="task-n">3</div>Отклонение</div><div class="task-pill"><div class="task-n">4</div>Поиск владельца</div><div class="task-pill"><div class="task-n">5</div>ЛВОК</div><div class="task-pill"><div class="task-n">6</div>Создание дела</div><div class="task-pill"><div class="task-n">7</div>Форма дела</div><div class="task-pill"><div class="task-n">8</div>Доказательства</div><div class="task-pill"><div class="task-n">9</div>Передача</div><div class="task-pill"><div class="task-n">10</div>Очередь</div><div class="task-pill"><div class="task-n">11</div>Ошибка OCR</div><div class="task-pill"><div class="task-n">12</div>Этап 3</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Выбор нарушения</div><div class="step-desc">Слева в списке <strong>«Очередь OCR»</strong> нажмите на первое дело (или кнопку «Начать с первого»). Справа откроются метаданные комплекса и данные нарушения, в центре — снимок и результат OCR.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Подтверждение г/н</div><div class="step-desc">Сверьте номер, который распознала система («Распознано системой OCR»), с номером на снимке. При ошибке исправьте его в поле «Государственный регистрационный знак» (латиница допускается). Нажмите <strong>«Подтвердить номер»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Отклонение</div><div class="step-desc">Для некачественного материала (номер не читается, закрыт, кадр испорчен) нажмите <strong>«Отклонить»</strong> и подтвердите. Действие записывается в журнал аудита. «Повтор фото» запрашивает новый снимок у комплекса.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Поиск владельца</div><div class="step-desc">После подтверждения номера нажмите <strong>«Найти владельца в РЭО ГИБДД»</strong>. Запрос занимает 1–3 секунды и идёт в базу ФИС ГИБДД-М. Если ТС с таким номером нет, появится сообщение «не найдено» — проверьте номер.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">ЛВОК</div><div class="step-desc">В карточке владельца откройте форму <strong>ЛВОК</strong> («ЛВОК — редактировать»): проверьте фамилию, имя, отчество, дату рождения, паспорт и адрес.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Создание дела</div><div class="step-desc">В карточке результатов поиска нажмите <strong>«Создать административное дело»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Форма дела</div><div class="step-desc">Проверьте автозаполненные поля: статью КоАП, сумму штрафа, адрес доставки постановления (адрес владельца).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Доказательства</div><div class="step-desc">Откройте раздел <strong>«Доказательства»</strong> в боковом меню: фотоматериал из четырёх кадров и текстовый блок (см. раздел «Снимки и фотоматериал»).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">Передача</div><div class="step-desc">Нажмите <strong>«Передать инспектору»</strong> — дело уйдёт на подписание ЭЦП (Этап 3).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Очередь</div><div class="step-desc">Откройте <strong>«Очередь»</strong> (полная очередь нарушений) и используйте фильтр статусов: Новые, Обработка, Готово, Ошибка.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">Ошибка OCR</div><div class="step-desc">В полной очереди найдите дело со статусом <strong>«Ошибка OCR»</strong> — это дело, где номер распознан с ошибкой или с низкой уверенностью.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Этап 3</div><div class="step-desc">Нажмите «Этап 3 →» в боковом меню или вкладку этапа в шапке.</div></div></div></div>
+          <div class="stage-tips"><div class="tip warn"><i class="fas fa-exclamation-triangle"></i><div>Правило уверенности OCR: <strong>≥85%</strong> — обычно верно, <strong>65–84%</strong> — проверьте вручную, <strong>&lt;65%</strong> — высокий риск ошибки. Но ошибаться может и «уверенный» результат — всегда сверяйте с фото.</div></div><div class="tip info"><i class="fas fa-info-circle"></i><div>Если вы подтвердили <em>неверный</em> номер, поиск владельца вернёт «не найдено» или чужого владельца — вернитесь и исправьте номер.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stage3">
+    
+    <div class="stages-grid">
+      <div class="stage-card" id="stage3-card">
+        <div class="stage-header" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:#6A1B9A;">3</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-file-signature" style="margin-right:6px;color:#6A1B9A;"></i>Этап 3 — Постановления, ЭЦП, апелляции</div>
+            <div class="stage-desc">Подписание постановлений электронной подписью, реестр, административная практика, рассмотрение жалоб</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron"></i>
+        </div>
+        <div class="stage-body">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Очередь ЭЦП</div><div class="task-pill"><div class="task-n">2</div>Отклонение</div><div class="task-pill"><div class="task-n">3</div>Подписание</div><div class="task-pill"><div class="task-n">4</div>Массовое</div><div class="task-pill"><div class="task-n">5</div>Печать</div><div class="task-pill"><div class="task-n">6</div>Реестр</div><div class="task-pill"><div class="task-n">7</div>Практика</div><div class="task-pill"><div class="task-n">8</div>Апелляция</div><div class="task-pill"><div class="task-n">9</div>Решение</div><div class="task-pill"><div class="task-n">10</div>Архив</div><div class="task-pill"><div class="task-n">11</div>Просмотр</div><div class="task-pill"><div class="task-n">12</div>Этап 4</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Очередь ЭЦП</div><div class="step-desc">Раздел <strong>«Подписание ЭЦП»</strong>: выберите первое постановление в очереди — откроется карточка документа с реквизитами и хеш-суммой SHA-256.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Отклонение</div><div class="step-desc">Нажмите <strong>«Отклонить»</strong>, чтобы вернуть постановление оператору на доработку.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Подписание</div><div class="step-desc">Нажмите <strong>«Подписать ЭЦП»</strong> и наблюдайте процесс: проверка сертификата, расчёт хеша, постановка подписи. Статус документа станет «Подписано».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Массовое</div><div class="step-desc">Кнопка <strong>«Все»</strong> подписывает всю очередь разом.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">Печать</div><div class="step-desc">В карточке постановления нажмите <strong>«Печать»</strong> — откроется печатная форма постановления.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Реестр</div><div class="step-desc">Раздел <strong>«Постановления»</strong> — реестр со статусами: Ожидает ЭЦП, Подписано, Отправлено, Оплачено. Доступны фильтр и «Экспорт».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Практика</div><div class="step-desc">Раздел <strong>«Адм. практика»</strong>: распределение дел по статьям КоАП, хронология обработки за сегодня и типовое дело.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Апелляция</div><div class="step-desc">Раздел <strong>«Апелляции»</strong> (реестр жалоб). Нажмите <strong>«Рассмотреть»</strong> на любой жалобе; кнопка «Принять жалобу» регистрирует новую.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">Решение</div><div class="step-desc">В форме рассмотрения выберите решение (например, «Удовлетворить жалобу — прекратить производство», «Передать ответственность другому лицу», «Снизить размер штрафа») и вынесите его.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Архив</div><div class="step-desc">Раздел <strong>«Архив»</strong>: откройте подписанное постановление и верифицируйте подпись — сравнивается хеш документа.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">Просмотр</div><div class="step-desc">В реестре «Постановления» нажмите <strong>👁</strong> — полный просмотр постановления.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Этап 4</div><div class="step-desc">Нажмите «Этап 4 →».</div></div></div></div>
+          <div class="stage-tips"><div class="tip info"><i class="fas fa-info-circle"></i><div>Сертификат ЭЦП и подпись в тренажёре имитируются; хеш SHA-256 показан для понимания принципа: изменение документа меняет хеш и ломает подпись.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stage4">
+    
+    <div class="stages-grid">
+      <div class="stage-card" id="stage4-card">
+        <div class="stage-header" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:#E65100;">4</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-mail-bulk" style="margin-right:6px;color:#E65100;"></i>Этап 4 — Почта, оплата, ФССП</div>
+            <div class="stage-desc">Отправка постановлений, отслеживание, контроль оплаты по ГИС ГМП, ст. 20.25 КоАП и передача в ФССП</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron"></i>
+        </div>
+        <div class="stage-body">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Просмотр письма</div><div class="task-pill"><div class="task-n">2</div>Реквизиты</div><div class="task-pill"><div class="task-n">3</div>Отправка одного</div><div class="task-pill"><div class="task-n">4</div>Партионная</div><div class="task-pill"><div class="task-n">5</div>РТМ реестр</div><div class="task-pill"><div class="task-n">6</div>Печать</div><div class="task-pill"><div class="task-n">7</div>Отслеживание</div><div class="task-pill"><div class="task-n">8</div>Возвращённые</div><div class="task-pill"><div class="task-n">9</div>ГИС ГМП</div><div class="task-pill"><div class="task-n">10</div>Ст.20.25</div><div class="task-pill"><div class="task-n">11</div>ФССП</div><div class="task-pill"><div class="task-n">12</div>Этап 5</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Просмотр письма</div><div class="step-desc">Раздел <strong>«Почтовая отправка»</strong>: нажмите <strong>👁</strong> у любого письма.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Реквизиты</div><div class="step-desc">В просмотре письма изучите штрих-код, трек-номер и адрес доставки.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Отправка одного</div><div class="step-desc">У письма со статусом «К отправке» нажмите <strong>«Отправить»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Партионная</div><div class="step-desc">Нажмите <strong>«Отправить партию (N)»</strong> — отправляются все письма «К отправке». Число в скобках — сколько писем ждёт отправки.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">РТМ реестр</div><div class="step-desc">Нажмите <strong>«Реестр РТМ»</strong> — формируется реестр партионной почты (стандарт РТМ 0003.05-10).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Печать</div><div class="step-desc">Раздел <strong>«Очередь печати»</strong> → <strong>«Печатать все»</strong> (задания идут на принтер HP LaserJet).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Отслеживание</div><div class="step-desc">Раздел <strong>«Отслеживание»</strong>: введите трек-номер (или выберите письмо) и нажмите <strong>«Отследить»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Возвращённые</div><div class="step-desc">Раздел <strong>«Возвращённые»</strong>: обработайте письма — «Переотправить», «Обработать все» или «Вст. в силу» (отметка по правилам сценария).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">ГИС ГМП</div><div class="step-desc">В разделе <strong>«Контроль оплаты»</strong> нажмите <strong>«Синхр. ГИС ГМП»</strong> — подгружаются новые платежи. Статусы оплаты берутся из учебной базы ГИС ГМП.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Ст.20.25</div><div class="step-desc">Раздел <strong>«Ст. 20.25 КоАП»</strong> — неуплата штрафа. Нажмите <strong>«Протокол»</strong> у просроченного штрафа или «Сформировать все протоколы (N)».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">ФССП</div><div class="step-desc">Раздел <strong>«ФССП»</strong>: нажмите <strong>«Передать в ФССП (N)»</strong> (все) или «Передать» у одного дела. Ниже — таблица исполнительных производств из учебной базы ФССП.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Этап 5</div><div class="step-desc">Нажмите «Этап 5 →».</div></div></div></div>
+          <div class="stage-tips"><div class="tip warn"><i class="fas fa-exclamation-triangle"></i><div>Срок и размер льготной оплаты задаются настройкой тренажёра (по умолчанию 50% при оплате в течение 20 суток, общий срок 60 суток). Реальные нормы проверяйте по действующему КоАП.</div></div><div class="tip info"><i class="fas fa-info-circle"></i><div>Письма «К отправке» всегда показываются первыми в списке; число в бейдже бокового меню = число таких писем.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stage5">
+    
+    <div class="stages-grid">
+      <div class="stage-card" id="stage5-card">
+        <div class="stage-header" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:#2E7D32;">5</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-chart-bar" style="margin-right:6px;color:#2E7D32;"></i>Этап 5 — Аналитика, мониторинг, розыск</div>
+            <div class="stage-desc">Графики и отчёты, тепловая карта, KPI, топология, карта камер, инциденты и реестр розыска</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron"></i>
+        </div>
+        <div class="stage-body">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Аналитика</div><div class="task-pill"><div class="task-n">2</div>Экспорт</div><div class="task-pill"><div class="task-n">3</div>Отчёты</div><div class="task-pill"><div class="task-n">4</div>Тепловая карта</div><div class="task-pill"><div class="task-n">5</div>KPI</div><div class="task-pill"><div class="task-n">6</div>Мониторинг</div><div class="task-pill"><div class="task-n">7</div>Топология</div><div class="task-pill"><div class="task-n">8</div>Карта камер</div><div class="task-pill"><div class="task-n">9</div>Инциденты</div><div class="task-pill"><div class="task-n">10</div>Розыск</div><div class="task-pill"><div class="task-n">11</div>ФБД МВД</div><div class="task-pill"><div class="task-n">12</div>Этап 6</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Аналитика</div><div class="step-desc">Раздел <strong>«Аналитика»</strong>: динамика нарушений по часам, типы нарушений, районы, взыскания, время обработки. Переключайте период (Сегодня/Неделя/Месяц/Квартал) и район.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Экспорт</div><div class="step-desc">Нажмите <strong>«Экспорт»</strong> в аналитическом центре.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Отчёты</div><div class="step-desc">Раздел <strong>«Отчёты»</strong>: скачайте любой готовый отчёт (Ежедневный, За неделю, За месяц, Квартальный, Годовой, KPI операторов и др.) или «Сформировать отчёт».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Тепловая карта</div><div class="step-desc">Раздел <strong>«Тепловая карта»</strong>: нарушения по дням недели и часам за 4 недели. Найдите пик нарушений; доступен фильтр по статье КоАП и ТОП-10 камер.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">KPI</div><div class="step-desc">Раздел <strong>«KPI операторов»</strong>: сравните эффективность и рейтинг; найдите оператора с наилучшим KPI.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Мониторинг</div><div class="step-desc">Раздел <strong>«Мониторинг»</strong>: найдите подсистему со статусом <strong>«МЕДЛЕННО»</strong>. Ниже — трафик данных и «Системный лог»; кнопки «Обновить», «Тревога», «Очистить».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Топология</div><div class="step-desc">Раздел <strong>«Топология сети»</strong>: схема «камеры → ЦОД ЦАФАП → подсистемы → внешние АС». Нажмите на блок <strong>«ЦОД ЦАФАП»</strong>. Цвет линии — состояние связи (зелёная — норма, оранжевая — медленно, красная — нет связи).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Карта камер</div><div class="step-desc">Раздел <strong>«Карта камер»</strong>: карта Москвы с камерами. Точка — статус камеры, полупрозрачный круг — нарушения за сутки. Найдите <strong>offline-камеры</strong> (красные); клик по точке открывает карточку, клик по строке реестра подводит карту к камере.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">Инциденты</div><div class="step-desc">Раздел <strong>«Инциденты»</strong>: нажмите на критический инцидент; «Создать инцидент» заводит новый.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Розыск</div><div class="step-desc">Раздел <strong>«Розыск ТС»</strong>: найдите <span class="plate">А177МС77</span> в реестре (быстрый поиск или фильтр по статусу: В розыске / Обнаружено / Закрыто). Реестр берётся из базы ФИС ГИБДД-М.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">ФБД МВД</div><div class="step-desc">В реестре розыска нажмите <strong>«Синхр. с ФБД МВД»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Этап 6</div><div class="step-desc">Нажмите «Этап 6 →».</div></div></div></div>
+          <div class="stage-tips"><div class="tip info"><i class="fas fa-info-circle"></i><div>Карта подгружает плитки OpenStreetMap (нужен интернет). Без интернета через несколько секунд включается офлайн-схема с кольцами МКАД, ТТК, Садового и рекой — все функции карты остаются.</div></div><div class="tip success"><i class="fas fa-check-circle"></i><div>Раздел «Дубли г/н» показывает подозрительные случаи (двойники номеров) — полезно для аналитики.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stage6">
+    
+    <div class="stages-grid">
+      <div class="stage-card" id="stage6-card">
+        <div class="stage-header" onclick="toggleStage(this)">
+          <div class="stage-num" style="background:#C62828;">6</div>
+          <div class="stage-info">
+            <div class="stage-name"><i class="fas fa-cog" style="margin-right:6px;color:#C62828;"></i>Этап 6 — Администрирование, аудит, сертификация</div>
+            <div class="stage-desc">Пользователи и права, регионы, справочники, настройки, резервное копирование, интеграции, итоговый тест и сертификат</div>
+          </div>
+          <span class="stage-steps-count">12 шагов</span>
+          <i class="fas fa-chevron-down stage-chevron"></i>
+        </div>
+        <div class="stage-body">
+          <div class="stage-steps-list"><div class="task-pill"><div class="task-n">1</div>Пользователи</div><div class="task-pill"><div class="task-n">2</div>Создание</div><div class="task-pill"><div class="task-n">3</div>Права</div><div class="task-pill"><div class="task-n">4</div>Регионы</div><div class="task-pill"><div class="task-n">5</div>НСИ</div><div class="task-pill"><div class="task-n">6</div>Аудит</div><div class="task-pill"><div class="task-n">7</div>Настройки</div><div class="task-pill"><div class="task-n">8</div>Бэкап</div><div class="task-pill"><div class="task-n">9</div>Интеграции</div><div class="task-pill"><div class="task-n">10</div>Тест</div><div class="task-pill"><div class="task-n">11</div>Сертификат</div><div class="task-pill"><div class="task-n">12</div>Финал! 🏆</div></div>
+          <div class="steps" style="margin-bottom:12px;"><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">1</div><div class="step-content"><div class="step-title">Пользователи</div><div class="step-desc">Раздел <strong>«Пользователи»</strong>: нажмите <strong>✏</strong> у пользователя, чтобы редактировать. Есть фильтры по роли, региону и статусу.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">2</div><div class="step-content"><div class="step-title">Создание</div><div class="step-desc">Нажмите <strong>«Создать пользователя»</strong> и заполните форму.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">3</div><div class="step-content"><div class="step-title">Права</div><div class="step-desc">Раздел <strong>«Роли и права»</strong>: матрица доступа по функциям системы — измените право, нажав на ячейку.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">4</div><div class="step-content"><div class="step-title">Регионы</div><div class="step-desc">Раздел <strong>«Регионы»</strong>: нажмите на карточку региона; ниже — сравнение регионов по производительности.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">5</div><div class="step-content"><div class="step-title">НСИ</div><div class="step-desc">Раздел <strong>«НСИ»</strong>: статьи КоАП, каталог комплексов ФВФ, регионы. Нажмите <strong>«Синхр. с МВД»</strong>. Статьи берутся из учебной базы НСИ.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">6</div><div class="step-content"><div class="step-title">Аудит</div><div class="step-desc">Раздел <strong>«Журнал аудита»</strong>: найдите записи с результатом <strong>«Отказано»</strong> (фильтр «Отказы»).</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">7</div><div class="step-content"><div class="step-title">Настройки</div><div class="step-desc">Раздел <strong>«Настройки»</strong>: измените порог OCR (блок «Параметры OCR») и нажмите <strong>«Сохранить настройки»</strong>. Есть также параметры штрафов, почты и уведомлений.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">8</div><div class="step-content"><div class="step-title">Бэкап</div><div class="step-desc">Раздел <strong>«Резервное копирование»</strong> → <strong>«Запустить резервное копирование»</strong>.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">9</div><div class="step-content"><div class="step-title">Интеграции</div><div class="step-desc">Раздел <strong>«Интеграции»</strong>: протестируйте любое соединение.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">10</div><div class="step-content"><div class="step-title">Тест</div><div class="step-desc">Раздел <strong>«Тест знаний»</strong>: 12 вопросов с вариантами ответа и пояснением после каждого. Ответьте на все вопросы.</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">11</div><div class="step-content"><div class="step-title">Сертификат</div><div class="step-desc">Раздел <strong>«Сертификация»</strong>: сводка по всем этапам. Сертификат выдаётся при результате теста <strong>не ниже 60%</strong>; кнопка скачивания открывает диалог печати — выберите «Сохранить как PDF».</div></div></div><div class="step"><div class="step-num" style="width:22px;height:22px;font-size:10px;">12</div><div class="step-content"><div class="step-title">Финал! 🏆</div><div class="step-desc">Поздравляем! Скачайте отчёт кнопкой <strong>«Отчёт»</strong> в шапке и передайте файл преподавателю.</div></div></div></div>
+          <div class="stage-tips"><div class="tip warn"><i class="fas fa-exclamation-triangle"></i><div>До прохождения теста сертификат недоступен. Не перезагружайте страницу до скачивания отчёта — прогресс не сохраняется между сессиями.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ БАЗЫ ДАННЫХ ══ -->
+  <section class="section" id="databases">
+    <div class="section-title"><i class="fas fa-database"></i>Базы данных</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-server"></i>Из чего состоит тренажёр</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Все запросы, списки и карточки в тренажёре строятся на учебных базах из папки <code>data/</code>. Их можно посмотреть на странице <strong>«Базы»</strong> (кнопка в шапке или файл <code>databases.html</code>): выбираете таблицу, ищете по номеру, ФИО, VIN, УИН, листаете страницы, выгружаете в CSV.</p>
+        <table class="mtable">
+          <tr><th>База</th><th>Что внутри</th><th>Где используется</th></tr>
+          <tr><td><strong>ФИС ГИБДД-М</strong></td><td>2 800 ТС, 2 310 владельцев, 2 052 водительских удостоверения, 24 записи розыска, 128 ограничений</td><td>Запрос ФИС (Этап 1), поиск владельца (Этап 2), постановления (Этап 3), адресаты писем (Этап 4), реестр розыска (Этап 5)</td></tr>
+          <tr><td><strong>База фиксаций</strong></td><td>320 записей: снимок, камера, статья, скорость, результат OCR</td><td>Очередь OCR и снимки (Этап 2)</td></tr>
+          <tr><td><strong>ГИС ГМП</strong></td><td>3 200 начислений: УИН, постановление, сумма, статус оплаты</td><td>Почта, контроль оплаты, ст. 20.25 (Этап 4)</td></tr>
+          <tr><td><strong>ФССП</strong></td><td>260 исполнительных производств</td><td>Раздел ФССП (Этап 4)</td></tr>
+          <tr><td><strong>Комплексы ФВФ</strong></td><td>30 комплексов (16 в Москве), поверка, координаты</td><td>Камеры (Этапы 1, 2, 5), карта камер</td></tr>
+          <tr><td><strong>НСИ</strong></td><td>Статьи КоАП, регионы, марки/модели, цвета</td><td>Справочник статей (Этап 6)</td></tr>
+          <tr><td><strong>Пользовательские фото / Фото, созданные ИИ</strong></td><td>Расширения: ваши фотографии вместо синтетических снимков</td><td>Очередь OCR, фотоматериал</td></tr>
+        </table>
+        <div class="tip info"><i class="fas fa-info-circle"></i><div>Не все данные берутся из баз: ленты событий и метрики этапа 5, пользователи и роли этапа 6, часть статистики дашборда генерируются самими этапами.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-flag"></i>Номера для учебных заданий</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Эти номера всегда присутствуют в ФИС и очереди — на них построены задания:</p>
+        <table class="mtable">
+          <tr><th>Госномер</th><th>ТС</th><th>Особенность</th></tr>
+          <tr><td><span class="plate">А177МС77</span></td><td>Форд Фокус, серебристый</td><td>Находится в <strong>розыске</strong> (Этап 5, шаг 10); владелец — Иванов Иван Иванович</td></tr>
+          <tr><td><span class="plate">О917ММ177</span></td><td>Форд Фокус, серебристый</td><td>Для «Поиска дела» (Этап 1, шаг 6); владелец — Петров Пётр Петрович</td></tr>
+          <tr><td><span class="plate">К567ЕЕ99</span></td><td>BMW X5, чёрный</td><td>В розыске (угон)</td></tr>
+          <tr><td><span class="plate">Н438ЕС123</span>, <span class="plate">В234КЕ99</span>, <span class="plate">М568РО77</span>, <span class="plate">Т923УА50</span>, <span class="plate">Е445ВВ78</span></td><td>Разные марки</td><td>Примеры «чистых» ТС для проверки поиска</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ СНИМКИ ══ -->
+  <section class="section" id="evidence">
+    <div class="section-title"><i class="fas fa-images"></i>Снимки и фотоматериал</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-search-plus"></i>Как проверять номер по снимку</div></div>
+      <div class="card-body">
+        <ol class="num-list">
+          <li>На Этапе 2 выберите дело. Над блоком OCR — <strong>снимок с камеры</strong>; нажмите на него, чтобы увеличить, ещё раз — чтобы уменьшить. На плашке внизу снимка — номер дела, камера, дата и время, статья и скорость.</li>
+          <li>Сравните <strong>распознанный номер</strong> (тёмное табло) с номером на снимке по буквам и цифрам. Уверенность OCR показана процентом и полосой.</li>
+          <li>Если номер распознан неверно, введите правильный в поле справа. Система допускает латиницу и автоматически преобразует её.</li>
+          <li>Для детального просмотра нажмите <strong>«Фотоматериал (4 кадра)»</strong> на снимке или откройте раздел «Доказательства».</li>
+        </ol>
+        <p style="margin:10px 0 6px;"><strong>Типичные ошибки OCR на российских номерах</strong> (используются только 12 букв: А В Е К М Н О Р С Т У Х):</p>
+        <table class="mtable">
+          <tr><th>Распознано</th><th>Может быть на самом деле</th></tr>
+          <tr><td>В</td><td>Е, 8</td></tr><tr><td>К</td><td>Х</td></tr><tr><td>М</td><td>Н</td></tr><tr><td>О</td><td>С, 0</td></tr><tr><td>Р</td><td>В</td></tr><tr><td>Т</td><td>Н</td></tr><tr><td>цифры 8 / 3, 0 / 8, 5 / 6, 1 / 7</td><td>путаются при плохом освещении и грязи</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-th"></i>Фотоматериал: четыре кадра</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Фотоматериал оформлен как в материалах реальных комплексов:</p>
+        <table class="mtable">
+          <tr><th style="width:24%">Элемент</th><th>Что это</th></tr>
+          <tr><td><strong>Кадр 1</strong></td><td>Обзорный кадр с зелёными рамками детектора вокруг автомобиля, фонарей и номера; тонкая линия — траектория.</td></tr>
+          <tr><td><strong>Кадр 2</strong></td><td>Следующий кадр через ~0,6 с (машина ближе).</td></tr>
+          <tr><td><strong>Фото ТС</strong></td><td>Увеличенный автомобиль с рамками на фонарях и номере.</td></tr>
+          <tr><td><strong>Госномер</strong></td><td>Увеличенный номерной знак и результат OCR с уверенностью.</td></tr>
+          <tr><td><strong>Текстовый блок</strong></td><td>Статья и название нарушения, скорость и ограничение, комплекс и поверка, дата и время с миллисекундами, адрес установки, направление, координаты.</td></tr>
+          <tr><td><strong>ИК-режим</strong></td><td>Галочка под фотоматериалом переключает чёрно-белый «инфракрасный» вид и цветной.</td></tr>
+        </table>
+        <div class="tip info"><i class="fas fa-info-circle"></i><div>Снимки — либо <strong>синтетические</strong> (нарисованные по параметрам записи фиксации), либо <strong>фотографии, подключённые преподавателем</strong> (созданные нейросетью или реальные). Под фотоматериалом написано, какой это снимок.</div></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ РОЛИ ══ -->
+  <section class="section" id="roles">
+    <div class="section-title"><i class="fas fa-users"></i>Роли пользователей</div>
+    <div class="tip info"><i class="fas fa-info-circle"></i><div>На экране входа выбирается роль, но в шапке она <strong>меняется автоматически</strong> по ходу курса: Этапы 1–2 — Оператор, Этап 3 — Инспектор, Этап 4 — Специалист почты, Этап 5 — Аналитик, Этап 6 — Федеральный администратор. Так вы видите систему глазами каждой роли.</div></div>
+    <div class="roles-grid">
+      <div class="role-card"><div class="role-ico" style="background:#1565C0;"><i class="fas fa-user"></i></div><div><div class="role-name">Оператор ЦАФАП</div><div class="role-desc">OCR-верификация, обработка очереди нарушений. Не имеет доступа к персональным данным владельцев.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#F57C00;"><i class="fas fa-user-check"></i></div><div><div class="role-name">Инспектор ЦАФАП</div><div class="role-desc">Подпись постановлений ЭЦП, персональные данные, апелляции.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#6A1B9A;"><i class="fas fa-user-tie"></i></div><div><div class="role-name">Старший инспектор</div><div class="role-desc">Контроль работы операторов, массовое подписание, сводные отчёты.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#C62828;"><i class="fas fa-user-cog"></i></div><div><div class="role-name">Рег. администратор</div><div class="role-desc">Пользователи региона, права, справочники и настройки региона.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#B71C1C;"><i class="fas fa-user-shield"></i></div><div><div class="role-name">Фед. администратор</div><div class="role-desc">Полный доступ на федеральном уровне: все регионы, настройки, сертификаты ЭЦП.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#2E7D32;"><i class="fas fa-chart-line"></i></div><div><div class="role-name">Аналитик</div><div class="role-desc">Только чтение: отчёты, KPI, тепловые карты, экспорт данных.</div></div></div>
+      <div class="role-card"><div class="role-ico" style="background:#00838F;"><i class="fas fa-mail-bulk"></i></div><div><div class="role-name">Специалист почты</div><div class="role-desc">Очередь отправки, партии, РТМ-реестры, отслеживание, возвращённые письма.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ══ СОВЕТЫ ══ -->
+  <section class="section" id="tips">
+    <div class="section-title"><i class="fas fa-lightbulb"></i>Советы и подсказки</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-star"></i>Рекомендации по прохождению</div></div>
+      <div class="card-body"><div class="steps">
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-lightbulb" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Следите за нижней панелью</div><div class="step-desc">Она всегда показывает, что делать на текущем шаге. Не понятно — откройте вкладку «Подсказки» или «Справочник».</div></div></div>
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-check" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Шаги засчитываются автоматически</div><div class="step-desc">Большинство — при выполнении действия. Обзорные шаги закрываются кнопкой «Далее →». Если шаг не засчитан — повторите действие из текста шага.</div></div></div>
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-redo" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Перезапуск этапа</div><div class="step-desc">Кнопка «↻» в нижней панели сбрасывает прогресс этапа — для повторной тренировки.</div></div></div>
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-hourglass-half" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Задержки — это нормально</div><div class="step-desc">Запросы к ФИС ГИБДД-М, РЭО, ГИС ГМП и ФССП симулируются с паузой 1–3 секунды. Дождитесь результата.</div></div></div>
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-filter" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Используйте фильтры и поиск</div><div class="step-desc">В таблицах есть фильтры по типу и статусу, на Этапе 1 — «Поиск дела», везде — запрос ФИС. Номера можно вводить латиницей.</div></div></div>
+        <div class="step"><div class="step-num" style="background:#F9A825;"><i class="fas fa-download" style="font-size:11px;"></i></div><div class="step-content"><div class="step-title">Скачайте отчёт до закрытия вкладки</div><div class="step-desc">Прогресс и журнал действий хранятся только в открытой вкладке. После перезагрузки страницы они обнуляются.</div></div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ══ ПРОГРЕСС ══ -->
+  <section class="section" id="progress">
+    <div class="section-title"><i class="fas fa-trophy"></i>Прогресс и оценка результатов</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-chart-pie"></i>Система оценки прогресса</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:10px;">Прогресс виден в правом верхнем углу учебной панели. Полное прохождение всех 6 этапов (72 шага) = 100%.</p>
+        <div style="margin:8px 0 14px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;"><span>Общий прогресс</span><span>0 / 72 шагов</span></div><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%;"></div></div></div>
+        <table class="mtable">
+          <tr><th>Прогресс</th><th>Уровень</th><th>Этапы</th></tr>
+          <tr><td>0–33%</td><td>Базовый уровень</td><td>Этапы 1–2</td></tr>
+          <tr><td>34–66%</td><td>Продвинутый</td><td>Этапы 3–4</td></tr>
+          <tr><td>67–100%</td><td>Эксперт</td><td>Этапы 5–6</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="two">
+      <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-question-circle"></i>Итоговый тест</div></div><div class="card-body"><p style="font-size:12.5px;color:var(--text2);line-height:1.6;">Этап 6 → «Тест знаний»: <strong>12 вопросов</strong> с вариантами ответа. После каждого ответа — пояснение. По окончании показывается результат в процентах.</p></div></div>
+      <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-certificate"></i>Сертификат</div></div><div class="card-body"><p style="font-size:12.5px;color:var(--text2);line-height:1.6;">Этап 6 → «Сертификация». Именной сертификат (ваше ФИО) выдаётся при результате теста <strong>не ниже 60%</strong>. Кнопка скачивания открывает печать — выберите «Сохранить как PDF».</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-file-download"></i>Отчёт о прохождении</div></div>
+      <div class="card-body">
+        <p style="margin-bottom:8px;">Кнопка <strong>«Отчёт»</strong> в шапке скачивает файл <code>cafap_report_&lt;взвод&gt;_&lt;ФИО&gt;_&lt;сессия&gt;.json</code>. Он содержит:</p>
+        <ul style="margin:6px 0 0 18px;color:var(--text2);font-size:12.5px;line-height:1.8;">
+          <li>данные курсанта, время начала и окончания, длительность;</li>
+          <li>время на каждом этапе и выполненные шаги по этапам;</li>
+          <li>сводку: число действий, переключений этапов, уведомлений;</li>
+          <li>подробный журнал событий (клики, запросы к базам, подписи, отправки);</li>
+          <li>при входе по токену — токен и контрольные метки.</li>
+        </ul>
+        <p style="margin-top:8px;">Передайте файл преподавателю. Отчёт недоступен без ФИО и номера взвода.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ПРЕПОДАВАТЕЛЮ ══ -->
+  <section class="section" id="teacher">
+    <div class="section-title"><i class="fas fa-chalkboard-teacher"></i>Для преподавателя</div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-sliders-h"></i>Настройка и развёртывание</div></div>
+      <div class="card-body">
+        <table class="mtable">
+          <tr><th style="width:26%">Задача</th><th>Как сделать</th></tr>
+          <tr><td><strong>Развернуть сайт</strong></td><td>Положите папку на любой статический хостинг или раздайте архив: <code>index.html</code> открывается двойным щелчком, сервер не нужен.</td></tr>
+          <tr><td><strong>Выдать токен</strong></td><td>Передайте курсанту токен или ссылку <code>index.html?token=…</code>. Подпись проверяется внешним проверяющим (страница лишь читает данные токена).</td></tr>
+          <tr><td><strong>Проверить отчёт</strong></td><td>Откройте JSON-отчёт: поля <code>cadet</code>, <code>questProgress</code>, <code>summary</code>, <code>events</code>, при токене — <code>token</code>, <code>renderSeq</code>, <code>uiInstance</code>.</td></tr>
+          <tr><td><strong>Льготная оплата штрафа</strong></td><td>В начале <code>js/core/app.js</code>: <code>const CAFAP_DISCOUNT = {pct:50, days:20};</code>. Подсказки, расчёты, форма настроек и вопрос теста подстраиваются автоматически. Сверьте значения с действующим КоАП.</td></tr>
+          <tr><td><strong>Подложка карты</strong></td><td><code>CAFAP_MAP</code> в <code>js/core/app.js</code> (адрес плиток). Для большой нагрузки используйте своего провайдера плиток.</td></tr>
+          <tr><td><strong>Пересоздать базы</strong></td><td><code>node tools/build.js</code> — перегенерирует базы и синтетические снимки (результат детерминирован).</td></tr>
+          <tr><td><strong>Фотореалистичные снимки</strong></td><td>Откройте <code>photo-studio.html</code>: студия готовит промпты для нейросети, накладывает вымышленный номер из базы, закрывает чужие номера и собирает ZIP. Распакуйте его в корень сайта.</td></tr>
+          <tr><td><strong>Реальные фотографии</strong></td><td><code>tools/replate.py</code> заменяет настоящие номера вымышленными, <code>tools/import-photos.js</code> подключает фото. Подробности — в <code>README.md</code>.</td></tr>
+          <tr><td><strong>Доля фото в очереди</strong></td><td><code>CAFAP_REAL_SHARE</code> в <code>js/db/db.js</code> (по умолчанию 0,5).</td></tr>
+        </table>
+        <div class="tip warn"><i class="fas fa-exclamation-triangle"></i><div>Фотографии с читаемыми настоящими номерами нельзя связывать с вымышленными владельцами. Используйте замену номеров, собственные снимки или фото с согласия владельцев; по вопросам персональных данных проконсультируйтесь с юристом.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FAQ ══ -->
+  <section class="section" id="faq">
+    <div class="section-title"><i class="fas fa-question-circle"></i>Частые вопросы</div>
+    <div class="card"><div class="card-body">
+      <div class="faq-q">Шаг не засчитывается.</div><div class="faq-a">Повторите действие, указанное в тексте шага (вкладка «Задание»). Обзорные шаги закрываются кнопкой «Далее →». Шаги на разных этапах не зависят друг от друга.</div>
+      <div class="faq-q">Поиск владельца пишет «ТС не найдено в ФИС ГИБДД-М».</div><div class="faq-a">Проверьте номер: буквы должны быть из набора А В Е К М Н О Р С Т У Х, регион — двух- или трёхзначный. Возможно, при подтверждении вы оставили ошибочный номер OCR — вернитесь на «OCR-верификацию» и исправьте.</div>
+      <div class="faq-q">Карта камер без подложки / серая.</div><div class="faq-a">Плитки OpenStreetMap требуют интернета. Без него включается офлайн-схема с кольцами и рекой — это нормально, задание «найти offline-камеры» выполняется так же.</div>
+      <div class="faq-q">Сертификат недоступен.</div><div class="faq-a">Сначала пройдите «Тест знаний» (Этап 6). Сертификат выдаётся при результате не ниже 60%.</div>
+      <div class="faq-q">Потерялся прогресс после перезагрузки.</div><div class="faq-a">Прогресс и журнал хранятся только в открытой вкладке. Не перезагружайте страницу и не нажимайте «выход», пока не скачали отчёт.</div>
+      <div class="faq-q">Не открывается страница или не работает вход.</div><div class="faq-a">Используйте Chrome или Edge. Если браузер блокирует локальное хранилище, вход всё равно возможен, но сессия не будет восстанавливаться после перезагрузки.</div>
+      <div class="faq-q">Токен не принимается.</div><div class="faq-a">Скопируйте его целиком, без пробелов по краям. Если токен просрочен, вход возможен, но появится предупреждение — сообщите преподавателю.</div>
+      <div class="faq-q">На снимке нет картинки.</div><div class="faq-a">Проверьте, что папка <code>assets/</code> лежит рядом с <code>index.html</code> и сайт открыт из распакованного архива, а не из архива напрямую.</div>
+    </div></div>
+  </section>
+
+  <!-- ══ СЛОВАРЬ ══ -->
+  <section class="section" id="glossary">
+    <div class="section-title"><i class="fas fa-book"></i>Словарь терминов</div>
+    <div class="card"><div class="card-body">
+      <table class="mtable">
+        <tr><th style="width:22%">Термин</th><th>Расшифровка</th></tr>
+        <tr><td><strong>ЦАФАП</strong></td><td>Центр автоматизированной фиксации административных правонарушений</td></tr>
+        <tr><td><strong>ФВФ</strong></td><td>Фото-видеофиксация (комплексы-камеры)</td></tr>
+        <tr><td><strong>OCR</strong></td><td>Автоматическое распознавание госномеров на снимке</td></tr>
+        <tr><td><strong>ЭЦП</strong></td><td>Электронная цифровая подпись</td></tr>
+        <tr><td><strong>ФИС ГИБДД-М</strong></td><td>Федеральная информационная система ГИБДД (в тренажёре — учебная копия)</td></tr>
+        <tr><td><strong>РЭО ГИБДД</strong></td><td>Регистрационно-экзаменационный отдел — источник сведений о владельцах ТС</td></tr>
+        <tr><td><strong>ЛВОК</strong></td><td>Локальная ведомственная объектная карта — форма корректировки персональных данных</td></tr>
+        <tr><td><strong>КоАП</strong></td><td>Кодекс об административных правонарушениях</td></tr>
+        <tr><td><strong>ГИС ГМП</strong></td><td>Государственная информационная система о государственных и муниципальных платежах</td></tr>
+        <tr><td><strong>УИН</strong></td><td>Уникальный идентификатор начисления</td></tr>
+        <tr><td><strong>ФССП</strong></td><td>Федеральная служба судебных приставов</td></tr>
+        <tr><td><strong>РТМ</strong></td><td>Реестр партионной почты (стандарт РТМ 0003.05-10)</td></tr>
+        <tr><td><strong>НСИ</strong></td><td>Нормативно-справочная информация</td></tr>
+        <tr><td><strong>СМЭВ</strong></td><td>Система межведомственного электронного взаимодействия</td></tr>
+        <tr><td><strong>SHA-256</strong></td><td>Алгоритм хеширования: по хешу проверяют, что документ не изменён после подписания</td></tr>
+        <tr><td><strong>ИК-режим</strong></td><td>Чёрно-белое представление снимка, как у комплексов с инфракрасной подсветкой</td></tr>
+        <tr><td><strong>Токен</strong></td><td>Строка доступа с данными курсанта, выдаваемая преподавателем</td></tr>
+      </table>
+    </div></div>
+  </section>
+
+  <div class="manual-footer">
+    <strong>Учебный тренажёр ЦАФАП</strong> &nbsp;·&nbsp; Руководство пользователя v2.0 &nbsp;·&nbsp; Все данные тренажёра вымышлены
   </div>
 
-  <div class="login-footer">
-    Техническая поддержка: <a href="#" style="color:var(--primary)">cafap_support@mvd.ru</a> · +7 (800) 222-22-22
-    <br><span style="margin-top:4px;display:block;">© 2026 МВД России · Сервис ЦАФАП · Версия 3.14.2</span>
-  </div>
-</div><div id="initScreen" class="screen hidden">
-  <img class="init-logo-img" src="assets/img/logo-cafan.png" alt="Цифрополь ИСОД · МВД России · ЦАФАН">
-  <div class="init-sub">Инициализация защищённой рабочей среды...</div>
-  <div class="init-bar-wrap"><div class="init-bar" id="initBar"></div></div>
-  <div class="init-status mono" id="initStatus">Подключение к серверу аутентификации...</div>
-  <div class="init-checks" id="initChecks">
-    <div class="init-item" id="ic1"><span class="check-ico"><i class="fas fa-circle-notch fa-spin" style="font-size:11px;color:rgba(255,255,255,.6)"></i></span><span>Проверка сертификата ЭЦП должностного лица</span></div>
-    <div class="init-item" id="ic2"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Подключение к ФИС ГИБДД-М</span></div>
-    <div class="init-item" id="ic3"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Загрузка очереди нарушений (РЭО синхронизация)</span></div>
-    <div class="init-item" id="ic4"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Синхронизация справочников НСИ ГИБДД</span></div>
-    <div class="init-item" id="ic5"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Запуск модуля мониторинга камер ФВФ</span></div>
-    <div class="init-item" id="ic6"><span class="check-ico"><i class="fas fa-circle" style="font-size:8px;color:rgba(255,255,255,.3)"></i></span><span>Загрузка профиля роли и прав доступа</span></div>
-  </div>
-</div><div id="spaApp" class="screen hidden">
-<div class="app-header" style="z-index:100;gap:8px;flex-shrink:0;">
-<div class="hdr-logo"><div class="live-dot"></div>ЦАФАП</div>
-<div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
-<div style="font-size:12px;opacity:.88;padding:4px 10px;background:rgba(255,255,255,.13);border-radius:5px;white-space:nowrap;" id="hdrRegion">77 — г. Москва</div>
-<div style="display:flex;gap:3px;overflow-x:auto;flex-shrink:0;">
-<span class="stage-tab active" id="stab-1" onclick="switchStage(1)">Этап 1: Дашборд</span>
-<span class="stage-tab" id="stab-2" onclick="switchStage(2)">Этап 2: Нарушения</span>
-<span class="stage-tab" id="stab-3" onclick="switchStage(3)">Этап 3: Постановления</span>
-<span class="stage-tab" id="stab-4" onclick="switchStage(4)">Этап 4: Почта/ФССП</span>
-<span class="stage-tab" id="stab-5" onclick="switchStage(5)">Этап 5: Аналитика</span>
-<span class="stage-tab" id="stab-6" onclick="switchStage(6)">Этап 6: Администрирование</span>
+</main>
 </div>
-<div style="flex:1;"></div>
-<div style="font-family:Courier New,monospace;font-size:13px;letter-spacing:1px;padding:4px 10px;background:rgba(255,255,255,.13);border-radius:5px;flex-shrink:0;" id="shiftClock">00:00:00</div>
-<div style="position:relative;padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="spa_toast('Уведомления: 3 активных','warning')">
-<i class="fas fa-bell"></i><div style="position:absolute;top:-4px;right:-4px;background:#C62828;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--primary);">3</div></div>
-<div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;flex-shrink:0;">
-<div id="hdrAvatar" style="width:28px;height:28px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">КУ</div>
-<div><div style="font-size:12px;font-weight:700;" id="hdrName">Курсант</div><div class="role-chip role-op" id="hdrRole">Оператор</div></div>
-</div>
-<a href="databases.html" target="_blank" rel="noopener" style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;color:#fff;text-decoration:none;" title="Просмотр учебных баз данных (ФИС ГИБДД-М, ГИС ГМП, ФССП, НСИ, ФВФ)"><i class="fas fa-database"></i> Базы</a>
-<div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="downloadReport()" title="Скачать отчёт о прохождении тренажёра (JSON)"><i class="fas fa-file-download"></i> Отчёт</div>
-<div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="doLogout()" title="Выход"><i class="fas fa-sign-out-alt"></i></div>
-</div>
-<div style="display:flex;flex:1;overflow:hidden;">
-<div id="unifiedSidebar" class="sidebar" style="width:215px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;"></div>
-<div style="flex:1;position:relative;overflow:hidden;display:flex;">
-<div class="stage-sec active" id="stage-1" style="flex:1;overflow:hidden;">
-  <div id="mainContent1" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-<div class="stage-sec" id="stage-2" style="flex:1;overflow:hidden;">
-  <div id="mainContent2" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-<div class="stage-sec" id="stage-3" style="flex:1;overflow:hidden;">
-  <div id="mainContent3" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-<div class="stage-sec" id="stage-4" style="flex:1;overflow:hidden;">
-  <div id="mainContent4" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-<div class="stage-sec" id="stage-5" style="flex:1;overflow:hidden;">
-  <div id="mainContent5" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-<div class="stage-sec" id="stage-6" style="flex:1;overflow:hidden;">
-  <div id="mainContent6" style="flex:1;display:flex;overflow:hidden;width:100%;height:100%;"></div>
-</div>
-</div>
-</div>
-<div id="instPanel" class="inst-expanded">
-<div style="display:flex;align-items:center;padding:7px 14px;background:var(--primary);color:#fff;gap:8px;font-size:12.5px;font-weight:700;flex-shrink:0;">
-<i class="fas fa-graduation-cap"></i>
-Учебный тренажёр ЦАФАП · <span id="instStageLabel">Этап 1 из 6</span>
-<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
-<span style="font-size:11px;background:rgba(255,255,255,.18);padding:2px 9px;border-radius:4px;">Прогресс: <strong id="questPct">0%</strong></span>
-<button onclick="toggleInst()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;"><i class="fas fa-chevron-down" id="instTogIco"></i></button>
-</div></div>
-<div id="instContent" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
-<div style="display:flex;gap:1px;background:var(--border2);border-bottom:1px solid var(--border);flex-shrink:0;">
-<div class="inst-tab active" onclick="spa_switchInstTab(this,'mission')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:var(--primary-lighter);color:var(--primary);text-align:center;">📋 Задание</div>
-<div class="inst-tab" onclick="spa_switchInstTab(this,'hints')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">💡 Подсказки</div>
-<div class="inst-tab" onclick="spa_switchInstTab(this,'progress')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">📊 Прогресс</div>
-<div class="inst-tab" onclick="spa_switchInstTab(this,'glossary')" style="flex:1;padding:5px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);text-align:center;">📚 Справочник</div>
-</div>
-<div id="instBody" style="flex:1;overflow-y:auto;padding:9px 14px;min-height:0;"></div>
-<div style="display:flex;align-items:center;gap:8px;padding:5px 14px;background:#FAFCFF;border-top:1px solid var(--border2);font-size:11px;color:var(--text2);flex-shrink:0;">
-<strong id="instStageShort">Этап 1:</strong>&nbsp;<span id="instStageDesc">Авторизация и дашборд</span>
-<div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
-<div id="instProgFill" style="height:100%;background:var(--primary);border-radius:3px;transition:width .5s;width:0%;"></div></div>
-<span id="instProgTxt">0/12 шагов</span>
-<button class="btn btn-p btn-sm" onclick="spa_nextQuest()">Далее →</button>
-<button class="btn btn-s btn-sm" onclick="spa_restartQuest()"><i class="fas fa-redo"></i></button>
-</div></div></div>
-</div>
-<div id="toastBox" style="position:fixed;top:58px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:5px;"></div>
-<div id="letterModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-envelope" style="color:#D32F2F;"></i> Просмотр письма</div>
-<span onclick="closeModal('letterModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="letterContent"></div></div></div>
-<div id="signModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-signature" style="color:var(--primary);"></i> Подписание ЭЦП</div>
-<span onclick="closeModal('signModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="signModalContent"></div></div></div>
-<div id="decModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-contract" style="color:var(--primary);"></i> Постановление</div>
-<span onclick="closeModal('decModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="decModalContent"></div></div></div>
-<div id="fsspModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-university" style="color:#6A1B9A;"></i> Передача в ФССП</div>
-<span onclick="closeModal('fsspModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="fsspContent"></div></div></div>
-<div id="art2025Modal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:var(--accent-red);"></i> Протокол ст.20.25 КоАП</div>
-<span onclick="closeModal('art2025Modal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="art2025Content"></div></div></div>
-<div id="searchModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-search" style="color:var(--primary);"></i> Поиск дела</div>
-<span onclick="closeModal('searchModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="srchWrapper"><div class="form-group"><label class="form-label">Номер дела</label><input type="text" class="form-control" id="srchCase" placeholder="ДЕЛ-2026-XXXXX"></div>
-<div class="form-group"><label class="form-label">Госномер ТС</label><input type="text" class="form-control" id="srchPlate" placeholder="А000АА77"></div>
-<div class="form-group"><label class="form-label">ФИО</label><input type="text" class="form-control" id="srchName" placeholder="Иванов Иван"></div>
-<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-<button class="btn btn-s" onclick="closeModal('searchModal')">Отмена</button>
-<button class="btn btn-p" onclick="if(window.s1_doSearch)s1_doSearch()"><i class="fas fa-search"></i> Найти</button></div>
-<div id="srchResult" style="margin-top:12px;"></div></div></div></div>
-<div id="userModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Пользователь</div>
-<span onclick="closeModal('userModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="userModalContent"></div></div></div>
-<div id="certModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-certificate" style="color:var(--success);"></i> Сертификация</div>
-<span onclick="closeModal('certModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="certModalContent"></div></div></div>
-<div id="incidentModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:var(--accent-red);"></i> Инцидент</div>
-<span onclick="closeModal('incidentModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="incidentContent"></div></div></div>
-<div id="wantedModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-car" style="color:var(--accent-red);"></i> Карточка розыска</div>
-<span onclick="closeModal('wantedModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="wantedContent"></div></div></div>
-<div id="appealModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-balance-scale" style="color:var(--primary);"></i> Апелляция</div>
-<span onclick="closeModal('appealModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="appealModalContent"></div></div></div>
-<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-database" style="color:var(--primary);"></i> Резервное копирование</div>
-<span onclick="closeModal('backupModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="backupContent"></div></div></div>
-<div id="caseModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-folder-open" style="color:var(--primary);"></i> Карточка дела</div>
-<span onclick="closeModal('caseModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="caseModalContent"></div></div></div>
-<div id="lvokModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
-<div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-shield" style="color:var(--primary);"></i> ЛВОК — Персональные данные</div>
-<span onclick="closeModal('lvokModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
-<div id="lvokContent"></div></div></div>
 
-<script src="vendor/chart.min.js"></script>
-<script src="vendor/leaflet/leaflet.js"></script>
-<script src="js/db/db.js"></script>
-<script src="data/nsi.js"></script>
-<script src="data/fvf_complexes.js"></script>
-<script src="data/fis_gibdd_m.js"></script>
-<script src="data/gis_gmp.js"></script>
-<script src="data/fssp.js"></script>
-<script src="data/fixations.js"></script>
-<script src="data/photos.js"></script>
-<script src="js/core/token.js"></script>
-<script src="js/core/app.js"></script>
-<script src="js/stages/stage1.js"></script>
-<script src="js/stages/stage2.js"></script>
-<script src="js/stages/stage3.js"></script>
-<script src="js/stages/stage4.js"></script>
-<script src="js/stages/stage5.js"></script>
-<script src="js/stages/stage6.js"></script>
+<script>
+  function toggleStage(header) {
+    const isOpen = header.classList.contains('open');
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.stage-chevron');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+  // Открыть этап по якорю из меню
+  function openStageFromHash() {
+    const m = location.hash.match(/^#stage(\d)$/);
+    if (!m) return;
+    const hdr = document.querySelector('#stage' + m[1] + '-card .stage-header');
+    if (hdr && !hdr.classList.contains('open')) toggleStage(hdr);
+  }
+  window.addEventListener('hashchange', openStageFromHash);
+  document.querySelectorAll('.sb-item[href^="#stage"]').forEach(a => a.addEventListener('click', () => setTimeout(openStageFromHash, 0)));
+  openStageFromHash();
+
+  // Подсветка пункта меню при прокрутке
+  const navLinks = document.querySelectorAll('.sb-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) link.classList.add('active');
+        });
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-52px 0px 0px 0px' });
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
