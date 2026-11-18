@@ -5,7 +5,7 @@
   "addresses": {
    "file": "data/addresses/addresses.json",
    "count": 5,
-   "sha256": "04c863fa8294654816d81abe431d628582c1641d86aeebf5b105c972b79c5351"
+   "sha256": "e479e3862a103d6fd7126988d988b98a752fc1b3db1c1f285214554e1c8e365e"
   },
   "fingerprints": {
    "file": "data/fingerprints/index.json",
@@ -15,7 +15,7 @@
   "hostParties": {
    "file": "data/host_parties/host_parties.json",
    "count": 4,
-   "sha256": "18645d6997c564b76126cbc379ecc95e75963c3ea9ca1e586b426303e7739524"
+   "sha256": "4947d0d46e4519dadf422e48dfe4f0775555daaec4f7ab1e27fcffa939dce390"
   },
   "foreignCitizens": {
    "file": "data/persons/foreign_citizens.json",
@@ -24,28 +24,28 @@
   },
   "photos": {
    "file": "data/photos/index.json",
-   "count": 0,
-   "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+   "count": 600,
+   "sha256": "0c2d00f8bbcbd081a43ff321988c1b86e4103a5b6b39546a066ff941e5f64186"
   },
   "presets": {
    "file": "scenarios/presets/presets.json",
    "count": 4,
-   "sha256": "74b220ec2d62fa6c138862b2aab047bb4e7da92d425e54bcc9a946fb3485841e"
+   "sha256": "00db8fd07439502057ad860aad8aa7082cde034eedef5d9ecfcccc50965cbb10"
   },
   "generatorSliders": {
    "file": "scenarios/quests/generator_sliders.json",
    "count": 5,
-   "sha256": "a313ba9e300bdeb95e5fb4b45c471992e7138f24ff1c224ed8d370e09d637817"
+   "sha256": "80e48a29e2c64a83f08da71ae8d0b70fbd27db08be3e9510d65351cc17f3c316"
   },
   "cadets": {
    "file": "scenarios/roster/cadets.json",
    "count": 6,
-   "sha256": "b8a418b8375ad20cd6670026431a77424b507ee7f077e4a8db13b670ed2955af"
+   "sha256": "5db23c4cb3fc54bf131e62d588c1843b770893cfb92676156b7ef96962daf5e2"
   },
   "traps": {
    "file": "scenarios/traps/traps.json",
    "count": 6,
-   "sha256": "ee8c63acfd745fffb1c8e8f9511c49e97f55f9abca8b2c55e11f1e896af778f2"
+   "sha256": "6945c3fdffcca7561d8ecfa48a6186ab2f4f1cb9020f08c64e23f8c2ca1c2b5f"
   }
  }
 }
