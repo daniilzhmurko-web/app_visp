@@ -59,6 +59,12 @@ function s5_startLive(){
 function s5_setSection(sec,navEl){
   document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
   if(navEl)navEl.classList.add('active');
+  /* при уходе из раздела карты — корректно снимаем карту (иначе остаётся анимация в скрытом блоке) */
+  if(sec!=='cameras'&&_camMap){
+    try{_camMap.stop();}catch(e){}
+    try{_camMap.remove();}catch(e){}
+    _camMap=null;window._camMarkers=null;_camBaseLayer=null;
+  }
   const mc=document.getElementById('mainContent5');
   const R={analytics:s5_renderAnalytics,reports:s5_renderReports,heatmap:s5_renderHeatmap,kpi:s5_renderKPI,monitor:s5_renderMonitor,infra:s5_renderInfra,cameras:s5_renderCamerasMap,incidents:s5_renderIncidents,wanted:s5_renderWanted,duplicates:s5_renderDuplicates};
   (R[sec]||s5_renderAnalytics)(mc);
@@ -167,21 +173,23 @@ function s5_exportAnalytics(){s5_markQuest(1);toast('Аналитический 
 /* ============================================================
    ОТЧЁТЫ
    ============================================================ */
+/* Реестр сформированных отчётов (данные для просмотра, печати и скачивания) */
+const REPORTS_LIST=[
+  {id:'ОТЧ-2026-0512',name:'Ежедневный отчёт ЦАФАП',period:'27.05.2026',type:'Оперативный',status:'ready',size:'2.4 MB'},
+  {id:'ОТЧ-2026-0511',name:'Отчёт по взысканиям',period:'01-27.05.2026',type:'Финансовый',status:'ready',size:'1.8 MB'},
+  {id:'ОТЧ-2026-0510',name:'Эффективность операторов',period:'Май 2026',type:'KPI',status:'ready',size:'0.9 MB'},
+  {id:'ОТЧ-2026-0509',name:'Статистика камер ФВФ',period:'Май 2026',type:'Технический',status:'ready',size:'3.1 MB'},
+  {id:'ОТЧ-2026-0508',name:'Отчёт по апелляциям',period:'Май 2026',type:'Правовой',status:'ready',size:'0.5 MB'},
+  {id:'ОТЧ-2026-0507',name:'Передача материалов в ФССП',period:'Май 2026',type:'Исполнение',status:'ready',size:'1.2 MB'},
+  {id:'ОТЧ-2026-0506',name:'Сводный региональный отчёт',period:'Q1 2026',type:'Федеральный',status:'generating',size:'—'},
+  {id:'ОТЧ-2026-0505',name:'Анализ нарушений по районам',period:'Апрель 2026',type:'Аналитический',status:'ready',size:'4.2 MB'},
+  {id:'ОТЧ-2026-0504',name:'Отчёт по розыску ТС',period:'Апрель 2026',type:'Оперативный',status:'ready',size:'0.7 MB'},
+  {id:'ОТЧ-2026-0503',name:'Возвращённые письма',period:'Апрель 2026',type:'Почтовый',status:'ready',size:'0.3 MB'},
+  {id:'ОТЧ-2026-0502',name:'Нарушения по времени суток',period:'Q1 2026',type:'Аналитический',status:'ready',size:'2.0 MB'},
+  {id:'ОТЧ-2026-0501',name:'Федеральный сводный отчёт МВД',period:'Q4 2025',type:'Федеральный',status:'archived',size:'8.7 MB'},
+];
 function s5_renderReports(mc){
-  const reports=[
-    {id:'ОТЧ-2026-0512',name:'Ежедневный отчёт ЦАФАП',period:'27.05.2026',type:'Оперативный',status:'ready',size:'2.4 MB'},
-    {id:'ОТЧ-2026-0511',name:'Отчёт по взысканиям',period:'01-27.05.2026',type:'Финансовый',status:'ready',size:'1.8 MB'},
-    {id:'ОТЧ-2026-0510',name:'Эффективность операторов',period:'Май 2026',type:'KPI',status:'ready',size:'0.9 MB'},
-    {id:'ОТЧ-2026-0509',name:'Статистика камер ФВФ',period:'Май 2026',type:'Технический',status:'ready',size:'3.1 MB'},
-    {id:'ОТЧ-2026-0508',name:'Отчёт по апелляциям',period:'Май 2026',type:'Правовой',status:'ready',size:'0.5 MB'},
-    {id:'ОТЧ-2026-0507',name:'Передача материалов в ФССП',period:'Май 2026',type:'Исполнение',status:'ready',size:'1.2 MB'},
-    {id:'ОТЧ-2026-0506',name:'Сводный региональный отчёт',period:'Q1 2026',type:'Федеральный',status:'generating',size:'—'},
-    {id:'ОТЧ-2026-0505',name:'Анализ нарушений по районам',period:'Апрель 2026',type:'Аналитический',status:'ready',size:'4.2 MB'},
-    {id:'ОТЧ-2026-0504',name:'Отчёт по розыску ТС',period:'Апрель 2026',type:'Оперативный',status:'ready',size:'0.7 MB'},
-    {id:'ОТЧ-2026-0503',name:'Возвращённые письма',period:'Апрель 2026',type:'Почтовый',status:'ready',size:'0.3 MB'},
-    {id:'ОТЧ-2026-0502',name:'Нарушения по времени суток',period:'Q1 2026',type:'Аналитический',status:'ready',size:'2.0 MB'},
-    {id:'ОТЧ-2026-0501',name:'Федеральный сводный отчёт МВД',period:'Q4 2025',type:'Федеральный',status:'archived',size:'8.7 MB'},
-  ];
+  const reports=REPORTS_LIST;
   mc.innerHTML=`
   <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -202,11 +210,11 @@ function s5_renderReports(mc){
       </div>
     </div>
     <!-- Реестр отчётов -->
-    <div class="card" style="flex:1;">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:240px;">
       <div class="card-hdr"><div class="card-title"><i class="fas fa-folder"></i>Реестр сформированных отчётов</div>
         <input type="text" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;width:180px;" placeholder="🔍 Поиск...">
       </div>
-      <div style="overflow-y:auto;">
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr><th>№</th><th>Наименование отчёта</th><th>Период</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody>${reports.map(r=>{
@@ -233,8 +241,158 @@ function s5_renderReports(mc){
 }
 function s5_quickReport(type){s5_markQuest(2);toast(`Отчёт «${type}» формируется...`,'info');setTimeout(()=>toast(`Отчёт «${type}» готов к скачиванию`,'success'),2000);}
 function s5_generateReport(){toast('Мастер создания отчёта открыт','info');}
-function s5_downloadReport(id){s5_markQuest(2);toast(`Отчёт ${id} скачан`,'success');}
-function s5_viewReport(id){toast(`Просмотр отчёта ${id}...`,'info');}
+function s5_downloadReport(id){s5_markQuest(2);s5_reportDownload(id);}
+function s5_viewReport(id){s5_reportView(id);}
+
+/* ─────────────── ФОРМИРОВАНИЕ ОТЧЁТА (реальные данные из учебных баз) ─────────────── */
+/* Собирает фактические цифры по базам ФИС/ГИБДД, фиксаций, ГИС ГМП, ФВФ и ФССП */
+function s5_reportData(r){
+  const D=window.CAFAP_DB||{};
+  const fixes=(D.fixations&&D.fixations.all)?D.fixations.all():[];
+  const charges=(D.gmp&&D.gmp.charges)?D.gmp.charges():[];
+  const cams=(D.fvf&&D.fvf.all)?D.fvf.all():[];
+  let wanted=[];try{wanted=D.fis.table('wanted');}catch(e){}
+  const proc=(D.fssp&&D.fssp.proceedings)?D.fssp.proceedings():[];
+  const sum=charges.reduce((a,c)=>a+(+c.amount||0),0);
+  const paid=charges.filter(c=>c.status==='paid_full').length;
+  const half=charges.filter(c=>c.status==='paid_half').length;
+  const unpaid=charges.filter(c=>c.status==='unpaid').length;
+  const overdue=charges.filter(c=>c.status==='overdue').length;
+  /* Топ-5 нарушений по статьям КоАП */
+  const byArt={};
+  fixes.forEach(f=>{byArt[f.article]=(byArt[f.article]||0)+1;});
+  const topArt=Object.keys(byArt).map(a=>({article:a,count:byArt[a]})).sort((a,b)=>b.count-a.count).slice(0,5);
+  /* Топ-5 комплексов по числу фиксаций */
+  const byCam={};
+  fixes.forEach(f=>{byCam[f.camId]=(byCam[f.camId]||0)+1;});
+  const topCam=Object.keys(byCam).map(c=>{const k=(D.fvf&&D.fvf.get)?D.fvf.get(c):null;return{id:c,name:k?(k.addr||k.id):c,count:byCam[c]};}).sort((a,b)=>b.count-a.count).slice(0,5);
+  const lowConf=fixes.filter(f=>typeof f.ocrConf==='number'&&f.ocrConf<80).length;
+  const avgConf=fixes.length?fixes.reduce((a,f)=>a+(+f.ocrConf||0),0)/fixes.length:0;
+  return{
+    fixes:fixes.length,charges:charges.length,sum:sum,paid:paid,half:half,unpaid:unpaid,overdue:overdue,
+    cams:cams.length,wanted:wanted.length,proc:proc.length,
+    lowConf:lowConf,avgConf:avgConf,topArt:topArt,topCam:topCam,
+    genAt:new Date().toLocaleString('ru')
+  };
+}
+/* Печатная форма отчёта (используется и для просмотра, и для скачивания) */
+function s5_reportHTML(r){
+  const d=s5_reportData(r);
+  const money=n=>Math.round(n||0).toLocaleString('ru');
+  let reg='Москва';
+  try{reg=(window.CAFAP_SESSION&&CAFAP_SESSION.regionName)||reg;}catch(e){}
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${r.name} ${r.id}</title>
+<style>
+  @page{size:A4;margin:15mm}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;color:#111;margin:0;background:#fff}
+  .doc{max-width:180mm;margin:0 auto}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1B3A6B;padding-bottom:8px;margin-bottom:12px}
+  .head h1{font-size:15pt;margin:0 0 3px;color:#1B3A6B}
+  .head .meta{font-size:9pt;color:#555;text-align:right;line-height:1.5}
+  .sub{font-size:9.5pt;color:#444;margin-bottom:10px}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .kpi div{border:1px solid #D7DEE8;border-radius:6px;padding:8px 9px}
+  .kpi b{display:block;font-size:14pt;color:#1B3A6B;line-height:1.2}
+  .kpi span{font-size:8.5pt;color:#666}
+  h2{font-size:11.5pt;margin:14px 0 6px;color:#1B3A6B;border-left:3px solid #1B3A6B;padding-left:7px}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px}
+  th,td{border:1px solid #D7DEE8;padding:5px 7px;font-size:9.5pt;text-align:left}
+  th{background:#EEF2F8;font-weight:700}
+  td.num{text-align:right}
+  .foot{margin-top:20px;border-top:1px solid #CCC;padding-top:6px;font-size:8.5pt;color:#555;line-height:1.5}
+</style></head><body><div class="doc">
+  <div class="head">
+    <div><h1>${r.name}</h1><div class="sub">${r.type} отчёт · период: ${r.period}</div></div>
+    <div class="meta">ЦАФАП ОДД ГИБДД<br>Регион: ${reg}<br>Сформирован: ${d.genAt}<br>№ ${r.id}</div>
+  </div>
+  <div class="kpi">
+    <div><b>${money(d.fixes)}</b><span>фиксаций за период</span></div>
+    <div><b>${money(d.charges)}</b><span>постановлений вынесено</span></div>
+    <div><b>${money(d.sum)} ₽</b><span>общая сумма штрафов</span></div>
+    <div><b>${money(d.cams)}</b><span>комплексов ФВФ на контроле</span></div>
+  </div>
+  <h2>1. Нарушения по статьям КоАП РФ (топ-5)</h2>
+  <table><thead><tr><th>Статья</th><th>Кол-во фиксаций</th><th>Доля</th></tr></thead><tbody>
+  ${d.topArt.map(a=>`<tr><td>ст. ${a.article}</td><td class="num">${money(a.count)}</td><td class="num">${d.fixes?Math.round(a.count/d.fixes*100):0}%</td></tr>`).join('')||'<tr><td colspan="3">нет данных</td></tr>'}
+  </tbody></table>
+  <h2>2. Нагрузка на комплексы ФВФ (топ-5)</h2>
+  <table><thead><tr><th>Комплекс</th><th>Адрес</th><th>Фиксаций</th></tr></thead><tbody>
+  ${d.topCam.map(c=>`<tr><td class="mono">${c.id}</td><td>${c.name}</td><td class="num">${money(c.count)}</td></tr>`).join('')||'<tr><td colspan="3">нет данных</td></tr>'}
+  </tbody></table>
+  <h2>3. Взыскание и исполнение</h2>
+  <table><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
+    <tr><td>Постановлений вынесено</td><td class="num">${money(d.charges)}</td></tr>
+    <tr><td>Общая сумма начислений</td><td class="num">${money(d.sum)} ₽</td></tr>
+    <tr><td>Оплачено полностью</td><td class="num">${money(d.paid)}</td></tr>
+    <tr><td>Оплачено частично (льгота по ст. 32.2)</td><td class="num">${money(d.half)}</td></tr>
+    <tr><td>Не оплачено</td><td class="num">${money(d.unpaid)}</td></tr>
+    <tr><td>Просрочено (ст. 20.25)</td><td class="num">${money(d.overdue)}</td></tr>
+    <tr><td>Передано в ФССП (производств)</td><td class="num">${money(d.proc)}</td></tr>
+    <tr><td>ТС в розыске</td><td class="num">${money(d.wanted)}</td></tr>
+  </tbody></table>
+  <h2>4. Качество распознавания номерных знаков</h2>
+  <table><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
+    <tr><td>Средняя достоверность распознавания</td><td class="num">${d.avgConf.toFixed(1)}%</td></tr>
+    <tr><td>Фиксаций с достоверностью ниже 80% (на ручную проверку)</td><td class="num">${money(d.lowConf)}</td></tr>
+  </tbody></table>
+  <div class="foot">Отчёт сформирован автоматически в учебном тренажёре «ЦАФАП». Все данные, номера, адреса и суммы являются вымышленными и предназначены исключительно для обучения.<br>Файл: ${r.id}_${r.name}.html · Размер в реестре: ${r.size}</div>
+</div></body></html>`;
+}
+/* Готовый самодостаточный HTML-файл отчёта (для сохранения на диск) */
+function s5_reportFile(r){
+  return s5_reportHTML(r).replace('<body>','<body style="margin:0;padding:18px;background:#fff">');
+}
+/* Просмотр отчёта: модальное окно с содержимым + печать/PDF + скачивание */
+function s5_reportView(id){
+  const r=REPORTS_LIST.find(x=>x.id===id);if(!r)return;
+  const body=s5_reportHTML(r).replace(/^[\s\S]*<body[^>]*>/,'').replace(/<\/body>[\s\S]*$/,'');
+  const old=document.getElementById('s5ReportModal');
+  if(old)old.remove();
+  const wrap=document.createElement('div');
+  wrap.id='s5ReportModal';
+  wrap.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px';
+  wrap.innerHTML=`
+    <div class="modal-box" style="background:#fff;border-radius:12px;width:min(960px,96vw);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+      <div class="card-hdr" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
+        <div><b style="font-size:13.5px;"><i class="fas fa-file-chart-line" style="color:var(--primary);"></i> ${r.name}</b>
+          <div style="font-size:10.5px;color:var(--text3);margin-top:2px;">${r.id} · ${r.type} · период: ${r.period}</div></div>
+        <button class="btn btn-s btn-sm" onclick="s5_closeReportModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:16px 18px;background:#F7F9FC">
+        <div style="max-width:820px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:8px;padding:22px 26px;box-shadow:0 2px 10px rgba(15,23,42,.06)">
+          ${body}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0">
+        <button class="btn btn-s" onclick="s5_closeReportModal()">Закрыть</button>
+        <button class="btn btn-p" onclick="s5_printReport('${r.id}')"><i class="fas fa-print"></i> Печать / PDF</button>
+        <button class="btn btn-p" onclick="s5_downloadReport('${r.id}')"><i class="fas fa-download"></i> Скачать отчёт</button>
+      </div>
+    </div>`;
+  wrap.addEventListener('click',e=>{if(e.target===wrap)s5_closeReportModal();});
+  document.body.appendChild(wrap);
+}
+function s5_closeReportModal(){const m=document.getElementById('s5ReportModal');if(m)m.remove();}
+/* Печать отчёта (диалог печати браузера → «Сохранить как PDF») */
+function s5_printReport(id){
+  const r=REPORTS_LIST.find(x=>x.id===id);if(!r)return;
+  printHtml(s5_reportFile(r),r.name);
+}
+/* Скачивание отчёта: готовый самодостаточный HTML-файл */
+function s5_reportDownload(id){
+  const r=REPORTS_LIST.find(x=>x.id===id);if(!r)return;
+  try{
+    const blob=new Blob(['﻿',s5_reportFile(r)],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`${r.id}_${r.name.replace(/[^\wа-яА-ЯёЁ\- ]/g,'').replace(/\s+/g,'_')}.html`;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+    toast(`Отчёт «${r.name}» сохранён: ${a.download}`,'success');
+  }catch(e){
+    toast('Не удалось сохранить файл — используйте «Печать / PDF»','error');
+  }
+}
 
 /* ============================================================
    ТЕПЛОВАЯ КАРТА
@@ -605,6 +763,9 @@ function s5_drawTopo(camNodes){
    КАРТА КАМЕР
    ============================================================ */
 let _camMap=null;
+let _camBaseLayer=null;      /* текущая подложка: слой плиток или офлайн-схема */
+let _camOfflineInfo=null;    /* плашка «Офлайн-схема» */
+let _camBaseMode='local';
 function s5_renderCamerasMap(mc){
   const online=CAMERAS_ALL.filter(c=>c.st==='online').length;
   const warn=CAMERAS_ALL.filter(c=>c.st==='warning').length;
@@ -622,7 +783,10 @@ function s5_renderCamerasMap(mc){
     </div>
     <div class="card" id="camMapCard" style="flex:1 1 46%;min-height:240px;display:flex;flex-direction:column;overflow:hidden;">
       <div class="card-hdr" style="flex-shrink:0;"><div class="card-title"><i class="fas fa-map"></i>Москва — расположение камер ФВФ (наложение: статус и нарушений за сутки)</div>
-        <button class="btn btn-s btn-sm" onclick="s5_camMapFull()" title="На весь экран"><i class="fas fa-expand"></i></button>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-s btn-sm" id="camBaseBtn" onclick="s5_toggleMapBase()" title="Выбрать подложку карты"><i class="fas fa-map-marked-alt"></i> Карта (из архива)</button>
+          <button class="btn btn-s btn-sm" onclick="s5_camMapFull()" title="На весь экран"><i class="fas fa-expand"></i></button>
+        </div>
       </div>
       <div id="camMap" style="flex:1;min-height:0;background:#E9EEF3;"></div>
     </div>
@@ -668,15 +832,19 @@ function s5_camPopup(c){
 function s5_initCamMap(){
   const el=document.getElementById('camMap');if(!el)return;
   if(typeof L==='undefined'){el.innerHTML='<div style="padding:30px;text-align:center;color:#888;">Библиотека карты (vendor/leaflet) не загружена</div>';return;}
-  if(_camMap){try{_camMap.remove();}catch(e){}_camMap=null;}
+  if(_camMap){
+    try{_camMap.stop();}catch(e){}          /* остановить анимацию до удаления карты */
+    try{_camMap.off();}catch(e){}
+    try{_camMap.remove();}catch(e){}
+    _camMap=null;
+  }
   const map=L.map(el,{preferCanvas:false,zoomSnap:.5,worldCopyJump:false}).setView(CAFAP_MAP.center,CAFAP_MAP.zoom);
   _camMap=map;
-  let loaded=0,errors=0,fallback=false;
-  const useFallback=()=>{if(fallback)return;fallback=true;s5_camMapFallback(map);};
-  const tiles=L.tileLayer(CAFAP_MAP.tileUrl,{maxZoom:18,attribution:CAFAP_MAP.attribution}).addTo(map);
-  tiles.on('tileload',()=>{loaded++;});
-  tiles.on('tileerror',()=>{errors++;if(!loaded&&errors>=3)useFallback();});
-  setTimeout(()=>{if(!loaded)useFallback();},4500);
+  /* Подложка по умолчанию — реальная карта Москвы, упакованная в архив сайта
+     (assets/map, js/core/maptiles.js): работает без интернета и не зависит от того,
+     заблокировал ли провайдер тайлов запросы. Онлайн-провайдеры и условная схема
+     доступны переключателем в шапке карты. */
+  s5_setMapBase(_camBaseMode||'local');
 
   const items=CAMERAS_ALL.map(c=>({c,d:CAFAP_DB.fvf.get(c.id)})).filter(x=>x.d&&x.d.lat);
   const bubbles=L.layerGroup(),dots=L.layerGroup(),markers={};
@@ -709,11 +877,15 @@ function s5_initCamMap(){
   L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
   if(items.length)map.fitBounds(L.latLngBounds(items.map(x=>[x.d.lat,x.d.lon])).pad(.18));
   window._camMarkers=markers;
-  setTimeout(()=>map.invalidateSize(),200);
-  const ro=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>{if(!document.getElementById('camMap')){ro.disconnect();return;}map.invalidateSize();}):null;
+  setTimeout(()=>{if(_camMap===map){try{map.invalidateSize();}catch(e){}}},200);
+  const ro=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>{
+    if(!document.getElementById('camMap')||_camMap!==map){ro.disconnect();return;}   /* карта уже заменена или снята */
+    try{map.invalidateSize();}catch(e){}
+  }):null;
   if(ro)ro.observe(el);
 }
-/* Офлайн-схема: если плитки карты недоступны (нет интернета), рисуем упрощённую схему колец и реки */
+/* Офлайн-схема: если плитки карты недоступны (нет интернета или провайдер блокирует),
+   рисуем упрощённую схему колец и реки. Возвращает слой, чтобы его можно было убрать. */
 function s5_camMapFallback(map){
   map.getContainer().style.background='#E6ECF2';
   const ring=(lat,lon,rl,ro,n,wob)=>Array.from({length:n+1},(_,i)=>{const a=i/n*2*Math.PI,k=1+wob*Math.sin(a*3+1)+wob*.6*Math.cos(a*5);return[lat+rl*k*Math.sin(a),lon+ro*k*Math.cos(a)];});
@@ -725,13 +897,105 @@ function s5_camMapFallback(map){
   });
   L.circleMarker([55.7522,37.6156],{radius:5,color:'#6A7F99',fillColor:'#6A7F99',fillOpacity:1,interactive:false}).addTo(g);
   const info=L.control({position:'topleft'});
-  info.onAdd=()=>{const d=L.DomUtil.create('div','leaflet-legend');d.style.maxWidth='230px';d.innerHTML='<b>Офлайн-схема</b><br>Плитки карты недоступны (нет интернета). Кольца и река — условная схема.';return d;};
+  info.onAdd=()=>{const d=L.DomUtil.create('div','leaflet-legend');d.style.maxWidth='230px';d.innerHTML='<b>Условная схема</b><br>Кольца и река — схематичное изображение без карты.';return d;};
   info.addTo(map);
+  _camOfflineInfo=info;
+  return g;
 }
+/* Проверка провайдера плиток:
+   false — плитки недоступны (провайдер блокирует: ответ 403 либо на все запросы
+           отдаёт одну и ту же картинку «Access blocked»),
+   true  — плитки работают,
+   null  — неизвестно (нет сети или закрыт CORS).
+   Результат кэшируется на 5 минут — лишние запросы к провайдеру не нужны. */
+let _tileProbe={at:0,res:null};
+function s5_probeTileProvider(tpl){
+  if(!tpl||typeof fetch==='undefined')return Promise.resolve(null);
+  const now=Date.now();
+  if(_tileProbe.res!==null&&now-_tileProbe.at<300000)return Promise.resolve(_tileProbe.res);
+  const mk=(x,y)=>String(tpl).replace('{z}','10').replace('{x}',String(x)).replace('{y}',String(y));
+  const grab=url=>fetch(url,{method:'GET',cache:'no-store'}).then(async r=>{
+    if(r.status===403||r.status===429)return{blocked:true};
+    if(!r.ok)return{err:true};
+    const buf=await r.arrayBuffer();
+    return{ok:true,hash:s5_bufHash(buf)};
+  }).catch(()=>({net:true}));
+  return Promise.all([grab(mk(619,319)),grab(mk(620,319))]).then(([a,b])=>{
+    let res=null;
+    if(a.blocked||b.blocked)res=false;
+    else if(a.ok&&b.ok)res=a.hash===b.hash?false:true;   /* разные плитки → разные картинки */
+    else if(a.ok||b.ok)res=true;
+    _tileProbe={at:Date.now(),res:res};
+    return res;
+  }).catch(()=>null);
+}
+/* Простая контрольная сумма байтов (FNV-1a) — сравниваем две плитки между собой */
+function s5_bufHash(buf){
+  const u=new Uint8Array(buf);let h=0x811c9dc5;
+  for(let i=0;i<u.length;i++){h^=u[i];h=Math.imul(h,0x01000193)>>>0;}
+  return h+':'+u.length;
+}
+/* Подложка карты: 'local' — реальная карта из архива, 'osmde'/'esri'/'osm' — онлайн,
+   'scheme' — условная схема (без плиток) */
+function s5_setMapBase(mode){
+  const map=_camMap;if(!map)return;
+  if(_camBaseLayer){try{map.removeLayer(_camBaseLayer);}catch(e){}_camBaseLayer=null;}
+  if(_camOfflineInfo){try{map.removeControl(_camOfflineInfo);}catch(e){}_camOfflineInfo=null;}
+  _camBaseMode=mode;
+  const btn=document.getElementById('camBaseBtn');
+  const prov=(window.CAFAP_TILE_PROVIDERS||[]).find(p=>p.id===mode);
+  if(mode==='scheme'){
+    _camBaseLayer=s5_camMapFallback(map);
+  }else{
+    const layer=window.CAFAP_LocalTiles({
+      provider:mode,
+      attribution:prov&&prov.attr?prov.attr:'',
+      minZoom:9,
+      maxZoom:mode==='local'?13:18
+    }).addTo(map);
+    _camBaseLayer=layer;
+    /* онлайн-провайдер может быть заблокирован — тогда показываем схему */
+    if(mode!=='local'){
+      let loaded=0,errors=0;
+      layer.on('tileload',()=>{loaded++;});
+      layer.on('tileerror',()=>{errors++;if(!loaded&&errors>=3)s5_setMapBase('scheme');});
+      setTimeout(()=>{if(!loaded)s5_setMapBase('scheme');},6000);
+    }
+  }
+  s5_updateBaseBtn();
+  s5_closeBaseMenu();
+}
+/* Подпись кнопки переключателя подложки */
+function s5_updateBaseBtn(){
+  const btn=document.getElementById('camBaseBtn');if(!btn)return;
+  const prov=(window.CAFAP_TILE_PROVIDERS||[]).find(p=>p.id===_camBaseMode);
+  const ico=_camBaseMode==='scheme'?'fa-map':'fa-map-marked-alt';
+  btn.innerHTML=`<i class="fas ${ico}"></i> ${prov?prov.name:'Карта'}`;
+  btn.title='Выбрать подложку карты';
+}
+/* Меню выбора подложки */
+function s5_toggleMapBase(){
+  const menu=document.getElementById('camBaseMenu');
+  if(menu){menu.style.display=menu.style.display==='none'?'block':'none';return;}
+  const btn=document.getElementById('camBaseBtn');if(!btn||!btn.parentElement)return;
+  const el=document.createElement('div');
+  el.id='camBaseMenu';
+  el.style.cssText='position:absolute;right:0;top:34px;z-index:1200;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 28px rgba(15,23,42,.18);padding:5px;min-width:250px;font-size:11.5px;';
+  const list=(window.CAFAP_TILE_PROVIDERS||[]);
+  el.innerHTML=list.map(p=>`<div class="base-opt${p.id===_camBaseMode?' base-opt-on':''}" onclick="s5_setMapBase('${p.id}')" style="padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;"><span>${p.name}</span>${p.id==='local'?`<span style="color:var(--text3);font-size:10px;">${window.CAFAP_MAP_TILES_COUNT||0} тайлов</span>`:(p.id==='scheme'?'':'<span style="color:var(--primary);font-size:10px;">нужен интернет</span>')}</div>`).join('');
+  el.addEventListener('click',e=>{ if(e.target.closest('.base-opt')) e.stopPropagation(); });
+  btn.parentElement.style.position='relative';
+  btn.parentElement.appendChild(el);
+  document.addEventListener('click',function h(e){ if(!el.contains(e.target)){el.remove();document.removeEventListener('click',h);} });
+  el.style.display='block';
+}
+function s5_closeBaseMenu(){const m=document.getElementById('camBaseMenu');if(m)m.remove();}
 function s5_camFocus(id){
   const m=window._camMarkers&&window._camMarkers[id];if(!m||!_camMap)return;
-  _camMap.flyTo(m.getLatLng(),Math.max(_camMap.getZoom(),12),{duration:.6});
-  setTimeout(()=>m.openPopup(),650);
+  const cont=document.getElementById('camMap');
+  if(!cont||!cont.isConnected)return;       /* карта уже свёрнута разделом */
+  try{_camMap.flyTo(m.getLatLng(),Math.max(_camMap.getZoom(),12),{duration:.6});}catch(e){}
+  setTimeout(()=>{try{m.openPopup();}catch(e){}},650);
   document.querySelectorAll('.cam-row').forEach(r=>r.style.background=r.dataset.id===id?'#E3F2FD':'');
   document.getElementById('camMap')&&document.getElementById('camMap').scrollIntoView({block:'nearest',behavior:'smooth'});
 }
@@ -866,15 +1130,16 @@ function s5_renderWanted(mc){
     </div>
 
     <!-- Реестр -->
-    <div class="card">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:240px;">
       <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Реестр разыскиваемых ТС</div>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;align-items:center;">
           <select style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;" onchange="">
             <option>Все статусы</option><option>В розыске</option><option>Обнаружено</option><option>Закрыто</option>
           </select>
+          <span style="font-size:11px;color:var(--text3);">${WANTED_LIST.length} записей · таблица прокручивается</span>
         </div>
       </div>
-      <div style="overflow-x:auto;">
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr><th>№ Карточки</th><th>Г/Н ТС</th><th>Марка/Модель</th><th>Основание</th><th>Дата внесения</th><th>Последнее фиксирование</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody>${WANTED_LIST.map((w,i)=>`<tr>
@@ -1015,8 +1280,8 @@ const GLOSSARY=[
 ];
 
 function s5_initQuest(){S5T.quest.done=[];S5T.quest.step=0;s5_updateQuestUI();s5_renderInstContent();}
-function s5_markQuest(idx){if(!S5T.quest.done.includes(idx)){S5T.quest.done.push(idx);s5_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
-function s5_nextQuest(){if(S5T.quest.step<QSTEPS.length-1){s5_markQuest(S5T.quest.step);S5T.quest.step++;s5_updateQuestUI();}else{toast('🎓 Этап 5 пройден! Переходите к Этапу 6.','success');s5_markQuest(S5T.quest.step);}}
+function s5_markQuest(idx){if(!S5T.quest.done.includes(idx)){S5T.quest.done.push(idx);syncQuestPointer(S5T.quest,QSTEPS.length);s5_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
+function s5_nextQuest(){if(S5T.quest.step<QSTEPS.length-1){s5_markQuest(S5T.quest.step);s5_updateQuestUI();}else{toast('🎓 Этап 5 пройден! Переходите к Этапу 6.','success');s5_markQuest(S5T.quest.step);}}
 function s5_restartQuest(){S5T.quest.done=[];S5T.quest.step=0;s5_updateQuestUI();toast('Квест перезапущен','info');}
 function s5_updateQuestUI(){
   const pct=Math.round((S5T.quest.done.length/S5T.quest.total)*100);
@@ -1090,6 +1355,17 @@ function toast(msg,type='info'){
   window.s5_quickReport = (typeof s5_quickReport!=="undefined") ? s5_quickReport : window.s5_quickReport;
   window.s5_generateReport = (typeof s5_generateReport!=="undefined") ? s5_generateReport : window.s5_generateReport;
   window.s5_downloadReport = (typeof s5_downloadReport!=="undefined") ? s5_downloadReport : window.s5_downloadReport;
+  window.s5_reportView = (typeof s5_reportView!=="undefined") ? s5_reportView : window.s5_reportView;
+  window.s5_reportDownload = (typeof s5_reportDownload!=="undefined") ? s5_reportDownload : window.s5_reportDownload;
+  window.s5_reportHTML = (typeof s5_reportHTML!=="undefined") ? s5_reportHTML : window.s5_reportHTML;
+  window.s5_printReport = (typeof s5_printReport!=="undefined") ? s5_printReport : window.s5_printReport;
+  window.s5_closeReportModal = (typeof s5_closeReportModal!=="undefined") ? s5_closeReportModal : window.s5_closeReportModal;
+  window.s5_setMapBase = (typeof s5_setMapBase!=="undefined") ? s5_setMapBase : window.s5_setMapBase;
+  window.REPORTS_LIST = REPORTS_LIST;
+  window.WANTED_LIST = WANTED_LIST;
+  window.s5_toggleMapBase = (typeof s5_toggleMapBase!=="undefined") ? s5_toggleMapBase : window.s5_toggleMapBase;
+  window.s5_updateBaseBtn = (typeof s5_updateBaseBtn!=="undefined") ? s5_updateBaseBtn : window.s5_updateBaseBtn;
+  window.s5_closeBaseMenu = (typeof s5_closeBaseMenu!=="undefined") ? s5_closeBaseMenu : window.s5_closeBaseMenu;
   window.s5_viewReport = (typeof s5_viewReport!=="undefined") ? s5_viewReport : window.s5_viewReport;
   window.s5_renderHeatmap = (typeof s5_renderHeatmap!=="undefined") ? s5_renderHeatmap : window.s5_renderHeatmap;
   window.s5_renderKPI = (typeof s5_renderKPI!=="undefined") ? s5_renderKPI : window.s5_renderKPI;
@@ -1116,6 +1392,7 @@ function toast(msg,type='info'){
   window.s5_updateQuestUI = (typeof s5_updateQuestUI!=="undefined") ? s5_updateQuestUI : window.s5_updateQuestUI;
   window.s5_switchInstTab = (typeof s5_switchInstTab!=="undefined") ? s5_switchInstTab : window.s5_switchInstTab;
   window.s5_renderInstContent = (typeof s5_renderInstContent!=="undefined") ? s5_renderInstContent : window.s5_renderInstContent;
+  window.s5_questSteps=QSTEPS;
   window.s5_toggleInst = (typeof s5_toggleInst!=="undefined") ? s5_toggleInst : window.s5_toggleInst;
   if(typeof S5T!=="undefined") window.S5T = S5T;
   window.clearLog=clearLog; window.s5_camFocus=s5_camFocus; window.s5_camMapFull=s5_camMapFull;

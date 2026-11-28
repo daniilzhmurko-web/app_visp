@@ -12,19 +12,33 @@ const root = path.resolve(__dirname, '..');
 const dataDir = path.join(root, 'data'), snapDir = path.join(root, 'assets', 'snapshots');
 fs.mkdirSync(dataDir, { recursive: true }); fs.mkdirSync(snapDir, { recursive: true });
 
+/* Растровые копии снимков (jpg/jpeg/png/webp). Если такая копия лежит рядом с SVG,
+   путь в базе фиксаций ведёт на неё — картинку можно заменить, не трогая базу.
+   Сделано: node tools/rasterize.js (SVG → JPG/PNG). */
+const RASTER_EXT = ['jpg', 'jpeg', 'png', 'webp'];
+function findRaster(stem) {
+  for (const e of RASTER_EXT) {
+    if (fs.existsSync(path.join(snapDir, stem + '.' + e))) return 'assets/snapshots/' + stem + '.' + e;
+  }
+  return null;
+}
+
 const db = build();
 const noSnap = process.argv.includes('--no-snap');
 /* 1) рисуем снимки (получаем геометрию объектов для рамок), 2) пишем базы */
 {
   const veh = new Map(db.fis_gibdd_m.tables.vehicles.map(v => [v.id, v]));
   const colors = {}; db.nsi.tables.colors.forEach(c => colors[c.name] = c.hex);
-  let total = 0;
+  let total = 0, rasterUsed = 0;
   for (const f of db.fixations.tables.fixations) {
     const r = renderSnapshot(f, veh.get(f.vehicleId), colors);
     f.geom = r.geom;
     if (!noSnap) { fs.writeFileSync(path.join(root, f.file), r.svg); total += r.svg.length; }
+    const raster = findRaster(path.basename(f.file, '.svg'));
+    if (raster) { f.svgFile = f.file; f.file = raster; f.raster = true; rasterUsed++; }
   }
-  if (!noSnap) console.log(`assets/snapshots: ${db.fixations.tables.fixations.length} SVG, ${(total / 1024 / 1024).toFixed(1)} MB`);
+  if (!noSnap) console.log(`assets/snapshots: ${db.fixations.tables.fixations.length} SVG, ${(total / 1024 / 1024).toFixed(1)} MB` +
+    (rasterUsed ? ` (из них ${rasterUsed} заменены растровыми копиями)` : ''));
 }
 const HEAD = (m) => `/* ${m.name} — учебная СИНТЕТИЧЕСКАЯ база данных. Все персоны, номера и документы вымышлены.\n   Сгенерировано: tools/build.js (seed=${m.seed}). Не редактируйте вручную — пересоберите командой node tools/build.js */\n`;
 

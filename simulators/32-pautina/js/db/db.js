@@ -4,7 +4,7 @@
    Файлы данных вызывают CAFAP_DB.register(имя, {meta, tables}); сайт работает
    без сервера (в том числе при открытии index.html двойным щелчком, file://).
    ═══════════════════════════════════════════════════════════════════════ */
-/* Доля реальных фото в очереди этапа 2, если они импортированы (0…1) */
+/* Доля фотографий (реальных или созданных ИИ) в очереди этапа 2, если они подключены (0…1) */
 var CAFAP_REAL_SHARE = 0.5;
 
 var CAFAP_DB = (function () {
@@ -67,13 +67,17 @@ var CAFAP_DB = (function () {
         ownerVehicles: owner ? (this.vehByOwner().get(owner.id) || []) : [],
       };
     },
-    /* Поиск для запроса «ФИС ГИБДД-М»: по номеру, VIN, ФИО, паспорту, ИНН. Возвращает массив карточек (до 25). */
+    /* Поиск для запроса «ФИС ГИБДД-М»: по номеру, VIN, ФИО, паспорту, ИНН, а также
+       по кузову / номеру двигателя / марке (запрос в АИПС). Возвращает массив карточек (до 25). */
     search(q) {
       q = q || {};
       const out = [];
       const add = v => { if (v && !out.some(c => c.vehicle.id === v.id) && out.length < 25) out.push(this.card(v)); };
       if (q.plate) { const p = normPlate(q.plate); const v = this.vehByPlate().get(p); if (v) add(v); else if (p.length >= 3) this.table('vehicles').some(x => { if (x.plate.startsWith(p) || x.plate.includes(p)) add(x); return out.length >= 25; }); }
       if (q.vin) { const vin = String(q.vin).toUpperCase().replace(/\s/g, ''); const v = this.vehByVin().get(vin); if (v) add(v); else if (vin.length >= 6) this.table('vehicles').some(x => { if (x.vin.includes(vin)) add(x); return out.length >= 25; }); }
+      if (q.engine) { const e = String(q.engine).toUpperCase().replace(/[\s-]/g, ''); if (e.length >= 3) this.table('vehicles').some(x => { if (String(x.engine || '').toUpperCase().includes(e)) add(x); return out.length >= 25; }); }
+      if (q.body) { const b = normText(q.body); if (b) this.table('vehicles').some(x => { if (normText(x.body) === b || normText(x.body).includes(b)) add(x); return out.length >= 25; }); }
+      if (q.model) { const m = normText(q.model); if (m.length >= 2) this.table('vehicles').some(x => { if (normText(x.make + ' ' + x.model).includes(m)) add(x); return out.length >= 25; }); }
       const text = normText(q.fio);
       if (text.length >= 3) {
         this.table('owners').some(o => {
@@ -92,7 +96,7 @@ var CAFAP_DB = (function () {
 
     /* Адаптеры под формат данных, который используют этапы тренажёра */
     simOwner(o) { return { fam: o.fam, im: o.im, ot: o.ot, born: o.born, pass: o.passport, inn: o.inn, addr: o.addr, zip: o.zip, reg: o.region, id: o.id }; },
-    simVehicle(v) { return { brand: v.make, model: v.model, color: v.color, year: v.year, vin: v.vin, body: v.body, plate: v.plate, id: v.id }; },
+    simVehicle(v) { return { brand: v.make, model: v.model, color: v.color, year: v.year, vin: v.vin, body: v.body, engine: v.engine || '', plate: v.plate, id: v.id }; },
 
     /* Пул ТС (только физлица) для генераторов этапов; сценарные номера гарантированно присутствуют */
     personVehicles() { return idx('personVehicles', () => this.table('vehicles').filter(v => { const o = this.ownerById().get(v.ownerId); return o && o.kind === 'person'; })); },
@@ -126,15 +130,24 @@ var CAFAP_DB = (function () {
 
   /* ───────── База фиксаций (снимки) ───────── */
   const fixations = {
-    all() { return table('fixations', 'fixations'); },
+    /* Фото из data/ai_photos.js (созданных в photo-studio.html) заменяют SVG-снимок той же записи фиксации */
+    all() {
+      const base = table('fixations', 'fixations');
+      const ai = dbs.ai_photos && dbs.ai_photos.tables.photos;
+      if (!ai || !ai.length) return base;
+      return idx('fixAI', () => {
+        const m = new Map(ai.map(a => [a.fixId, a]));
+        return base.map(f => { const a = m.get(f.id); return a ? Object.assign({}, f, { file: a.file, geom: a.geom || f.geom, aspect: a.aspect || f.aspect, ai: true, aiNote: a.note || '' }) : f; });
+      });
+    },
     get(id) { return idx('fixById', () => new Map(this.all().map(f => [f.id, f]))).get(id); },
     /* n случайных записей (с повторами, если n больше размера базы), с присоединённым ТС и комплексом */
     sample(n) {
       const all = this.all();
-      const real = all.filter(f => f.real), synth = all.filter(f => !f.real);
+      const real = all.filter(f => f.real || f.ai), synth = all.filter(f => !(f.real || f.ai));
       const take = (src, k) => { let pool = shuffle(src), out = []; while (out.length < k && src.length) { out = out.concat(pool.slice(0, k - out.length)); if (out.length < k) pool = shuffle(src); } return out; };
       /* если импортированы реальные фото — их доля в очереди задаётся CAFAP_REAL_SHARE (по умолчанию 50%) */
-      const nReal = real.length ? Math.round(n * (typeof CAFAP_REAL_SHARE === 'number' ? CAFAP_REAL_SHARE : .5)) : 0;
+      const nReal = real.length ? Math.min(Math.round(n * (typeof CAFAP_REAL_SHARE === 'number' ? CAFAP_REAL_SHARE : .5)), real.length * 2) : 0;   // каждое фото — не более 2 раз
       const chosen = shuffle(take(real, nReal).concat(take(synth, n - nReal)));
       return chosen.map(f => ({ fix: f, vehicle: fis.vehByPlate().get(f.plate), cam: fvf.get(f.camId) }));
     },

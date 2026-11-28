@@ -1,5 +1,7 @@
 'use strict';
-/* Процедурный генератор СИНТЕТИЧЕСКИХ снимков фиксации (вид сзади сверху, как у камер ЦАФАП).
+/* Процедурный генератор СИНТЕТИЧЕСКИХ снимков фиксации (вид СПЕРЕДИ сверху, как у камер ЦАФАП:
+   камера стоит над проезжей частью и фиксирует встречный поток, поэтому в кадре — передняя
+   часть автомобиля: капот, лобовое стекло, фары, решётка радиатора, бампер с номерным знаком).
    Это не фотографии: сцена рисуется вектором по параметрам (кузов, цвет, освещение, погода, состояние номера).
    Для замены на реальные изображения достаточно положить файл и указать его в поле `file` записи фиксации. */
 const { RNG } = require('./prng');
@@ -15,18 +17,30 @@ function shade(hex, k) { // k>0 светлее, k<0 темнее
 }
 function mix(a, b, t) { const A = hexToRgb(a), B = hexToRgb(b); return rgbToHex(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t); }
 
-/* геометрия кузовов: размеры в долях от ширины W=600 / высоты H */
+/* Геометрия передней части кузова. Доли высоты от земли:
+   face  — низ кузова (клиренс), hood — передняя кромка капота (верх передней плоскости),
+   cowl  — основание лобового стекла, glassTop — верх лобового стекла (низ крыши),
+   beltW — ширина кузова по плечам, roofW — ширина крыши, lampW — ширина фары (доля полуширины). */
 const BODY = {
-  sedan:   { w: 1.00, H: 472, roofW: .70, beltW: .965, beltY: .60, glassTop: .945, gTopW: .60, gBotW: .80, deck: true,  tailY: [.50, .63], tailW: .23, bumpTop: .335, ride: .19 },
-  hatch:   { w: 0.98, H: 486, roofW: .78, beltW: .96,  beltY: .55, glassTop: .965, gTopW: .70, gBotW: .84, deck: false, tailY: [.40, .62], tailW: .16, bumpTop: .335, ride: .20, spoiler: true, wiper: true },
-  wagon:   { w: 1.00, H: 500, roofW: .86, beltW: .975, beltY: .54, glassTop: .975, gTopW: .80, gBotW: .88, deck: false, tailY: [.34, .64], tailW: .12, bumpTop: .335, ride: .20, rails: true, wiper: true },
-  suv:     { w: 1.06, H: 572, roofW: .88, beltW: 1.0,  beltY: .53, glassTop: .965, gTopW: .80, gBotW: .90, deck: false, tailY: [.38, .66], tailW: .15, bumpTop: .365, ride: .25, rails: true, wiper: true, skid: true },
-  minivan: { w: 1.02, H: 600, roofW: .92, beltW: 1.0,  beltY: .50, glassTop: .965, gTopW: .84, gBotW: .92, deck: false, tailY: [.34, .68], tailW: .11, bumpTop: .335, ride: .21, wiper: true },
-  pickup:  { w: 1.06, H: 590, roofW: .74, beltY: .52, beltW: 1.0, glassTop: .975, gTopW: .50, gBotW: .56, deck: false, tailY: [.40, .54], tailW: .10, bumpTop: .335, ride: .27, bed: true },
-  van:     { w: 1.02, H: 720, roofW: .96, beltW: 1.0,  beltY: .56, glassTop: .955, gTopW: .38, gBotW: .40, deck: false, tailY: [.28, .66], tailW: .075, bumpTop: .30, ride: .20, doors: true },
-  truck:   { w: 1.14, H: 900, roofW: 1.0, beltW: 1.0,  beltY: .62, glassTop: .98, gTopW: .0, gBotW: .0, deck: false, tailY: [.24, .44], tailW: .07, bumpTop: .26, ride: .17, doors: true, box: true },
-  bus:     { w: 1.18, H: 800, roofW: 1.0, beltW: 1.0,  beltY: .50, glassTop: .965, gTopW: .84, gBotW: .88, deck: false, tailY: [.28, .60], tailW: .08, bumpTop: .26, ride: .17, box: true, big: true },
+  sedan:   { w: 1.00, H: 472, roofW: .70, beltW: .965, glassTop: .945, gTopW: .58, gBotW: .84, cowl: .660, hood: .420, face: .190, lampW: .27, grilleW: .56, kind: 'car' },
+  hatch:   { w: 0.98, H: 486, roofW: .78, beltW: .960, glassTop: .965, gTopW: .68, gBotW: .88, cowl: .620, hood: .400, face: .200, lampW: .23, grilleW: .58, kind: 'car', wiper: true },
+  wagon:   { w: 1.00, H: 500, roofW: .86, beltW: .975, glassTop: .975, gTopW: .80, gBotW: .92, cowl: .600, hood: .380, face: .200, lampW: .19, grilleW: .62, kind: 'car', wiper: true, rails: true },
+  suv:     { w: 1.06, H: 572, roofW: .88, beltW: 1.000, glassTop: .965, gTopW: .80, gBotW: .93, cowl: .590, hood: .410, face: .250, lampW: .21, grilleW: .64, kind: 'car', wiper: true, rails: true, skid: true },
+  minivan: { w: 1.02, H: 600, roofW: .92, beltW: 1.000, glassTop: .965, gTopW: .84, gBotW: .95, cowl: .560, hood: .390, face: .210, lampW: .17, grilleW: .68, kind: 'car', wiper: true },
+  pickup:  { w: 1.06, H: 590, roofW: .74, beltW: 1.000, glassTop: .975, gTopW: .52, gBotW: .60, cowl: .620, hood: .390, face: .240, lampW: .17, grilleW: .44, kind: 'car' },
+  van:     { w: 1.02, H: 720, roofW: .96, beltW: 1.000, glassTop: .955, gTopW: .74, gBotW: .84, cowl: .480, hood: .480, face: .200, lampW: .11, grilleW: .32, kind: 'box', wiper: true },
+  truck:   { w: 1.14, H: 900, roofW: 1.000, beltW: 1.000, glassTop: .980, gTopW: .74, gBotW: .88, cowl: .520, hood: .520, face: .170, lampW: .10, grilleW: .76, kind: 'box' },
+  bus:     { w: 1.18, H: 800, roofW: 1.000, beltW: 1.000, glassTop: .965, gTopW: .84, gBotW: .92, cowl: .470, hood: .470, face: .170, lampW: .09, grilleW: .80, kind: 'box', big: true },
 };
+
+/* Вертикальная разметка передней плоскости (доли высоты от земли) */
+function frontGeom(B) {
+  const fh = B.hood - B.face;                       // высота передней плоскости
+  const lampH = fh * .36, grilleH = fh * .22;
+  const lampTop = B.hood, lampBot = B.hood - lampH, grilleBot = lampBot - grilleH;
+  const plateC = (grilleBot + B.face) / 2;          // центр номерного знака
+  return { fh, lampH, grilleH, lampTop, lampBot, grilleBot, plateC };
+}
 
 /* ───────── номерной знак РФ ───────── */
 function plateSVG(plate, cond, night, rng) {
@@ -66,7 +80,10 @@ function plateSVG(plate, cond, night, rng) {
   return s + `</g>`;
 }
 
-/* ───────── автомобиль (вид сзади), локальные координаты: x — вправо, y — вверх отрицательные, 0 — земля ───────── */
+/* ───────── автомобиль (вид СПЕРЕДИ) ─────────
+   Камера ЦАФАП фиксирует встречный поток: в кадре — передняя часть автомобиля
+   (капот, лобовое стекло, фары, решётка радиатора, бампер с номером).
+   Локальные координаты: x — вправо, y — вверх отрицательные, 0 — земля. */
 function carSVG(o) {
   const B = BODY[o.body] || BODY.sedan;
   const cw = 600 * B.w, h = B.H;
@@ -75,95 +92,98 @@ function carSVG(o) {
   const Y = f => f1(-h * f);                         // доля высоты → y
   const hw = cw / 2;
   const rW = hw * B.roofW, bW = hw * B.beltW;
-  const beltY = Y(B.beltY), roofY = Y(1), gTop = Y(B.glassTop), bumpTop = Y(B.bumpTop), ride = Y(B.ride);
+  const roofY = Y(1), gTop = Y(B.glassTop), cowlY = Y(B.cowl), hoodY = Y(B.hood), faceY = Y(B.face);
+  const box = B.kind === 'box';
+  const cowlW = bW * (box ? .985 : .90);
+  const G = frontGeom(B);
+  const fh = Y(G.lampBot) - Y(G.lampTop);            // высота полосы фар (в px)
   let s = '';
   // тень на асфальте
-  s += `<ellipse cx="0" cy="6" rx="${f1(hw * 1.12)}" ry="${f1(26)}" fill="#000" opacity="${night ? .45 : .38}" filter="url(#fBlur6)"/>`;
+  s += `<ellipse cx="0" cy="6" rx="${f1(hw * 1.12)}" ry="26" fill="#000" opacity="${night ? .45 : .38}" filter="url(#fBlur6)"/>`;
   // колёса
   const tw = cw * .165;
   [-1, 1].forEach(sg => {
-    s += `<rect x="${f1(sg * hw * .80 - tw / 2)}" y="${f1(ride - 22)}" width="${f1(tw)}" height="${f1(-ride + 22)}" rx="14" fill="#0d0d0d"/>`;
-    s += `<rect x="${f1(sg * hw * .80 - tw / 2 + 6)}" y="${f1(ride - 16)}" width="${f1(tw - 12)}" height="10" rx="5" fill="#242424" opacity=".7"/>`;
+    s += `<rect x="${f1(sg * hw * .80 - tw / 2)}" y="${f1(faceY - 22)}" width="${f1(tw)}" height="${f1(-faceY + 22)}" rx="14" fill="#0d0d0d"/>`;
+    s += `<rect x="${f1(sg * hw * .80 - tw / 2 + 6)}" y="${f1(faceY - 16)}" width="${f1(tw - 12)}" height="10" rx="5" fill="#242424" opacity=".7"/>`;
   });
-  // основной корпус
-  const base = `M ${f1(-bW)} ${ride} L ${f1(-bW)} ${f1(beltY + 20)} Q ${f1(-bW)} ${beltY} ${f1(-bW + 14)} ${f1(beltY - 18)} L ${f1(-rW - 10)} ${f1(roofY + 24)} Q ${f1(-rW)} ${roofY} ${f1(-rW + 26)} ${roofY} L ${f1(rW - 26)} ${roofY} Q ${f1(rW)} ${roofY} ${f1(rW + 10)} ${f1(roofY + 24)} L ${f1(bW - 14)} ${f1(beltY - 18)} Q ${f1(bW)} ${beltY} ${f1(bW)} ${f1(beltY + 20)} L ${f1(bW)} ${ride} Z`;
+  // основной корпус — силуэт передней части
+  const base = `M ${f1(-bW)} ${f1(faceY)} L ${f1(-bW)} ${f1(hoodY + 26)} Q ${f1(-bW)} ${f1(hoodY)} ${f1(-bW + 16)} ${f1(hoodY)} L ${f1(-cowlW + 12)} ${f1(cowlY)} Q ${f1(-rW - 8)} ${f1(roofY + 26)} ${f1(-rW + 24)} ${f1(roofY)} L ${f1(rW - 24)} ${f1(roofY)} Q ${f1(rW + 8)} ${f1(roofY + 26)} ${f1(cowlW - 12)} ${f1(cowlY)} L ${f1(bW - 16)} ${f1(hoodY)} Q ${f1(bW)} ${f1(hoodY)} ${f1(bW)} ${f1(hoodY + 26)} L ${f1(bW)} ${f1(faceY)} Z`;
   s += `<path d="${base}" fill="${col}"/>`;
   s += `<path d="${base}" fill="url(#gBodyV)"/>`;
   s += `<path d="${base}" fill="url(#gBodyH)"/>`;
-  // стекло
-  if (B.gTopW > 0) {
-    const gtw = hw * B.gTopW, gbw = hw * B.gBotW, gb = f1(beltY - 6);
-    let gl = `M ${f1(-gbw)} ${gb} L ${f1(-gtw)} ${gTop} L ${f1(gtw)} ${gTop} L ${f1(gbw)} ${gb} Z`;
-    if (B.doors && !B.box) {              // фургон: два небольших окна в створках
-      [-1, 1].forEach(sg => { s += `<rect x="${f1(sg * hw * .46 - hw * .3 * .5)}" y="${f1(Y(.90))}" width="${f1(hw * .3)}" height="${f1(h * .24)}" rx="10" fill="url(#gGlass)"/>`; });
-    } else if (B.bed) {
-      s += `<path d="${gl}" fill="url(#gGlass)"/>`;
-    } else {
-      s += `<path d="${gl}" fill="#0c1218" stroke="${dark}" stroke-width="7" stroke-linejoin="round"/><path d="${gl}" fill="url(#gGlass)"/>`;
-      s += `<path d="M ${f1(-gtw * .7)} ${f1(gTop + 6)} L ${f1(-gtw * .15)} ${f1(gTop + 6)} L ${f1(-gbw * .42)} ${f1(gb - 4)} L ${f1(-gbw * .95)} ${f1(gb - 4)} Z" fill="#fff" opacity="${night ? .05 : .13}"/>`;
-      if (B.big) for (let i = -2; i <= 2; i++) s += `<line x1="${f1(i * gbw * .4)}" y1="${gTop}" x2="${f1(i * gbw * .4)}" y2="${gb}" stroke="${mid}" stroke-width="5"/>`;
-    }
-    if (B.wiper) s += `<path d="M ${f1(-gbw * .22)} ${f1(gb - 10)} L ${f1(gbw * .28)} ${f1(gb - 36)}" stroke="#05080b" stroke-width="3.2" stroke-linecap="round" opacity=".75"/>`;
-    if (B.spoiler) s += `<rect x="${f1(-gtw * 1.02)}" y="${f1(gTop - 9)}" width="${f1(gtw * 2.04)}" height="10" rx="5" fill="${dark}"/>`;
+  // лобовое стекло
+  const gtw = hw * B.gTopW, gbw = hw * B.gBotW;
+  const gBotY = f1(cowlY - 8);
+  const glass = `M ${f1(-gbw)} ${gBotY} L ${f1(-gtw)} ${f1(gTop)} L ${f1(gtw)} ${f1(gTop)} L ${f1(gbw)} ${gBotY} Z`;
+  s += `<path d="${glass}" fill="#0c1218" stroke="${dark}" stroke-width="7" stroke-linejoin="round"/>`;
+  s += `<path d="${glass}" fill="url(#gGlass)"/>`;
+  s += `<path d="M ${f1(-gtw * .72)} ${f1(gTop + 8)} L ${f1(-gtw * .16)} ${f1(gTop + 8)} L ${f1(gbw * .34)} ${f1(cowlY - 14)} L ${f1(gbw * .80)} ${f1(cowlY - 14)} Z" fill="#fff" opacity="${night ? .06 : .17}"/>`;
+  if (box) s += `<line x1="0" y1="${f1(gTop + 8)}" x2="0" y2="${gBotY - 4}" stroke="${mid}" stroke-width="6"/>`;
+  // дворники у основания лобового стекла
+  if (B.wiper) s += `<path d="M ${f1(-gbw * .34)} ${f1(cowlY - 4)} L ${f1(gbw * .14)} ${f1(cowlY - 42)}" stroke="#05080b" stroke-width="3.4" stroke-linecap="round" opacity=".8"/>`;
+  // коврик у основания лобового стекла (отделяет стекло от капота)
+  s += `<path d="M ${f1(-gbw - 4)} ${f1(cowlY - 2)} L ${f1(gbw + 4)} ${f1(cowlY - 2)} L ${f1(cowlW - 12)} ${f1(cowlY + 16)} L ${f1(-cowlW + 12)} ${f1(cowlY + 16)} Z" fill="#14161a" opacity=".55"/>`;
+  // капот
+  if (!box) {
+    const hood = `M ${f1(-cowlW + 12)} ${f1(cowlY + 12)} L ${f1(-bW + 16)} ${f1(hoodY)} L ${f1(bW - 16)} ${f1(hoodY)} L ${f1(cowlW - 12)} ${f1(cowlY + 12)} Z`;
+    s += `<path d="${hood}" fill="${light}" opacity=".85"/>`;
+    s += `<path d="${hood}" fill="url(#gHood)"/>`;
+    // блик на капоте (свет сверху)
+    s += `<path d="M ${f1(-cowlW * .72)} ${f1(cowlY + 16)} L ${f1(-bW * .55)} ${f1(hoodY + 8)} L ${f1(-bW * .12)} ${f1(hoodY + 8)} L ${f1(-cowlW * .18)} ${f1(cowlY + 16)} Z" fill="#fff" opacity="${night ? .07 : .26}"/>`;
+    // шов капота вдоль крыла
+    s += `<line x1="${f1(-bW + 18)}" y1="${f1(hoodY + 4)}" x2="${f1(-cowlW + 16)}" y2="${f1(cowlY + 14)}" stroke="${dark}" stroke-width="2.2" opacity=".5"/>`;
+    s += `<line x1="${f1(bW - 18)}" y1="${f1(hoodY + 4)}" x2="${f1(cowlW - 16)}" y2="${f1(cowlY + 14)}" stroke="${dark}" stroke-width="2.2" opacity=".5"/>`;
+    // кромка капота над решёткой
+    s += `<rect x="${f1(-bW * .96)}" y="${f1(hoodY - 2)}" width="${f1(bW * 1.92)}" height="5" rx="2" fill="#000" opacity=".28"/>`;
   }
-  // боковые зеркала (видны по краям на уровне низа стекла)
-  if (!B.box) [-1, 1].forEach(sg => {
-    const mx = sg * (bW + 14), my = beltY - 6;
-    s += `<rect x="${f1(mx - 15)}" y="${f1(my - 20)}" width="30" height="30" rx="10" fill="${shade(col, -.25)}"/><rect x="${f1(mx - 10)}" y="${f1(my - 14)}" width="20" height="18" rx="7" fill="#0b0e12" opacity=".8"/>`;
-  });
-  // крышка багажника / створки
-  if (B.deck) {
-    s += `<path d="M ${f1(-bW * .94)} ${f1(beltY - 2)} L ${f1(bW * .94)} ${f1(beltY - 2)} L ${f1(bW * .99)} ${f1(bumpTop - 4)} L ${f1(-bW * .99)} ${f1(bumpTop - 4)} Z" fill="${light}" opacity=".30"/>`;
-    s += `<line x1="${f1(-bW * .94)}" y1="${f1(beltY - 2)}" x2="${f1(-bW * .99)}" y2="${f1(bumpTop - 4)}" stroke="${dark}" stroke-width="2.2"/><line x1="${f1(bW * .94)}" y1="${f1(beltY - 2)}" x2="${f1(bW * .99)}" y2="${f1(bumpTop - 4)}" stroke="${dark}" stroke-width="2.2"/>`;
-  } else if (B.doors) {
-    s += `<line x1="0" y1="${f1(Y(.96))}" x2="0" y2="${f1(bumpTop - 4)}" stroke="${dark}" stroke-width="3"/>`;
-    [-1, 1].forEach(sg => { s += `<rect x="${f1(sg * 22 - 7)}" y="${f1(Y(.46))}" width="14" height="34" rx="4" fill="${dark}"/>`; });
-    if (!B.box) s += `<rect x="${f1(-bW * .95)}" y="${f1(Y(.96))}" width="${f1(bW * 1.9)}" height="${f1(-Y(.96) + bumpTop - 4)}" rx="8" fill="none" stroke="${dark}" stroke-width="2" opacity=".5"/>`;
-    else s += `<rect x="${f1(-bW * .96)}" y="${f1(Y(.98))}" width="${f1(bW * 1.92)}" height="${f1(-Y(.98) + bumpTop - 4)}" rx="4" fill="none" stroke="${dark}" stroke-width="3"/>`;
-  } else {
-    s += `<path d="M ${f1(-bW * .96)} ${f1(beltY + 4)} Q 0 ${f1(beltY - 10)} ${f1(bW * .96)} ${f1(beltY + 4)} L ${f1(bW * .99)} ${f1(bumpTop - 4)} L ${f1(-bW * .99)} ${f1(bumpTop - 4)} Z" fill="none" stroke="${dark}" stroke-width="2" opacity=".55"/>`;
-  }
-  if (B.bed) {   // пикап: борт кузова
-    s += `<rect x="${f1(-bW)}" y="${f1(Y(.58))}" width="${f1(bW * 2)}" height="${f1(-Y(.58) + bumpTop)}" rx="6" fill="${mid}"/><rect x="${f1(-bW)}" y="${f1(Y(.58))}" width="${f1(bW * 2)}" height="12" rx="5" fill="${light}" opacity=".5"/>`;
-    s += `<rect x="${f1(-bW * .96)}" y="${f1(Y(.52))}" width="${f1(bW * 1.92)}" height="8" fill="#0a0a0a" opacity=".5"/>`;
-  }
-  if (B.rails) {
-    [-1, 1].forEach(sg => { s += `<rect x="${f1(sg * rW * .94 - 6)}" y="${f1(roofY - 10)}" width="12" height="12" rx="4" fill="#15171a"/>`; });
-  }
-  // задние фонари
-  const tys = B.tailY.map(Y), tTop = Math.min(tys[0], tys[1]), tBot = Math.max(tys[0], tys[1]), tH = tBot - tTop, tw2 = hw * B.tailW * 2;
-  const braking = !!o.braking;
+  // боковые зеркала
   [-1, 1].forEach(sg => {
-    const xo = sg * (bW - 2), xi = sg * (bW - 2 - tw2);
-    const p = `M ${f1(xo)} ${f1(tTop)} L ${f1(xi)} ${f1(tTop + 4)} L ${f1(xi)} ${f1(tBot - 4)} L ${f1(xo)} ${f1(tBot)} Z`;
-    const q = `M ${f1(xo - sg * 3)} ${f1(tTop + 5)} L ${f1(xi + sg * 3)} ${f1(tTop + 9)} L ${f1(xi + sg * 3)} ${f1(tBot - 9)} L ${f1(xo - sg * 3)} ${f1(tBot - 5)} Z`;
-    s += `<path d="${p}" fill="#2a0707" stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"/>`;
-    s += `<path d="${q}" fill="${braking || night ? '#e0201f' : '#9c1414'}" opacity="${braking ? 1 : .9}" stroke-linejoin="round"/>`;
-    s += `<rect x="${f1(Math.min(xo, xi) + tw2 * (sg < 0 ? .08 : .46))}" y="${f1(tTop + tH * .18)}" width="${f1(tw2 * .44)}" height="${f1(tH * .22)}" rx="3" fill="#e69a1a" opacity=".9"/>`;
-    s += `<rect x="${f1(Math.min(xo, xi) + tw2 * .12)}" y="${f1(tTop + tH * .62)}" width="${f1(tw2 * .3)}" height="${f1(tH * .2)}" fill="#f4f4ee" opacity=".85"/>`;
-    if (braking || night) s += `<ellipse cx="${f1((xo + xi) / 2)}" cy="${f1((tTop + tBot) / 2)}" rx="${f1(tw2 * 1.4)}" ry="${f1(tH * 1.2)}" fill="url(#gGlow)" opacity="${braking ? .95 : .55}"/>`;
+    const mx = sg * (bW - 4), my = cowlY + 4;
+    s += `<path d="M ${f1(mx)} ${f1(my - 10)} L ${f1(mx + sg * 26)} ${f1(my - 14)} L ${f1(mx + sg * 26)} ${f1(my + 10)} L ${f1(mx)} ${f1(my + 12)} Z" fill="${shade(col, -.25)}"/>`;
+    s += `<rect x="${f1(mx + sg * 8)}" y="${f1(my - 10)}" width="18" height="16" rx="6" fill="#0b0e12" opacity=".85"/>`;
   });
+  // рейлинги на крыше
+  if (B.rails) [-1, 1].forEach(sg => { s += `<rect x="${f1(sg * rW * .90 - 6)}" y="${f1(roofY - 10)}" width="12" height="12" rx="4" fill="#15171a"/>`; });
+  // ── передняя плоскость: фары, решётка, бампер
+  const lampTop = Y(G.lampTop), lampBot = Y(G.lampBot), grilleTop = lampBot, grilleBot = Y(G.grilleBot);
+  const lw = hw * B.lampW * 2;
+  [-1, 1].forEach(sg => {
+    const xo = sg * bW * .985, xi = sg * (bW * .985 - lw);
+    const p = `M ${f1(xo)} ${f1(lampTop + 3)} L ${f1(xi)} ${f1(lampTop + 9)} L ${f1(xi)} ${f1(lampBot - 7)} L ${f1(xo)} ${f1(lampBot - 1)} Z`;
+    s += `<path d="${p}" fill="#0e1014" stroke="#05070a" stroke-width="2.5" stroke-linejoin="round"/>`;
+    const q = `M ${f1(xo - sg * 4)} ${f1(lampTop + 8)} L ${f1(xi + sg * 4)} ${f1(lampTop + 13)} L ${f1(xi + sg * 4)} ${f1(lampBot - 11)} L ${f1(xo - sg * 4)} ${f1(lampBot - 6)} Z`;
+    s += `<path d="${q}" fill="url(#gLamp)" opacity="${night ? 1 : .93}" stroke-linejoin="round"/>`;
+    s += `<rect x="${f1(Math.min(xo, xi) + lw * (sg < 0 ? .04 : .70))}" y="${f1(lampTop + 11)}" width="${f1(lw * .25)}" height="${f1(fh * .22)}" rx="2" fill="#e69a1a" opacity=".92"/>`;
+    if (night) s += `<ellipse cx="${f1((xo + xi) / 2)}" cy="${f1((lampTop + lampBot) / 2)}" rx="${f1(lw * .95)}" ry="${f1(fh * .42)}" fill="url(#gGlowW)" opacity=".85"/>`;
+  });
+  // решётка радиатора
+  const gi = hw * B.grilleW;
+  s += `<path d="M ${f1(-gi)} ${f1(grilleTop + 2)} L ${f1(gi)} ${f1(grilleTop + 2)} L ${f1(gi * .95)} ${f1(grilleBot - 2)} L ${f1(-gi * .95)} ${f1(grilleBot - 2)} Z" fill="#0b0d11" stroke="#05070a" stroke-width="2"/>`;
+  for (let i = 1; i < 4; i++) {
+    const yy = grilleTop + (grilleBot - grilleTop) * i / 4, k = 1 - i * .035;
+    s += `<line x1="${f1(-gi * k)}" y1="${f1(yy)}" x2="${f1(gi * k)}" y2="${f1(yy)}" stroke="#454b55" stroke-width="2.4" opacity=".75"/>`;
+  }
+  s += `<ellipse cx="0" cy="${f1((grilleTop + grilleBot) / 2)}" rx="${f1(gi * .13)}" ry="${f1(fh * .07)}" fill="#9aa3ae" opacity=".5"/>`;
   // бампер
-  const bumpBot = ride;
-  s += `<path d="M ${f1(-bW * 1.015)} ${f1(bumpBot)} L ${f1(-bW * 1.015)} ${f1(bumpTop + 10)} Q ${f1(-bW * 1.015)} ${f1(bumpTop - 4)} ${f1(-bW * .94)} ${f1(bumpTop - 4)} L ${f1(bW * .94)} ${f1(bumpTop - 4)} Q ${f1(bW * 1.015)} ${f1(bumpTop - 4)} ${f1(bW * 1.015)} ${f1(bumpTop + 10)} L ${f1(bW * 1.015)} ${f1(bumpBot)} Z" fill="${col}"/>`;
-  s += `<path d="M ${f1(-bW * 1.015)} ${f1(bumpBot)} L ${f1(-bW * 1.015)} ${f1(bumpTop + 10)} Q ${f1(-bW * 1.015)} ${f1(bumpTop - 4)} ${f1(-bW * .94)} ${f1(bumpTop - 4)} L ${f1(bW * .94)} ${f1(bumpTop - 4)} Q ${f1(bW * 1.015)} ${f1(bumpTop - 4)} ${f1(bW * 1.015)} ${f1(bumpTop + 10)} L ${f1(bW * 1.015)} ${f1(bumpBot)} Z" fill="url(#gBodyV)"/>`;
-  const lowH = (bumpBot - bumpTop) * .34;
-  s += `<path d="M ${f1(-bW * .99)} ${f1(bumpBot)} L ${f1(-bW * .99)} ${f1(bumpBot - lowH)} L ${f1(bW * .99)} ${f1(bumpBot - lowH)} L ${f1(bW * .99)} ${f1(bumpBot)} Z" fill="#17181b" opacity=".88"/>`;
-  if (B.skid) s += `<rect x="${f1(-bW * .55)}" y="${f1(bumpBot - lowH * 1.4)}" width="${f1(bW * 1.1)}" height="${f1(lowH * .7)}" rx="6" fill="#8a8d92" opacity=".7"/>`;
-  [-1, 1].forEach(sg => { s += `<rect x="${f1(sg * bW * .86 - 11)}" y="${f1(bumpTop + 16)}" width="22" height="9" rx="3" fill="#b3201f" opacity=".85"/>`; });
-  // выхлоп
-  s += `<ellipse cx="${f1(-bW * .62)}" cy="${f1(bumpBot - 10)}" rx="13" ry="7" fill="#050505"/><ellipse cx="${f1(-bW * .62)}" cy="${f1(bumpBot - 12)}" rx="9" ry="4" fill="#5b5b5b" opacity=".5"/>`;
-  // номер
-  const pc = (bumpTop + bumpBot) / 2 - (B.bumpTop > .33 ? 6 : 0);
+  const bumpTop = grilleBot, bumpBot = faceY;
+  const bumpPath = `M ${f1(-bW * 1.01)} ${f1(bumpBot)} L ${f1(-bW * 1.01)} ${f1(bumpTop + 9)} Q ${f1(-bW * 1.01)} ${f1(bumpTop - 3)} ${f1(-bW * .92)} ${f1(bumpTop - 3)} L ${f1(bW * .92)} ${f1(bumpTop - 3)} Q ${f1(bW * 1.01)} ${f1(bumpTop - 3)} ${f1(bW * 1.01)} ${f1(bumpTop + 9)} L ${f1(bW * 1.01)} ${f1(bumpBot)} Z`;
+  s += `<path d="${bumpPath}" fill="${col}"/>`;
+  s += `<path d="${bumpPath}" fill="url(#gBodyV)"/>`;
+  const lowH = (bumpBot - bumpTop) * .30;
+  s += `<rect x="${f1(-bW * .94)}" y="${f1(bumpBot - lowH)}" width="${f1(bW * 1.88)}" height="${f1(lowH)}" rx="5" fill="#15171b" opacity=".9"/>`;
+  if (B.skid) s += `<rect x="${f1(-bW * .52)}" y="${f1(bumpBot - lowH * 1.5)}" width="${f1(bW * 1.04)}" height="${f1(lowH * .7)}" rx="6" fill="#8a8d92" opacity=".65"/>`;
+  // номерной знак на бампере
+  const pc = Y(G.plateC);
   const pk = o.plateCond === 'angled' ? ` skewX(-6) rotate(-1.5)` : '';
-  s += `<g transform="translate(0 ${f1(pc - 3)})${pk}">${plateSVG(o.plate, o.plateCond, night, o.rng)}</g>`;
-  s += `<rect x="-62" y="${f1(pc - 38)}" width="124" height="6" rx="3" fill="#0e0e10" opacity=".5"/>`;
+  const pw = cw * .287, ph = pw * .215;
+  s += `<g transform="translate(0 ${f1(pc)})${pk} scale(${f1(pw / 172)})">${plateSVG(o.plate, o.plateCond, night, o.rng)}</g>`;
+  s += `<rect x="${f1(-pw * .38)}" y="${f1(pc - ph * .78)}" width="${f1(pw * .76)}" height="${f1(ph * .16)}" rx="3" fill="#0e0e10" opacity=".45"/>`;
   // блики кузова (глянец)
-  s += `<path d="M ${f1(-bW * .9)} ${f1(beltY + 14)} Q 0 ${f1(beltY - 8)} ${f1(bW * .9)} ${f1(beltY + 14)} L ${f1(bW * .92)} ${f1(beltY + 30)} Q 0 ${f1(beltY + 8)} ${f1(-bW * .92)} ${f1(beltY + 30)} Z" fill="#fff" opacity="${night ? .05 : .16}"/>`;
+  s += `<path d="M ${f1(-bW * .9)} ${f1(cowlY + 16)} Q 0 ${f1(cowlY - 6)} ${f1(bW * .9)} ${f1(cowlY + 16)} L ${f1(bW * .93)} ${f1(cowlY + 34)} Q 0 ${f1(cowlY + 10)} ${f1(-bW * .93)} ${f1(cowlY + 34)} Z" fill="#fff" opacity="${night ? .05 : .15}"/>`;
   return s;
 }
 
-/* упрощённая машинка на дальнем плане */
+/* упрощённая машинка на дальнем плане (встречный поток — видны фары) */
 function farCarSVG(x, y, sc, color, body) {
   const B = BODY[body] || BODY.sedan;
   const cw = 600 * B.w * sc, h = B.H * sc;
@@ -172,7 +192,7 @@ function farCarSVG(x, y, sc, color, body) {
     `<rect x="${f1(-cw * .5)}" y="${f1(-h * .56)}" width="${f1(cw)}" height="${f1(h * .40)}" rx="${f1(8 * sc * 3)}" fill="${col}"/>` +
     `<path d="M ${f1(-cw * .4)} ${f1(-h * .56)} L ${f1(-cw * .3)} ${f1(-h * .95)} L ${f1(cw * .3)} ${f1(-h * .95)} L ${f1(cw * .4)} ${f1(-h * .56)} Z" fill="${shade(col, -.08)}"/>` +
     `<path d="M ${f1(-cw * .32)} ${f1(-h * .6)} L ${f1(-cw * .26)} ${f1(-h * .9)} L ${f1(cw * .26)} ${f1(-h * .9)} L ${f1(cw * .32)} ${f1(-h * .6)} Z" fill="#0f1620"/>` +
-    `<rect x="${f1(-cw * .48)}" y="${f1(-h * .50)}" width="${f1(cw * .17)}" height="${f1(h * .1)}" fill="#c4261f"/><rect x="${f1(cw * .31)}" y="${f1(-h * .50)}" width="${f1(cw * .17)}" height="${f1(h * .1)}" fill="#c4261f"/>` +
+    `<rect x="${f1(-cw * .48)}" y="${f1(-h * .50)}" width="${f1(cw * .17)}" height="${f1(h * .1)}" fill="#f2f0e2" opacity=".95"/><rect x="${f1(cw * .31)}" y="${f1(-h * .50)}" width="${f1(cw * .17)}" height="${f1(h * .1)}" fill="#f2f0e2" opacity=".95"/>` +
     `<rect x="${f1(-cw * .46)}" y="${f1(-h * .2)}" width="${f1(cw * .92)}" height="${f1(h * .06)}" fill="${dark}"/><rect x="${f1(-cw * .1)}" y="${f1(-h * .36)}" width="${f1(cw * .2)}" height="${f1(h * .07)}" fill="#e9e9e4"/>` +
     `<rect x="${f1(-cw * .44)}" y="${f1(-h * .16)}" width="${f1(cw * .12)}" height="${f1(h * .16)}" fill="#0d0d0d"/><rect x="${f1(cw * .32)}" y="${f1(-h * .16)}" width="${f1(cw * .12)}" height="${f1(h * .16)}" fill="#0d0d0d"/></g>`;
 }
@@ -369,6 +389,9 @@ function renderSnapshot(fix, veh, colorHexByName) {
 <linearGradient id="gBodyH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset=".18" stop-color="#000" stop-opacity="0"/><stop offset=".82" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></linearGradient>
 <linearGradient id="gGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb3d4" stop-opacity="${night ? .08 : .34}"/><stop offset=".5" stop-color="#1a2735" stop-opacity=".55"/><stop offset="1" stop-color="#0b1119" stop-opacity=".75"/></linearGradient>
 <radialGradient id="gGlow"><stop offset="0" stop-color="#ff4a3a" stop-opacity=".95"/><stop offset=".45" stop-color="#ff3a2a" stop-opacity=".35"/><stop offset="1" stop-color="#ff2a1a" stop-opacity="0"/></radialGradient>
+<radialGradient id="gGlowW"><stop offset="0" stop-color="#fff6d8" stop-opacity=".95"/><stop offset=".5" stop-color="#ffe9b0" stop-opacity=".35"/><stop offset="1" stop-color="#ffe4a0" stop-opacity="0"/></radialGradient>
+<linearGradient id="gLamp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf2"/><stop offset=".45" stop-color="#f4f0dc"/><stop offset="1" stop-color="#d9d3b8"/></linearGradient>
+<linearGradient id="gHood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset=".45" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient>
 <linearGradient id="gRoadFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${skyB}" stop-opacity="${f1(.55 + haze * .4)}"/><stop offset=".25" stop-color="${skyB}" stop-opacity="${f1(.12 + haze * .3)}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
 <linearGradient id="gWet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfd8e6" stop-opacity=".0"/><stop offset=".5" stop-color="#cfd8e6" stop-opacity=".22"/><stop offset="1" stop-color="#cfd8e6" stop-opacity=".05"/></linearGradient>
 <linearGradient id="gFog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7dadd" stop-opacity=".75"/><stop offset=".6" stop-color="#d7dadd" stop-opacity=".42"/><stop offset="1" stop-color="#d7dadd" stop-opacity=".18"/></linearGradient>
@@ -402,7 +425,7 @@ function renderSnapshot(fix, veh, colorHexByName) {
   svg += weatherFX(o, rng);
   // ИК-подсветка: номер на ночных кадрах «выбит» бликом
   if (o.light === 'night') {
-    const pcl = (-B.H * B.bumpTop - B.H * B.ride) / 2 - (B.bumpTop > .33 ? 6 : 0) - 3;   // y номера в локальных координатах
+    const pcl = -B.H * frontGeom(B).plateC;   // y номера в локальных координатах
     svg += `<ellipse cx="${f1(xcar)}" cy="${f1(yc + pcl * s)}" rx="${f1(120 * s)}" ry="${f1(34 * s)}" fill="#fffbe8" opacity=".16" filter="url(#fBlur6)"/>`;
   }
   if (o.light === 'day' && o.weather === 'clear' && rng.chance(.4)) svg += `<ellipse cx="${rng.int(200, 1100)}" cy="${rng.int(10, 70)}" rx="260" ry="120" fill="#fff4cc" opacity=".12" filter="url(#fBlur6)"/>`;
@@ -412,16 +435,17 @@ function renderSnapshot(fix, veh, colorHexByName) {
   if (bright < 1) svg += `<rect width="${W}" height="${H}" fill="#000" opacity="${f1((1 - bright) * .35)}"/>`;
   svg += `</svg>`;
   /* геометрия объектов (доли кадра) — для рамок детектора и увеличенных кадров в «фотоматериале» */
-  const hwL = 600 * B.w / 2, bWL = hwL * B.beltW, tw2L = hwL * B.tailW * 2;
-  const tys = B.tailY.map(f => -B.H * f), tTopL = Math.min(tys[0], tys[1]), tBotL = Math.max(tys[0], tys[1]);
-  const bumpTopL = -B.H * B.bumpTop, bumpBotL = -B.H * B.ride;
-  const pcL = (bumpTopL + bumpBotL) / 2 - (B.bumpTop > .33 ? 6 : 0) - 3;
+  const hwL = 600 * B.w / 2, bWL = hwL * B.beltW, lwL = hwL * B.lampW * 2;
+  const GG = frontGeom(B);
+  const tTopL = -B.H * GG.lampTop, tBotL = -B.H * GG.lampBot;      // полоса фар
+  const pcL = -B.H * GG.plateC;                                    // номер
+  const plateW = 600 * B.w * .287, plateH = plateW * .215;
   const r4 = v => Math.round(v * 10000) / 10000;
   const box = (x0, y0, x1, y1) => [r4(Math.max(0, x0) / W), r4(Math.max(0, y0) / H), r4((Math.min(W, x1) - Math.max(0, x0)) / W), r4((Math.min(H, y1) - Math.max(0, y0)) / H)];
   const geom = {
     car: box(xcar - Wc2 / 2, yc - B.H * s, xcar + Wc2 / 2, yc),
-    plate: box(xcar - 86 * s, yc + (pcL - 18.5) * s, xcar + 86 * s, yc + (pcL + 18.5) * s),
-    lights: [box(xcar - (bWL - 2) * s, yc + tTopL * s, xcar - (bWL - 2 - tw2L) * s, yc + tBotL * s), box(xcar + (bWL - 2 - tw2L) * s, yc + tTopL * s, xcar + (bWL - 2) * s, yc + tBotL * s)],
+    plate: box(xcar - plateW / 2 * s, yc + (pcL - plateH / 2) * s, xcar + plateW / 2 * s, yc + (pcL + plateH / 2) * s),
+    lights: [box(xcar - (bWL - 2) * s, yc + tTopL * s, xcar - (bWL - 2 - lwL) * s, yc + tBotL * s), box(xcar + (bWL - 2 - lwL) * s, yc + tTopL * s, xcar + (bWL - 2) * s, yc + tBotL * s)],
   };
   return { svg, geom };
 }

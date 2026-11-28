@@ -287,10 +287,12 @@ function s3_renderSignedBlock(d){
           <div style="font-size:11px;margin-bottom:5px;">Дата и время: <strong class="mono">${d.date} ${d.signDate}</strong></div>
           <div style="font-size:11px;margin-bottom:10px;">Подписал: <strong>Петров Игорь Сергеевич</strong></div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn btn-p btn-sm" onclick="switchStage(4)"><i class="fas fa-envelope"></i> Отправить в Почту</button>
+            <button class="btn btn-p btn-sm" onclick="s3_goToStage4()"><i class="fas fa-envelope"></i> Отправить в Почту</button>
             <button class="btn btn-s btn-sm" onclick="s3_printDecision()"><i class="fas fa-print"></i> Печать</button>
             <button class="btn btn-s btn-sm" onclick="s3_showDecModal(S3T.selectedDec)"><i class="fas fa-eye"></i> Просмотр</button>
           </div>
+          ${(()=>{const left=QSTEPS.map((s,i)=>i).filter(i=>!ST_Q.done.includes(i)&&i<QSTEPS.length-1);
+            return left.length?`<div style="margin-top:8px;font-size:10.5px;color:var(--text2);"><i class="fas fa-circle-info"></i> Переход к Этапу 4 откроется после выполнения оставшихся шагов Этапа 3 (${left.length}).</div>`:'';})()}
         </div>
       </div>
     </div>
@@ -298,6 +300,34 @@ function s3_renderSignedBlock(d){
 }
 
 /* ACTIONS */
+/* Переход к Этапу 4 — только после выполнения всех шагов Этапа 3.
+   Раньше после подписания ЭЦП курсанта автоматически переносило на Этап 4,
+   минуя оставшиеся действия Этапа 3 (массовое подписание, печать, реестр, апелляции, архив). */
+function s3_goToStage4(){
+  const last=QSTEPS.length-1;
+  const left=QSTEPS.map((s,i)=>i).filter(i=>!ST_Q.done.includes(i)&&i!==last);
+  if(left.length){
+    syncQuestPointer(ST_Q,QSTEPS.length);
+    s3_updateQuestUI();
+    const ok=confirm('В Этапе 3 осталось невыполненных шагов: '+left.length+'.\n\n'
+      +'Следующее действие: «'+QSTEPS[left[0]].title+'».\n\n'
+      +'Перейти к Этапу 4 (Почта/ФССП) сейчас?');
+    if(!ok){
+      toast('Остаёмся в Этапе 3. Следующее действие — «'+QSTEPS[left[0]].title+'».','info');
+      return;
+    }
+  }
+  s3_markQuest(last);
+  switchStage(4);
+}
+/* Подсказка следующего шага Этапа 3 — остаёмся в этапе и показываем, что делать дальше. */
+function s3_nextStepHint(){
+  syncQuestPointer(ST_Q,QSTEPS.length);
+  s3_updateQuestUI();
+  const left=QSTEPS.map((s,i)=>i).filter(i=>!ST_Q.done.includes(i));
+  if(!left.length){toast('🎓 Этап 3 пройден! Можно переходить к Этапу 4 — Почта/ФССП.','success');return;}
+  toast(`Следующий шаг Этапа 3 (${left[0]+1}/${QSTEPS.length}): ${QSTEPS[left[0]].title}`,'info');
+}
 function s3_doSign(){
   if(!S3T.selectedDec)return;
   const btn=document.getElementById('signBtn');
@@ -356,7 +386,8 @@ function s3_runSignSequence(d){
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
           <button class="btn btn-s" onclick="closeModal('signModal');s3_renderSign(document.getElementById('mainContent3'))">Закрыть</button>
-          <button class="btn btn-p" onclick="closeModal('signModal');switchStage(4)"><i class="fas fa-envelope"></i> Перейти к отправке</button>
+          <button class="btn btn-p" onclick="closeModal('signModal');s3_nextStepHint()"><i class="fas fa-list-check"></i> Продолжить в Этапе 3</button>
+          <button class="btn btn-s btn-sm" onclick="closeModal('signModal');s3_goToStage4()"><i class="fas fa-envelope"></i> Перейти к Этапу 4</button>
         </div>`;
       // Обновляем счётчики
       const sq=document.getElementById('signedToday');if(sq)sq.textContent=parseInt(sq.textContent)+1;
@@ -737,7 +768,7 @@ function s3_showDecModal(d){
       <button class="btn btn-s" onclick="closeModal('decModal')">Закрыть</button>
       <button class="btn btn-s" onclick="toast('Печать постановления...','info')"><i class="fas fa-print"></i> Печать</button>
       ${d.status==='pending'?`<button class="btn btn-g" onclick="closeModal('decModal');s3_showSignModal(S3T.decisions.find(x=>x.id==='${d.id}'))"><i class="fas fa-signature"></i> Подписать ЭЦП</button>`:''}
-      ${d.status==='signed'?`<button class="btn btn-p" onclick="closeModal('decModal');switchStage(4)"><i class="fas fa-envelope"></i> Отправить</button>`:''}
+      ${d.status==='signed'?`<button class="btn btn-p" onclick="closeModal('decModal');s3_goToStage4()"><i class="fas fa-envelope"></i> Отправить</button>`:''}
     </div>`;
   document.getElementById('decModal').style.display='flex';
 }
@@ -779,8 +810,8 @@ const GLOSSARY=[
 ];
 const ST_Q=SPA_STATE.quest[3];
 function s3_initQuest(){ST_Q.done=[];ST_Q.step=0;s3_updateQuestUI();s3_renderInstContent();}
-function s3_markQuest(idx){if(!ST_Q.done.includes(idx)){ST_Q.done.push(idx);s3_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
-function s3_nextQuest(){if(ST_Q.step<QSTEPS.length-1){s3_markQuest(ST_Q.step);ST_Q.step++;s3_updateQuestUI();}else{toast('🎓 Этап 3 пройден! Переходите к Этапу 4.','success');s3_markQuest(ST_Q.step);}}
+function s3_markQuest(idx){if(!ST_Q.done.includes(idx)){ST_Q.done.push(idx);syncQuestPointer(ST_Q,QSTEPS.length);s3_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
+function s3_nextQuest(){if(ST_Q.step<QSTEPS.length-1){s3_markQuest(ST_Q.step);s3_updateQuestUI();}else{toast('🎓 Этап 3 пройден! Переходите к Этапу 4.','success');s3_markQuest(ST_Q.step);}}
 function s3_restartQuest(){ST_Q.done=[];ST_Q.step=0;s3_updateQuestUI();toast('Квест перезапущен','info');}
 function s3_updateQuestUI(){
   const pct=Math.round((ST_Q.done.length/ST_Q.total)*100);
@@ -875,6 +906,9 @@ function toast(msg,type='info'){
   window.s3_updateQuestUI = (typeof s3_updateQuestUI!=="undefined") ? s3_updateQuestUI : window.s3_updateQuestUI;
   window.s3_switchInstTab = (typeof s3_switchInstTab!=="undefined") ? s3_switchInstTab : window.s3_switchInstTab;
   window.s3_renderInstContent = (typeof s3_renderInstContent!=="undefined") ? s3_renderInstContent : window.s3_renderInstContent;
+  window.s3_questSteps=QSTEPS;
+  window.s3_goToStage4 = (typeof s3_goToStage4!=="undefined") ? s3_goToStage4 : window.s3_goToStage4;
+  window.s3_nextStepHint = (typeof s3_nextStepHint!=="undefined") ? s3_nextStepHint : window.s3_nextStepHint;
   window.s3_toggleInst = (typeof s3_toggleInst!=="undefined") ? s3_toggleInst : window.s3_toggleInst;
   if(typeof S3T!=="undefined") window.S3T = S3T;
   window.s3_badges=function(){return {sign:S3T.decisions.filter(d=>d.status==='pending').length,decisions:S3T.decisions.length,appeals:APPEALS_DATA.length};};

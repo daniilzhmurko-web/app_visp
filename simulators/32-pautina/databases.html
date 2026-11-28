@@ -53,6 +53,8 @@ tr:hover td{background:#F8FBFF}
 <header>
   <img src="assets/img/logo-cafan-sm.png" alt="ЦАФАН">
   <h1><i class="fas fa-database"></i> Учебные базы данных тренажёра</h1>
+  <a href="manual.html"><i class="fas fa-book-open"></i> Руководство</a>
+  <a href="photo-studio.html"><i class="fas fa-wand-magic-sparkles"></i> Студия фото</a>
   <a href="index.html"><i class="fas fa-arrow-left"></i> К тренажёру</a>
 </header>
 <div class="wrap">
@@ -71,6 +73,7 @@ tr:hover td{background:#F8FBFF}
 <div id="lightbox" onclick="this.style.display='none'"><img id="lbimg" alt=""><div class="cap" id="lbcap"></div></div>
 
 <script src="js/db/db.js"></script>
+<script src="js/core/snapshot.js"></script>
 <script src="data/nsi.js"></script>
 <script src="data/fvf_complexes.js"></script>
 <script src="data/fis_gibdd_m.js"></script>
@@ -78,12 +81,13 @@ tr:hover td{background:#F8FBFF}
 <script src="data/fssp.js"></script>
 <script src="data/fixations.js"></script>
 <script src="data/photos.js"></script>
+<script src="data/ai_photos.js"></script>
 <script>
 (function(){
-  const ORDER=['fis_gibdd_m','fixations','gis_gmp','fssp','fvf_complexes','nsi','photos'];
-  const ICON={photos:'fa-image',fis_gibdd_m:'fa-id-card',fixations:'fa-camera',gis_gmp:'fa-ruble-sign',fssp:'fa-gavel',fvf_complexes:'fa-video',nsi:'fa-book'};
+  const ORDER=['fis_gibdd_m','fixations','gis_gmp','fssp','fvf_complexes','nsi','photos','ai_photos'];
+  const ICON={ai_photos:'fa-wand-magic-sparkles',photos:'fa-image',fis_gibdd_m:'fa-id-card',fixations:'fa-camera',gis_gmp:'fa-ruble-sign',fssp:'fa-gavel',fvf_complexes:'fa-video',nsi:'fa-book'};
   const TN={owners:'Владельцы',licenses:'Водительские удостоверения',vehicles:'Транспортные средства',wanted:'Розыск',restrictions:'Ограничения',charges:'Начисления',proceedings:'Исполнительные производства',complexes:'Комплексы ФВФ',fixations:'Фиксации (снимки)',regions:'Регионы',koap_articles:'Статьи КоАП',colors:'Цвета',body_types:'Типы кузовов',vehicle_models:'Марки и модели',plate_letters:'Буквы номеров',fvf_types:'Типы комплексов',payment_status:'Статусы оплаты'};
-  const COLRU={id:'ID',kind:'Тип',fam:'Фамилия',im:'Имя',ot:'Отчество',sex:'Пол',born:'Дата рожд.',passport:'Паспорт',inn:'ИНН',phone:'Телефон',addr:'Адрес',zip:'Индекс',region:'Регион',scenario:'Сценар.',ownerId:'Владелец',number:'Номер',categories:'Категории',issued:'Выдано',expires:'Действует до',status:'Статус',plate:'Госномер',vin:'VIN',make:'Марка',model:'Модель',body:'Кузов',category:'Кат.',year:'Год',color:'Цвет',power:'Мощн.',sts:'СТС',pts:'ПТС',regDate:'Дата рег.',regStatus:'Учёт',osago:'ОСАГО',techInspectionUntil:'ТО до',wanted:'Розыск',restricted:'Огранич.',vehicleId:'ТС',reason:'Причина',dateAdded:'Дата',lastSeen:'Последнее наблюдение',brand:'ТС',type:'Тип',authority:'Орган',basis:'Основание',date:'Дата',file:'Снимок',ocrPlate:'OCR прочитал',ocrConf:'OCR %',camId:'Камера',article:'Статья',speed:'Скорость',limit:'Лимит',lane:'Полоса',scene:'Сцена',uin:'УИН',decisionNo:'Постановление',amount:'Штраф',amountDue:'К оплате',paidAt:'Оплачено',payDeadline:'Срок оплаты',ipNo:'№ ИП',debt:'Долг',stage:'Стадия',bailiff:'Пристав',started:'Начато',district:'Округ',lat:'Широта',lon:'Долгота',modelFull:'Модель (полн.)',poverkaNo:'Поверка №',poverkaUntil:'Поверка до',stc:'СТС комплекса',violations24h:'Нарушений/24ч',speedLimit:'Огр. скорости',lanes:'Полос',installedAt:'Установлен',name:'Название',code:'Код',fine:'Штраф',speed_:'Скорость',overMin:'Превыш. от',overMax:'Превыш. до',hex:'HEX',wmi:'WMI',yearFrom:'С',yearTo:'По',accuracy:'Точность',kind_:'Назначение'};
+  const COLRU={photos:'Фото',fixId:'Запись фиксации',note:'Примечание',id:'ID',kind:'Тип',fam:'Фамилия',im:'Имя',ot:'Отчество',sex:'Пол',born:'Дата рожд.',passport:'Паспорт',inn:'ИНН',phone:'Телефон',addr:'Адрес',zip:'Индекс',region:'Регион',scenario:'Сценар.',ownerId:'Владелец',number:'Номер',categories:'Категории',issued:'Выдано',expires:'Действует до',status:'Статус',plate:'Госномер',vin:'VIN',make:'Марка',model:'Модель',body:'Кузов',category:'Кат.',year:'Год',color:'Цвет',power:'Мощн.',sts:'СТС',pts:'ПТС',regDate:'Дата рег.',regStatus:'Учёт',osago:'ОСАГО',techInspectionUntil:'ТО до',wanted:'Розыск',restricted:'Огранич.',vehicleId:'ТС',reason:'Причина',dateAdded:'Дата',lastSeen:'Последнее наблюдение',brand:'ТС',type:'Тип',authority:'Орган',basis:'Основание',date:'Дата',file:'Снимок',ocrPlate:'OCR прочитал',ocrConf:'OCR %',camId:'Камера',article:'Статья',speed:'Скорость',limit:'Лимит',lane:'Полоса',scene:'Сцена',uin:'УИН',decisionNo:'Постановление',amount:'Штраф',amountDue:'К оплате',paidAt:'Оплачено',payDeadline:'Срок оплаты',ipNo:'№ ИП',debt:'Долг',stage:'Стадия',bailiff:'Пристав',started:'Начато',district:'Округ',lat:'Широта',lon:'Долгота',modelFull:'Модель (полн.)',poverkaNo:'Поверка №',poverkaUntil:'Поверка до',stc:'СТС комплекса',violations24h:'Нарушений/24ч',speedLimit:'Огр. скорости',lanes:'Полос',installedAt:'Установлен',name:'Название',code:'Код',fine:'Штраф',speed_:'Скорость',overMin:'Превыш. от',overMax:'Превыш. до',hex:'HEX',wmi:'WMI',yearFrom:'С',yearTo:'По',accuracy:'Точность',kind_:'Назначение'};
   const PAGE=50;
   let cur={db:null,t:null},rows=[],view=[],page=0,haystack=null;
   const $=id=>document.getElementById(id);
@@ -97,7 +101,7 @@ tr:hover td{background:#F8FBFF}
   function cell(k,v){
     if(v===null||v===undefined||v==='')return '<span style="color:#aab">—</span>';
     if(k==='plate'||k==='ocrPlate')return `<span class="plate">${esc(v)}</span>`;
-    if(k==='file')return `<img class="thumb" loading="lazy" src="${esc(v)}" alt="" onclick="lb('${esc(v)}','${esc(v)}')">`;
+    if(k==='file')return `<img class="thumb" loading="lazy" ${CAFAP_SNAP.imgAttrs(v,'')} onclick="lb(CAFAP_SNAP.workingSrc(this),'${esc(v)}')">`;
     if(k==='scene')return `<span class="mono">${esc(v.light)}/${esc(v.weather)}/${esc(v.road)}/${esc(v.plateCond)}</span>`;
     if(k==='osago')return v.status==='valid'?`<span class="ok">до ${esc(v.until)}</span>`:v.status==='none'?'<span class="bad">нет</span>':`<span class="bad">истёк ${esc(v.until)}</span>`;
     if(k==='wanted'||k==='restricted'||k==='scenario')return v?'<span class="bad">да</span>':'нет';

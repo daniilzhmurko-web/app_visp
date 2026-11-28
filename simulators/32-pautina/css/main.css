@@ -8,10 +8,11 @@
   --primary-lighter:#E3F2FD;--primary-xs:#F0F7FF;
   --secondary:#1A237E;--accent:#F57C00;--accent-red:#C62828;
   --success:#2E7D32;--warning:#F9A825;--purple:#6A1B9A;
+  --post:#C62828; /* фирменный цвет Почты России — используется кнопками «Отправить» и штампом письма */
   --surface:#FFFFFF;--bg:#EEF2F7;--bg2:#DDE4EF;
   --border:#C5D0E0;--border2:#E2E8F0;
   --text:#1A2332;--text2:#546E7A;--text3:#90A4AE;
-  --sidebar:220px;--header:52px;--inst:220px;
+  --sidebar:220px;--header:52px;--inst:248px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100dvh;width:100vw;}
@@ -139,7 +140,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .role-ana{background:rgba(76,175,80,.3);color:#A5D6A7;}
 
 /* Body */
-.app-body{display:flex;flex:1;overflow:hidden;min-height:0;padding-bottom:var(--inst);}
+.app-body{display:flex;flex:1;overflow:hidden;min-height:0;padding-bottom:var(--inst-space,var(--inst));}
 
 /* Sidebar */
 .sidebar{
@@ -807,8 +808,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .btn-g:hover{background:#1B5E20;}
 .btn-w{background:var(--accent);color:#fff;}
 .btn-w:hover{background:#E65100;}
-.btn-post{background:var(--post);color:#fff;}
-.btn-post:hover{background:#B71C1C;}
+.btn-post{background:var(--post,#C62828);color:#fff;border-color:var(--post,#C62828);}
+.btn-post:hover{background:#B71C1C;border-color:#B71C1C;}
 .btn-sm{padding:4px 9px;font-size:11px;}
 .btn-lg{padding:10px 20px;font-size:13.5px;}
 .btn:disabled{opacity:.5;cursor:not-allowed;}
@@ -857,7 +858,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .barcode-space{width:2px;background:transparent;}
 .letter-stamp{
   position:absolute;top:10px;right:10px;
-  border:2px solid var(--post);color:var(--post);
+  border:2px solid var(--post,#C62828);color:var(--post,#C62828);
   padding:4px 8px;font-size:9px;font-weight:700;
   border-radius:3px;transform:rotate(-5deg);
   text-transform:uppercase;letter-spacing:1px;
@@ -1168,7 +1169,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .ac-part{background:#FFF3E0;color:var(--accent);}
 
 /* CERT STYLES */
-.cert-container{background:linear-gradient(135deg,#0D47A1 0%,#1565C0 40%,#1976D2 70%,#0D47A1 100%);border-radius:16px;padding:30px 36px;color:#fff;position:relative;overflow:hidden;}
+.cert-container{background:linear-gradient(135deg,#0D47A1 0%,#1565C0 40%,#1976D2 70%,#0D47A1 100%);border-radius:16px;padding:30px 36px;color:#fff;position:relative;overflow:hidden;flex:0 0 auto;}
 .cert-container::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05);}
 .cert-container::after{content:'';position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04);}
 .cert-seal{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:32px;}
@@ -1272,7 +1273,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 /* ===== ФИКС: панель заданий всегда видна ===== */
 @media (max-height: 700px) {
-  :root { --inst: 200px; }
+  :root { --inst: 214px; }
   #instPanel { max-height: 45vh; }
 }
 
@@ -1320,3 +1321,47 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .ring-label{background:transparent;border:none;box-shadow:none;color:#6A7F99;font-weight:700;font-size:10.5px;letter-spacing:.5px}
 .ring-label:before{display:none}
 .cam-full{position:fixed!important;inset:10px!important;z-index:4000;flex:none!important;height:auto!important;box-shadow:0 10px 50px rgba(0,0,0,.5)}
+
+/* Таблицы этапа 4: шапка и колонка действий не уезжают за край окна */
+.tbl-scroll table.data-table{min-width:900px}
+.tbl-scroll table.data-table th.fssp-act,.tbl-scroll table.data-table td.fssp-act{position:sticky;right:0;background:#fff;box-shadow:-4px 0 8px rgba(15,23,42,.07)}
+.tbl-scroll table.data-table th.fssp-act{z-index:4}
+.tbl-scroll table.data-table tr:hover td.fssp-act{background:var(--primary-xs)}
+
+/* ── Общие правки раскладки (2026-11-23) ──────────────────────────────────
+   1) Карточка в вертикальной колонке не сжимается по высоте — иначе нижние
+      кнопки (поиск, фильтры) обрезаются краем карточки.
+   2) Таблицы в ограниченной по высоте карточке прокручиваются внутри,
+      шапка таблицы закреплена, ползунок заметный. */
+div[style*="flex-direction:column"] > .card{flex-shrink:0}
+
+.tbl-scroll{overflow:auto;min-height:0}
+/* Тень-подсказка: если в таблице есть строки ниже/выше — по краю появляется мягкая тень,
+   так пользователь видит, что область прокручивается (работает и с «наложенными» ползунками) */
+.tbl-scroll{
+  background:
+    linear-gradient(#fff 30%, rgba(255,255,255,0)) top/100% 22px no-repeat local,
+    linear-gradient(rgba(255,255,255,0), #fff 72%) bottom/100% 22px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(15,23,42,.22), rgba(15,23,42,0)) top/100% 13px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(15,23,42,.22), rgba(15,23,42,0)) bottom/100% 13px no-repeat scroll;
+  background-color:#fff;
+}
+.tbl-scroll table.data-table{border-collapse:separate;border-spacing:0}
+.tbl-scroll table.data-table th{position:sticky;top:0;z-index:3;background:#F8FAFF;box-shadow:inset 0 -1px 0 var(--border)}
+.tbl-scroll::-webkit-scrollbar{width:11px;height:11px}
+.tbl-scroll::-webkit-scrollbar-track{background:#F1F5F9;border-radius:6px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:#B6C2D2;border-radius:6px;border:2px solid #F1F5F9}
+.tbl-scroll::-webkit-scrollbar-thumb:hover{background:#8FA3BA}
+.tbl-scroll{scrollbar-width:thin;scrollbar-color:#B6C2D2 #F1F5F9}
+
+/* Карточка-таблица: растягивается, область таблицы прокручивается */
+.card.tbl-card{display:flex;flex-direction:column;min-height:0}
+.card.tbl-card > .card-hdr{flex-shrink:0}
+.card.tbl-card > .card-body.tbl-scroll{flex:1 1 auto;min-height:0;padding:0}
+
+/* Баннер ФССП не сжимается — иначе нижняя подпись обрезается */
+.fssp-card{flex-shrink:0}
+
+/* Меню выбора подложки карты */
+.base-opt:hover{background:#F1F6FD}
+.base-opt-on{background:var(--primary-xs);color:var(--primary);font-weight:700}

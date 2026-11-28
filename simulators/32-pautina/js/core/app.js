@@ -19,7 +19,7 @@ const SPA_QSTEPS={
     {title:'Проверка камер',text:'Откройте <strong>«Камеры ФВФ»</strong> в боковом меню.'},
     {title:'Журнал аудита',text:'Найдите запись со статусом «Отказано».'},
     {title:'Очередь нарушений',text:'Нажмите кнопку 👁 на любом деле.'},
-    {title:'Поиск дела',text:'Нажмите «Поиск дела» и введите данные.'},
+    {title:'Поиск дела',text:'Нажмите «Поиск дела» и найдите дело по номеру, г/н или ФИО (в окне поиска есть готовые примеры).'},
     {title:'Запрос ФИС',text:'Нажмите «Запрос ФИС ГИБДД-М» в быстрых действиях.'},
     {title:'Уведомления',text:'Изучите 3 активных уведомления в правой панели.'},
     {title:'Статус подсистем',text:'Найдите подсистему со статусом «ЗАДЕРЖКА».'},
@@ -88,7 +88,7 @@ const SPA_QSTEPS={
     {title:'Создание',text:'Нажмите «Создать пользователя».'},
     {title:'Права',text:'Измените право в матрице ролей.'},
     {title:'Регионы',text:'Нажмите на карточку региона.'},
-    {title:'НСИ',text:'Нажмите «Синхр. с МВД».'},
+    {title:'НСИ',text:'Нажмите «Синхр. с ФБД МВД».'},
     {title:'Аудит',text:'Найдите записи с результатом «Отказано».'},
     {title:'Настройки',text:'Измените порог OCR и сохраните.'},
     {title:'Бэкап',text:'Запустите резервное копирование.'},
@@ -442,6 +442,8 @@ function initSPAApp(){
   _stageTimerMark=Date.now();
   startSpaTimer();
   switchStage(1);
+  syncInstSpace();
+  window.addEventListener('resize',()=>{syncInstSpace();});
   setTimeout(()=>spa_toast('Добро пожаловать, '+uname+'! ЦАФАП SPA загружен.','success'),700);
 }
 function doLogout(){
@@ -560,6 +562,21 @@ function toast(msg,type='info'){spa_toast(msg,type);}
 function closeModal(id){const el=document.getElementById(id);if(el)el.style.display='none';}
 
 /* ---- QUEST ---- */
+/* Единый источник описаний шагов: если этап экспортировал свои QSTEPS (s{n}_questSteps) —
+   берём их (они подробнее), иначе — общий справочник SPA_QSTEPS. */
+function spaQuestSteps(n){
+  const ex=window['s'+n+'_questSteps'];
+  if(Array.isArray(ex)&&ex.length)return ex;
+  return SPA_QSTEPS[n]||[];
+}
+/* Текущий шаг = первый ещё не выполненный. Без этого указатель «застревал» на уже сделанном
+   шаге: пояснение в панели заданий выглядело как откат назад, а прогресс выглядел сброшенным. */
+function syncQuestPointer(q,total){
+  if(!q)return;
+  const n=total||q.total||12;
+  for(let i=0;i<n;i++){ if(!q.done.includes(i)){q.step=i;return;} }
+  q.step=Math.max(0,n-1);
+}
 function spa_markQuest(idx){
   const n=SPA_STATE.currentStage;
   const _sf=window['s'+n+'_markQuest'];
@@ -567,7 +584,8 @@ function spa_markQuest(idx){
   const q=SPA_STATE.quest[n];
   if(!q.done.includes(idx)){
     q.done.push(idx);
-    const steps=SPA_QSTEPS[n]||[];
+    const steps=spaQuestSteps(n);
+    syncQuestPointer(q,steps.length);
     updateSpaQuestUI();
     spa_toast(`✅ Шаг ${idx+1}: ${steps[idx]?.title||''}!`,'success');
   }
@@ -577,8 +595,8 @@ function spa_nextQuest(){
   const n=SPA_STATE.currentStage;const q=SPA_STATE.quest[n];
   const _nf=window['s'+n+'_nextQuest'];
   if(typeof _nf==='function'){_nf();updateSpaQuestUI();return;}
-  const steps=SPA_QSTEPS[n]||[];
-  if(q.step<steps.length-1){spa_markQuest(q.step);q.step++;updateSpaQuestUI();}
+  const steps=spaQuestSteps(n);
+  if(q.step<steps.length-1){spa_markQuest(q.step);}
   else{spa_toast('🎓 Этап '+n+' пройден! Переходите к следующему.','success');spa_markQuest(q.step);}
 }
 function spa_restartQuest(){
@@ -591,7 +609,7 @@ function spa_restartQuest(){
 }
 function updateSpaQuestUI(){
   const n=SPA_STATE.currentStage;const q=SPA_STATE.quest[n];
-  const steps=SPA_QSTEPS[n]||[];
+  const steps=spaQuestSteps(n);
   const pct=Math.round((q.done.length/Math.max(steps.length,1))*100);
   const el=document.getElementById('questPct');if(el)el.textContent=pct+'%';
   const pf=document.getElementById('instProgFill');if(pf)pf.style.width=pct+'%';
@@ -607,7 +625,7 @@ function renderSpaInstContent(){
   const body=document.getElementById('instBody');if(!body)return;
   const tab=SPA_STATE.instTab||'mission';
   const n=SPA_STATE.currentStage;const q=SPA_STATE.quest[n];
-  const steps=SPA_QSTEPS[n]||[];const cur=q.step||0;
+  const steps=spaQuestSteps(n);const cur=q.step||0;
   if(tab==='mission'){
     body.innerHTML=`<div>
       <div style="font-size:11.5px;font-weight:700;color:var(--primary);margin-bottom:7px;">📋 ЭТАП ${n}: ${SPA_DESCS[n]}</div>
@@ -629,7 +647,7 @@ function renderSpaInstContent(){
   }else if(tab==='progress'){
     let rows='';
     for(let i=1;i<=6;i++){
-      const qi=SPA_STATE.quest[i];const si=SPA_QSTEPS[i]||[];
+      const qi=SPA_STATE.quest[i];const si=spaQuestSteps(i);
       const pi=Math.round((qi.done.length/Math.max(si.length,1))*100);
       rows+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
         <span style="font-size:11px;width:56px;color:${i===n?'var(--primary)':'var(--text2)'};">${i===n?'▶ ':''} Эт.${i}</span>
@@ -644,6 +662,9 @@ function renderSpaInstContent(){
   }else if(tab==='glossary'){
     body.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:5px;">${SPA_GLOSSARY.map(g=>`<div style="padding:4px 9px;background:#F8FAFF;border-radius:4px;border:1px solid var(--border2);"><span style="font-size:11px;font-weight:700;color:var(--primary);">${g.t}</span><span style="font-size:10px;color:var(--text2);margin-left:4px;">— ${g.d}</span></div>`).join('')}</div>`;
   }
+  /* Высота панели заданий меняется вместе с текстом шага — пересчитываем отступ,
+     иначе нижние элементы страницы (например, кнопки блока «Сертификация») уходят под панель. */
+  requestAnimationFrame(()=>{ if(typeof syncInstSpace==='function')syncInstSpace(); });
 }
 function toggleInst(){
   SPA_STATE.instCollapsed=!SPA_STATE.instCollapsed;
@@ -662,11 +683,57 @@ function toggleInst(){
     panel.classList.remove('inst-collapsed');
     if(ico)ico.className='fas fa-chevron-down';
   }
+  /* Панель заданий закреплена снизу (position:fixed) — освобождаем под неё место
+     в рабочей области, иначе нижние кнопки (пагинация, действия) уезжают под панель. */
+  syncInstSpace();
+}
+/* Резервирует место под закреплённой панелью заданий: её высота меняется (свёрнута/развёрнута) */
+function syncInstSpace(){
+  const p=document.getElementById('instPanel');
+  if(!p)return;
+  const h=Math.round(p.getBoundingClientRect().height);
+  if(h>0)document.documentElement.style.setProperty('--inst-space',h+'px');
 }
 
 /* ---- STARTUP ---- */
 /* Stage 1 load handler: handled by SPA core */
 
+
+/* Печать произвольного HTML в отдельном окне (диалог печати браузера → «Сохранить как PDF»).
+   Печать идёт в скрытом iframe: страница тренажёра не мешает и не перерисовывается. */
+function printHtml(html,title){
+  const f=document.createElement('iframe');
+  f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0';
+  document.body.appendChild(f);
+  const d=f.contentDocument||f.contentWindow.document;
+  d.open();d.write(html);d.close();
+  const go=()=>{
+    try{ if(f.contentWindow)f.contentWindow.focus(); if(f.contentWindow)f.contentWindow.print(); else window.print(); }
+    catch(e){ try{window.print();}catch(e2){} }
+    setTimeout(()=>f.remove(),2500);
+  };
+  setTimeout(go,500);
+}
+
+/* Переход к камере на карте: этап 5 → раздел «Карты и камеры», камера в центре */
+function gotoCameraOnMap(id){
+  try{
+    switchStage(5);
+    setTimeout(()=>{
+      if(typeof s5_setSection==='function')s5_setSection('cameras',null);
+      /* карта и маркеры инициализируются асинхронно — дожидаемся их и центрируем камеру */
+      let tries=0;
+      const focus=()=>{
+        if(typeof s5_camFocus==='function'&&window._camMarkers&&window._camMarkers[id]){
+          s5_camFocus(id);
+          toast('Камера '+id+' показана на карте','info');
+        }else if(++tries<40)setTimeout(focus,150);
+      };
+      setTimeout(focus,300);
+    },150);
+  }catch(e){ toast('Переход к карте не удался','error'); }
+}
 
 /* Безопасное создание графика Chart.js: пропускает, если холст уже удалён из DOM (быстрое переключение разделов),
    и уничтожает прежний график на этом же холсте. */
@@ -678,3 +745,8 @@ function safeChart(el,cfg){
   }catch(e){console.warn('Chart:',e&&e.message);return null;}
 }
 window.safeChart=safeChart;
+window.printHtml=printHtml;
+window.gotoCameraOnMap=gotoCameraOnMap;
+window.syncInstSpace=syncInstSpace;
+window.syncQuestPointer=syncQuestPointer;
+window.spaQuestSteps=spaQuestSteps;

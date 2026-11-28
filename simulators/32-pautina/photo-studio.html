@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Студия фото — учебный тренажёр ЦАФАП</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<style>
+:root{--blue:#1565C0;--blue-d:#0D47A1;--bg:#F1F5FB;--line:#DDE5F0;--text:#1A2332;--text2:#5C6B82;--green:#2E7D32;--red:#C62828;--amber:#E65100}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;font-size:13px}
+header{background:linear-gradient(90deg,var(--blue-d),var(--blue));color:#fff;display:flex;align-items:center;gap:12px;padding:8px 16px;flex-shrink:0}
+header img{height:32px}header h1{font-size:15px;flex:1}
+header a,header button{color:#fff;text-decoration:none;background:rgba(255,255,255,.16);padding:7px 12px;border-radius:6px;font-size:12px;border:none;cursor:pointer}
+header a:hover,header button:hover{background:rgba(255,255,255,.3)}header button:disabled{opacity:.45;cursor:default}
+.wrap{flex:1;display:grid;grid-template-columns:330px 1fr 350px;min-height:0}
+.col{background:#fff;overflow:auto;border-right:1px solid var(--line)}.col.r{border-right:none;border-left:1px solid var(--line)}
+.mid{display:flex;flex-direction:column;min-width:0;background:#E9EEF5}
+.srch{padding:10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.srch input[type=text]{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-size:12.5px}
+.srch label{font-size:11.5px;color:var(--text2);display:block;margin-top:6px}
+.it{padding:8px 12px;border-bottom:1px solid #EEF2F8;cursor:pointer;display:flex;gap:8px;align-items:center}
+.it:hover{background:#F4F8FD}.it.on{background:#E3EEFB;border-left:3px solid var(--blue)}
+.it .st{width:20px;text-align:center;flex-shrink:0}.it .tx{min-width:0}
+.it b{font-family:'Courier New',monospace;font-size:12px}.it small{display:block;color:var(--text2);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ok{color:var(--green)}.mid1{color:var(--amber)}.no{color:#B0BAC8}
+.bar{background:#fff;border-bottom:1px solid var(--line);padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button.b,label.b{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 12px;font-size:12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+button.b.s,label.b.s{background:#E8EEF7;color:var(--text)}button.b:disabled{opacity:.4;cursor:default}button.b.g{background:var(--green)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;position:relative}
+canvas#cv{max-width:100%;max-height:100%;background:#000;box-shadow:0 2px 14px rgba(0,0,0,.35);cursor:crosshair}
+.hint{position:absolute;left:18px;top:16px;background:rgba(0,0,0,.72);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;max-width:60%;pointer-events:none}
+.drop{border:2px dashed #9DB1CC;border-radius:10px;padding:46px;color:var(--text2);text-align:center;background:#F7FAFE}
+.sec{padding:12px 14px;border-bottom:1px solid var(--line)}.sec h3{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:6px}
+.sec textarea{width:100%;height:210px;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11.5px;font-family:inherit;resize:vertical}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:2px 0;font-size:12px}.kv span:first-child{color:var(--text2)}
+.plate{display:inline-block;background:#fff;border:1.5px solid #222;border-radius:3px;padding:1px 7px;font:700 13px 'Courier New',monospace}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}.seg button{border:none;background:#fff;padding:6px 10px;font-size:12px;cursor:pointer}.seg button.on{background:var(--blue);color:#fff}
+.note{font-size:11.5px;color:var(--text2);line-height:1.45}
+@media(max-width:1100px){.wrap{grid-template-columns:260px 1fr}.col.r{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/img/logo-cafan-sm.png" alt="ЦАФАН">
+  <h1><i class="fas fa-wand-magic-sparkles"></i> Студия фотореалистичных снимков</h1>
+  <button onclick="PhotoStudio.exportPrompts()" title="Промпты для всех записей без фото (CSV)"><i class="fas fa-file-csv"></i> Промпты (CSV)</button>
+  <button id="zipBtn" onclick="PhotoStudio.downloadZip()" disabled><i class="fas fa-file-zipper"></i> Скачать ZIP (<span id="zipN">0</span>)</button>
+  <a href="databases.html"><i class="fas fa-database"></i> Базы</a>
+  <a href="index.html"><i class="fas fa-arrow-left"></i> К тренажёру</a>
+</header>
+<div class="wrap">
+  <div class="col">
+    <div class="srch">
+      <input type="text" id="q" placeholder="Поиск: FIX-00047, номер, марка, цвет…" autocomplete="off">
+      <label><input type="checkbox" id="onlyNo" checked> только записи без фото</label>
+    </div>
+    <div id="list"></div>
+  </div>
+  <div class="mid">
+    <div class="bar">
+      <label class="b"><i class="fas fa-image"></i> Загрузить картинку<input type="file" id="file" accept="image/*" multiple hidden></label>
+      <span class="seg"><button id="m-rect" class="on" onclick="PhotoStudio.setMode('rect')">Прямоугольник</button><button id="m-quad" onclick="PhotoStudio.setMode('quad')">4 угла</button><button id="m-blur" onclick="PhotoStudio.setMode('blur')" title="Замазать читаемые номера других машин">Закрыть чужие номера</button></span>
+      <button class="b s" onclick="PhotoStudio.resetQuad()"><i class="fas fa-eraser"></i> Сбросить разметку</button>
+      <button class="b g" id="acceptBtn" onclick="PhotoStudio.accept()" disabled><i class="fas fa-check"></i> Принять в набор</button>
+      <span class="note" id="status"></span>
+    </div>
+    <div class="stage" id="stage">
+      <div class="drop" id="drop"><i class="fas fa-cloud-arrow-up" style="font-size:34px"></i><div style="margin-top:8px;font-size:14px;font-weight:600">Выберите запись слева и перетащите сюда картинку</div><div class="note" style="margin-top:4px">Если имя файла содержит номер записи (FIX-00047.jpg), запись выберется сама</div></div>
+      <canvas id="cv" style="display:none"></canvas>
+      <div class="hint" id="hint" style="display:none"></div>
+    </div>
+  </div>
+  <div class="col r">
+    <div class="sec" id="info"><h3>Запись фиксации</h3><div class="note">Выберите запись слева</div></div>
+    <div class="sec"><h3>Промпт для генератора изображений</h3>
+      <select id="pstyle" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;font-size:12px"><option value="cctv">Стиль: камера на портале над дорогой (как у комплекса)</option><option value="dslr">Стиль: снято сзади, как с соседнего автомобиля (как эталон)</option></select>
+      <textarea id="prompt" readonly></textarea>
+      <div style="display:flex;gap:6px;margin-top:6px"><button class="b" onclick="PhotoStudio.copyPrompt()"><i class="fas fa-copy"></i> Копировать</button><button class="b s" onclick="PhotoStudio.copyPrompt('ru')">Описание по-русски</button></div>
+      <div class="note" style="margin-top:6px">Вставьте в ChatGPT/любой генератор. Номерной знак на картинке пусть будет пустым — настоящий номер из базы студия нанесёт сама.</div>
+    </div>
+    <div class="sec"><h3>Параметры нанесения</h3>
+      <label class="note" style="display:block"><input type="checkbox" id="optCond" checked> учитывать состояние номера из записи (грязь, снег, выцветание)</label>
+      <label class="note" style="display:block;margin-top:4px"><input type="checkbox" id="optBlur" checked> слегка смягчить номер (под резкость кадра)</label>
+      <div class="note" style="margin-top:8px">Источник/генератор (для заметки в базе):</div>
+      <input type="text" id="note" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;margin-top:3px" placeholder="например: ChatGPT, 2026-11">
+    </div>
+  </div>
+</div>
+
+<script src="js/db/db.js"></script>
+<script src="data/nsi.js"></script>
+<script src="data/fvf_complexes.js"></script>
+<script src="data/fis_gibdd_m.js"></script>
+<script src="data/fixations.js"></script>
+<script src="data/photos.js"></script>
+<script src="data/ai_photos.js"></script>
+<script>
+var PhotoStudio=(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const MAX_OUT=1600;
+  const items={};          // fixId -> {img,w,h,quad,done:{blob,w,h,geom},note}
+  let cur=null, mode='rect', drag=null, dragCorner=-1, pts=[], listCache=null;
+
+  /* ───────── словари для промптов ───────── */
+  const MAKE={'Лада':'Lada','Форд':'Ford','ГАЗ':'GAZ','УАЗ':'UAZ','КАМАЗ':'KAMAZ','МАЗ':'MAZ','ЛиАЗ':'LiAZ','Kia':'Kia','Hyundai':'Hyundai','Toyota':'Toyota','Volkswagen':'Volkswagen','Skoda':'Skoda','Renault':'Renault','Nissan':'Nissan','Mazda':'Mazda','BMW':'BMW','Mercedes-Benz':'Mercedes-Benz','Chevrolet':'Chevrolet','Haval':'Haval','Chery':'Chery','Geely':'Geely','Volvo':'Volvo','Ford':'Ford'};
+  const MODEL={'Фокус':'Focus','Веста':'Vesta','Газель Next':'GAZelle Next','Соболь':'Sobol','Патриот':'Patriot','С-класс':'C-Class','C-класс':'C-Class','E-класс':'E-Class','3 серии':'3 Series','5 серии':'5 Series'};
+  const COLOR={'Белый':'white','Чёрный':'black','Серебристый':'silver','Серый':'gray','Синий':'blue','Красный':'red','Зелёный':'green','Коричневый':'brown','Бежевый':'beige','Голубой':'light blue','Жёлтый':'yellow','Оранжевый':'orange','Золотистый':'gold','Фиолетовый':'purple'};
+  const BODY_EN={sedan:'sedan',hatch:'hatchback',wagon:'station wagon',suv:'SUV / crossover',van:'light commercial van',minivan:'minivan',pickup:'pickup truck',truck:'box truck',bus:'city bus'};
+  const BODY_RU={sedan:'седан',hatch:'хэтчбек',wagon:'универсал',suv:'кроссовер/внедорожник',van:'фургон',minivan:'минивэн',pickup:'пикап',truck:'грузовик',bus:'автобус'};
+  const ROAD_EN={city:'a wide Moscow city avenue with a tree-lined median, apartment blocks and street lamps',highway:'a multi-lane Moscow highway with metal guardrails, lamp posts and tree lines',tunnel:'a Moscow road tunnel with ceiling light strips and concrete walls',bridge:'a Moscow city bridge with railings, with the river and skyline in the distance'};
+  const ROAD_RU={city:'городской проспект',highway:'магистраль',tunnel:'тоннель',bridge:'мост'};
+  const LIGHT_EN={day:'bright midday sunlight, clear daylight, natural shadows',dawn:'early-morning soft golden light, long shadows',dusk:'evening dusk, warm orange sky, car taillights switched on',night:'night time, road lit by street lamps, glowing red taillights, slight infrared-flash look'};
+  const LIGHT_RU={day:'день',dawn:'утро',dusk:'вечер',night:'ночь'};
+  const WEATHER_EN={clear:'clear sky',overcast:'overcast sky with soft diffuse light',rain:'rainy weather, wet asphalt with reflections, fine raindrops in the air',fog:'dense fog, reduced visibility, low contrast',snow:'light snowfall, snow along the road edges, slightly slushy asphalt'};
+  const WEATHER_RU={clear:'ясно',overcast:'пасмурно',rain:'дождь',fog:'туман',snow:'снег'};
+  const PLATE_EN={clean:'',dirty:'The rear of the car is dirty with road grime.',snow:'The rear of the car is splashed with snow.',faded:'The car looks old and weathered.',angled:'The car is slightly turning, seen a little from the side.'};
+  const hash=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;};
+
+  function rec(fid){const f=CAFAP_DB.fixations.get(fid);if(!f)return null;const v=CAFAP_DB.fis.vehByPlate().get(f.plate);const c=CAFAP_DB.fvf.get(f.camId);return{f,v,c};}
+  function vehTitle(v){return `${v.make} ${v.model}`.replace(/\s+/g,' ');}
+  function promptEn(r,style){
+    const {f,v}=r,s=f.scene;
+    const make=MAKE[v.make]||v.make, model=MODEL[v.model]||v.model, color=COLOR[v.color]||String(v.color).toLowerCase();
+    const extra=['a few other cars of different makes and colors ahead and in neighbouring lanes','a taxi and a delivery van in neighbouring lanes','light traffic with several cars and a bus further ahead'][hash(f.id)%3];
+    const cam=style==='dslr'
+      ?'Shot from a low vantage point just behind and slightly above the car, like a photo from the car behind, natural DSLR look'
+      :'Camera look: a fixed traffic-enforcement camera mounted on a gantry about 6 metres above the road, looking down the lane, wide-angle lens, the rear of the car clearly visible';
+    return [
+      `Photorealistic photograph, 4:3 aspect ratio. ${cam}.`,
+      `Main subject: a ${color} ${make} ${model} (${BODY_EN[v.body]||'car'}) seen from behind, driving away from the camera in lane ${f.lane} of ${ROAD_EN[s.road]||ROAD_EN.city}, in Moscow, Russia, about ${s.distance} metres ahead of the camera.`,
+      `Lighting and weather: ${LIGHT_EN[s.light]}; ${WEATHER_EN[s.weather]}.`,
+      `Scene: ${extra}. Realistic Moscow architecture, lane markings and road signs in the background.`,
+      `IMPORTANT: the main car's rear license plate must be a plain blank white rectangular Russian-size plate (about 52 × 11 cm) with NO characters, NO text, NO numbers. Licence plates of all other cars must be unreadable (far away, small or motion-blurred).`,
+      `No readable text anywhere else, no watermarks, no logos overlay, no people visible inside the cars.`,
+      PLATE_EN[s.plateCond]||''
+    ].filter(Boolean).join('\n');
+  }
+  function promptRu(r){
+    const {f,v}=r,s=f.scene;
+    return `Запись ${f.id}: ${v.color.toLowerCase()} ${v.make} ${v.model} (${BODY_RU[v.body]||'авто'}), вид сзади, полоса ${f.lane}; ${ROAD_RU[s.road]}; ${LIGHT_RU[s.light]}, ${WEATHER_RU[s.weather]}; номер на картинке — пустая белая табличка (номер ${f.plate} нанесёт студия).`;
+  }
+
+  /* ───────── список записей ───────── */
+  function status(fid){return items[fid]&&items[fid].done?'ok':items[fid]&&items[fid].img?'mid':(CAFAP_DB.fixations.get(fid)&&CAFAP_DB.fixations.get(fid).ai?'old':'no');}
+  function renderList(){
+    const q=CAFAP_DB.normText($('q').value),only=$('onlyNo').checked;
+    let rows=CAFAP_DB.fixations.all().filter(f=>!f.real);
+    if(only)rows=rows.filter(f=>!f.ai||(items[f.id]&&items[f.id].img));
+    if(q)rows=rows.filter(f=>{const v=CAFAP_DB.fis.vehByPlate().get(f.plate)||{};return CAFAP_DB.normText([f.id,f.plate,v.make,v.model,v.color,f.scene.road,f.scene.light,f.scene.weather].join(' ')).includes(q)||(CAFAP_DB.normPlate($('q').value).length>=3&&f.plate.includes(CAFAP_DB.normPlate($('q').value)));});
+    $('list').innerHTML=rows.slice(0,300).map(f=>{const v=CAFAP_DB.fis.vehByPlate().get(f.plate)||{};const st=status(f.id);
+      return `<div class="it ${cur===f.id?'on':''}" data-id="${f.id}"><span class="st">${st==='ok'?'<i class="fas fa-circle-check ok"></i>':st==='mid'?'<i class="fas fa-image mid1"></i>':st==='old'?'<i class="fas fa-check no"></i>':'<i class="far fa-circle no"></i>'}</span><span class="tx"><b>${f.id}</b> · ${f.plate}<small>${v.make||''} ${v.model||''}, ${v.color||''} · ${f.scene.light}/${f.scene.weather}/${f.scene.road}</small></span></div>`;}).join('')||'<div class="note" style="padding:14px">Ничего не найдено</div>';
+    $('list').onclick=e=>{const el=e.target.closest('.it');if(el)select(el.dataset.id);};
+    const n=Object.values(items).filter(i=>i.done).length;$('zipN').textContent=n;$('zipBtn').disabled=!n;
+  }
+  function select(fid){
+    cur=fid;pts=[];const r=rec(fid);if(!r)return;
+    const {f,v,c}=r;
+    $('info').innerHTML=`<h3>Запись фиксации</h3>
+      <div class="kv"><span>ID</span><b>${f.id}</b></div><div class="kv"><span>Госномер</span><span class="plate">${f.plate}</span></div>
+      <div class="kv"><span>ТС</span><span>${vehTitle(v)}, ${v.color}, ${v.year}</span></div><div class="kv"><span>Кузов</span><span>${BODY_RU[v.body]||v.body}</span></div>
+      <div class="kv"><span>Сцена</span><span>${LIGHT_RU[f.scene.light]} · ${WEATHER_RU[f.scene.weather]} · ${ROAD_RU[f.scene.road]}</span></div>
+      <div class="kv"><span>Состояние номера</span><span>${f.scene.plateCond}</span></div>
+      <div class="kv"><span>Комплекс</span><span>${c?c.id:'—'}</span></div>`;
+    $('prompt').value=promptEn(r,$('pstyle').value);
+    $('note').value=(items[fid]&&items[fid].note)||$('note').value;
+    show();renderList();
+  }
+
+  /* ───────── холст ───────── */
+  const cv=$('cv'),ctx=cv.getContext('2d');
+  function show(){
+    const it=items[cur];
+    if(!it||!it.img){cv.style.display='none';$('drop').style.display='';$('hint').style.display='none';$('acceptBtn').disabled=true;return;}
+    $('drop').style.display='none';cv.style.display='';$('hint').style.display='';
+    const w=Math.min(it.w,1400);cv.width=w;cv.height=Math.round(it.h*w/it.w);redraw();
+  }
+  function scale(){return cv.width/items[cur].w;}
+  function quadReady(){const it=items[cur];return it&&it.quad&&it.quad.length===4;}
+  function redraw(){
+    const it=items[cur];if(!it)return;
+    ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(it.img,0,0,cv.width,cv.height);
+    const k=scale();
+    applyBlurs(ctx,it.blurs,k);
+    if(quadReady()){
+      composePlate(ctx,it.quad.map(p=>[p[0]*k,p[1]*k]),it.img,k,true);
+      ctx.strokeStyle='#00e676';ctx.lineWidth=1.5;ctx.beginPath();it.quad.forEach((p,i)=>i?ctx.lineTo(p[0]*k,p[1]*k):ctx.moveTo(p[0]*k,p[1]*k));ctx.closePath();ctx.stroke();
+      it.quad.forEach(p=>{ctx.fillStyle='#00e676';ctx.beginPath();ctx.arc(p[0]*k,p[1]*k,5,0,7);ctx.fill();ctx.strokeStyle='#000';ctx.stroke();});
+    }else if(mode==='quad'){
+      pts.forEach((p,i)=>{ctx.fillStyle='#ffeb3b';ctx.beginPath();ctx.arc(p[0]*k,p[1]*k,5,0,7);ctx.fill();ctx.fillStyle='#000';ctx.font='11px Arial';ctx.fillText(i+1,p[0]*k+7,p[1]*k-6);});
+    }
+    if(drag&&(mode==='rect'||mode==='blur')){ctx.strokeStyle='#ffeb3b';ctx.setLineDash([5,4]);ctx.strokeRect(drag.x0*k,drag.y0*k,(drag.x1-drag.x0)*k,(drag.y1-drag.y0)*k);ctx.setLineDash([]);}
+    $('hint').textContent=mode==='blur'?'Обведите прямоугольником каждый читаемый номер ДРУГИХ машин — область будет замазана. Номер главной машины не трогайте.':quadReady()?'Перетащите угол, чтобы поправить. Затем «Принять в набор».':mode==='rect'?'Обведите прямоугольником номерной знак на картинке (потянув мышью)':'Кликните 4 угла номера: левый верх → правый верх → правый низ → левый низ ('+pts.length+'/4)';
+    $('acceptBtn').disabled=!quadReady();
+    $('status').textContent=it.done?'✓ принято в набор':'';
+  }
+  function pos(e){const r=cv.getBoundingClientRect();const k=scale();return[(e.clientX-r.left)*(cv.width/r.width)/k,(e.clientY-r.top)*(cv.height/r.height)/k];}
+  cv.addEventListener('mousedown',e=>{
+    const it=items[cur];if(!it)return;const p=pos(e),k=scale();
+    if(mode==='blur'){drag={x0:p[0],y0:p[1],x1:p[0],y1:p[1]};return;}
+    if(quadReady()){const d=it.quad.map(q=>Math.hypot(q[0]-p[0],q[1]-p[1])*k);const m=Math.min(...d);if(m<14){dragCorner=d.indexOf(m);return;}}
+    if(mode==='rect'&&!quadReady())drag={x0:p[0],y0:p[1],x1:p[0],y1:p[1]};
+  });
+  window.addEventListener('mousemove',e=>{
+    const it=items[cur];if(!it||(!drag&&dragCorner<0))return;const p=pos(e);
+    if(dragCorner>=0){it.quad[dragCorner]=p;it.done=null;}else if(drag){drag.x1=p[0];drag.y1=p[1];}
+    redraw();
+  });
+  window.addEventListener('mouseup',()=>{
+    const it=items[cur];if(!it)return;
+    if(dragCorner>=0){dragCorner=-1;redraw();renderList();return;}
+    if(drag&&mode==='blur'){const {x0,y0,x1,y1}=drag;drag=null;if(Math.abs(x1-x0)>6&&Math.abs(y1-y0)>4){(it.blurs=it.blurs||[]).push([Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0)]);it.done=null;}redraw();renderList();return;}
+    if(drag){const {x0,y0,x1,y1}=drag;drag=null;if(Math.abs(x1-x0)>8&&Math.abs(y1-y0)>4){setQuad([[Math.min(x0,x1),Math.min(y0,y1)],[Math.max(x0,x1),Math.min(y0,y1)],[Math.max(x0,x1),Math.max(y0,y1)],[Math.min(x0,x1),Math.max(y0,y1)]]);}redraw();}
+  });
+  cv.addEventListener('click',e=>{
+    const it=items[cur];if(!it||mode!=='quad'||quadReady())return;
+    pts.push(pos(e));if(pts.length===4){setQuad(pts.slice());pts=[];}redraw();
+  });
+  function setQuad(q){items[cur].quad=q;items[cur].done=null;}
+
+  /* закрытие читаемых номеров других машин: пикселизация области (координаты — в пикселях исходного изображения, k — масштаб) */
+  function applyBlurs(g,list,k){
+    (list||[]).forEach(b=>{
+      const x=Math.max(0,Math.round(b[0]*k)),y=Math.max(0,Math.round(b[1]*k)),w=Math.max(2,Math.round(b[2]*k)),h=Math.max(2,Math.round(b[3]*k));
+      const block=Math.max(5,Math.round(w/5)),bw=Math.max(1,Math.round(w/block)),bh=Math.max(1,Math.round(h/block));
+      const c=document.createElement('canvas');c.width=bw;c.height=bh;c.getContext('2d').drawImage(g.canvas,x,y,w,h,0,0,bw,bh);
+      g.save();g.imageSmoothingEnabled=false;g.drawImage(c,0,0,bw,bh,x,y,w,h);g.restore();
+    });
+  }
+  /* ───────── номерной знак ───────── */
+  function lumaOf(img,quad){
+    const xs=quad.map(p=>p[0]),ys=quad.map(p=>p[1]);
+    const x0=Math.max(0,Math.floor(Math.min(...xs))),y0=Math.max(0,Math.floor(Math.min(...ys))),x1=Math.min(img.width,Math.ceil(Math.max(...xs))),y1=Math.min(img.height,Math.ceil(Math.max(...ys)));
+    const w=Math.max(1,x1-x0),h=Math.max(1,y1-y0);
+    const c=document.createElement('canvas');c.width=Math.min(64,w);c.height=Math.min(32,h);
+    c.getContext('2d').drawImage(img,x0,y0,w,h,0,0,c.width,c.height);
+    const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let s=0;for(let i=0;i<d.length;i+=4)s+=.299*d[i]+.587*d[i+1]+.114*d[i+2];
+    return s/(d.length/4);
+  }
+  function plateTexture(plate,cond,k){
+    const W=1040,H=224,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+    const m=plate.match(/^(.)(\d{3})(..)(\d{2,3})$/);const main=m?m[1]+m[2]+m[3]:plate.slice(0,6),reg=m?m[4]:plate.slice(6);
+    const ink=cond==='faded'?'#4b4b4b':'#0a0a0a';
+    g.fillStyle='#1b1b1b';rr(g,0,0,W,H,16);g.fill();
+    g.fillStyle=cond==='faded'?'#e6e3d2':'#f6f6f2';rr(g,5,5,W-10,H-10,13);g.fill();
+    g.strokeStyle=ink;g.lineWidth=5;rr(g,14,14,W-28,H-28,9);g.stroke();
+    const split=W*0.745;
+    g.fillStyle=ink;g.textBaseline='alphabetic';g.textAlign='left';
+    const fam="'Arial Narrow','Liberation Sans Narrow','DejaVu Sans Condensed',Arial,sans-serif";
+    g.font=`700 150px ${fam}`;g.fillText(main,56,150,split-90);
+    g.fillRect(split,34,4,H-68);
+    g.font=`700 ${reg.length===3?96:112}px ${fam}`;g.fillText(reg,split+26,102,W-split-52);
+    g.font=`700 36px ${fam}`;g.fillText('RUS',split+30,H-34,70);
+    g.fillStyle='#fff';g.fillRect(split+118,H-70,38,12);g.fillStyle='#1c57a5';g.fillRect(split+118,H-58,38,12);g.fillStyle='#d52b1e';g.fillRect(split+118,H-46,38,12);
+    const rnd=(()=>{let a=hash(plate+cond);return()=>{a=(a*1664525+1013904223)>>>0;return a/4294967296;};})();
+    if(cond==='dirty'){for(let i=0;i<10;i++){g.fillStyle=`rgba(74,58,40,${.28+rnd()*.34})`;g.beginPath();g.ellipse(40+rnd()*(W-80),20+rnd()*(H-30),30+rnd()*70,14+rnd()*34,0,0,7);g.fill();}g.fillStyle='rgba(58,45,30,.34)';g.fillRect(0,H*.66,W,H*.34);}
+    else if(cond==='snow'){for(let i=0;i<8;i++){g.fillStyle=`rgba(244,247,251,${.75+rnd()*.22})`;g.beginPath();g.ellipse(60+rnd()*(W-200),20+rnd()*(H-30),40+rnd()*90,24+rnd()*50,0,0,7);g.fill();}}
+    else if(cond==='faded'){g.fillStyle='rgba(216,207,160,.28)';rr(g,0,0,W,H,16);g.fill();}
+    g.globalCompositeOperation='source-atop';g.fillStyle=`rgba(0,0,0,${(1-k).toFixed(3)})`;g.fillRect(0,0,W,H);g.globalCompositeOperation='source-over';
+    return c;
+  }
+  function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+  function tri(g,img,s0,s1,s2,d0,d1,d2){
+    g.save();g.beginPath();g.moveTo(d0[0],d0[1]);g.lineTo(d1[0],d1[1]);g.lineTo(d2[0],d2[1]);g.closePath();g.clip();
+    const den=s0[0]*(s2[1]-s1[1])-s1[0]*s2[1]+s2[0]*s1[1]+(s1[0]-s2[0])*s0[1];if(!den){g.restore();return;}
+    const a=-(s0[1]*(d2[0]-d1[0])-s1[1]*d2[0]+s2[1]*d1[0]+(s1[1]-s2[1])*d0[0])/den;
+    const b=(s1[1]*d2[1]+s0[1]*(d1[1]-d2[1])-s2[1]*d1[1]+(s2[1]-s1[1])*d0[1])/den;
+    const c=(s0[0]*(d2[0]-d1[0])-s1[0]*d2[0]+s2[0]*d1[0]+(s1[0]-s2[0])*d0[0])/den;
+    const d=-(s1[0]*d2[1]+s0[0]*(d1[1]-d2[1])-s2[0]*d1[1]+(s2[0]-s1[0])*d0[1])/den;
+    const e=(s0[0]*(s2[1]*d1[0]-s1[1]*d2[0])+s0[1]*(s1[0]*d2[0]-s2[0]*d1[0])+(s2[0]*s1[1]-s1[0]*s2[1])*d0[0])/den;
+    const f=(s0[0]*(s2[1]*d1[1]-s1[1]*d2[1])+s0[1]*(s1[0]*d2[1]-s2[0]*d1[1])+(s2[0]*s1[1]-s1[0]*s2[1])*d0[1])/den;
+    g.transform(a,b,c,d,e,f);g.drawImage(img,0,0);g.restore();
+  }
+  /* quad — углы в координатах холста g: ЛВ, ПВ, ПН, ЛН. */
+  function composePlate(g,quad,srcImg,k,preview){
+    const fid=cur,r=rec(fid);if(!r)return;
+    const useCond=$('optCond').checked?r.f.scene.plateCond:'clean';
+    const full=items[fid];
+    const lum=lumaOf(full.img,full.quad);
+    const kk=Math.max(.55,Math.min(1,lum/200+.35));
+    const tex=plateTexture(r.f.plate,useCond==='angled'?'clean':useCond,kk);
+    // немного расширяем область, чтобы полностью закрыть прежние символы от ИИ
+    const cx=quad.reduce((a,p)=>a+p[0],0)/4,cy=quad.reduce((a,p)=>a+p[1],0)/4;
+    const q=quad.map(p=>[cx+(p[0]-cx)*1.06,cy+(p[1]-cy)*1.12]);
+    const tmp=document.createElement('canvas');tmp.width=g.canvas.width;tmp.height=g.canvas.height;const t=tmp.getContext('2d');
+    // сплошная подложка цвета таблички — чтобы через швы сетки не просвечивал прежний номер
+    const base=Math.round(246*kk);t.fillStyle=`rgb(${base},${base},${Math.round(base*.985)})`;t.beginPath();q.forEach((p,i)=>i?t.lineTo(p[0],p[1]):t.moveTo(p[0],p[1]));t.closePath();t.fill();
+    const NX=22,NY=4;
+    const P=(u,v)=>{const top=[q[0][0]+(q[1][0]-q[0][0])*u,q[0][1]+(q[1][1]-q[0][1])*u],bot=[q[3][0]+(q[2][0]-q[3][0])*u,q[3][1]+(q[2][1]-q[3][1])*u];return[top[0]+(bot[0]-top[0])*v,top[1]+(bot[1]-top[1])*v];};
+    for(let i=0;i<NX;i++)for(let j=0;j<NY;j++){
+      const u0=i/NX,u1=(i+1)/NX,v0=j/NY,v1=(j+1)/NY;
+      const s=[[u0*tex.width,v0*tex.height],[u1*tex.width,v0*tex.height],[u1*tex.width,v1*tex.height],[u0*tex.width,v1*tex.height]];
+      const d=[P(u0,v0),P(u1,v0),P(u1,v1),P(u0,v1)];
+      tri(t,tex,s[0],s[1],s[2],d[0],d[1],d[2]);tri(t,tex,s[0],s[2],s[3],d[0],d[2],d[3]);
+    }
+    if($('optBlur').checked&&'filter' in g){g.save();g.filter=`blur(${Math.max(.4,Math.min(1.2,k*.7)).toFixed(2)}px)`;g.drawImage(tmp,0,0);g.restore();}
+    else g.drawImage(tmp,0,0);
+  }
+  function bboxN(it){
+    const xs=it.quad.map(p=>p[0]),ys=it.quad.map(p=>p[1]);
+    const x0=Math.min(...xs)/it.w,x1=Math.max(...xs)/it.w,y0=Math.min(...ys)/it.h,y1=Math.max(...ys)/it.h;
+    return{plate:[x0,y0,x1-x0,y1-y0]};
+  }
+  const r4=v=>Math.round(v*10000)/10000,clamp01=v=>Math.max(0,Math.min(1,v));
+  function geomOf(it){
+    const [px,py,pw,ph]=bboxN(it).plate;const cx=px+pw/2,cy=py+ph/2;
+    const cw=Math.min(1,pw*3.46),ch=Math.min(1,ph*12.9),y1=Math.min(1,cy+ph*3.1),y0=Math.max(0,y1-ch);
+    const box=b=>b.map(r4);
+    return{car:box([clamp01(cx-cw/2),y0,cw,y1-y0]),plate:box([px,py,pw,ph]),lights:[]};
+  }
+
+  /* ───────── принять / скачать ───────── */
+  function accept(){
+    const it=items[cur];if(!it||!quadReady())return;
+    const sc=Math.min(1,MAX_OUT/it.w),w=Math.round(it.w*sc),h=Math.round(it.h*sc);
+    const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+    g.drawImage(it.img,0,0,w,h);
+    applyBlurs(g,it.blurs,sc);
+    composePlate(g,it.quad.map(p=>[p[0]*sc,p[1]*sc]),it.img,sc*1.2,false);
+    return new Promise(res=>c.toBlob(b=>{it.done={blob:b,w,h,geom:geomOf(it)};it.note=$('note').value;renderList();redraw();res(it.done);},'image/jpeg',.9));
+  }
+  function crc32(u8){let c,crc=-1;if(!crc32.t){crc32.t=[];for(let n=0;n<256;n++){c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;crc32.t[n]=c>>>0;}}for(let i=0;i<u8.length;i++)crc=crc32.t[(crc^u8[i])&255]^(crc>>>8);return(crc^-1)>>>0;}
+  function makeZip(files){
+    const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+    const u16=v=>[v&255,(v>>8)&255],u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255];
+    files.forEach(f=>{
+      const name=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+      const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(sz),...u32(sz),...u16(name.length),...u16(0)]);
+      parts.push(lh,name,f.data);
+      cen.push({name,crc,sz,off});off+=lh.length+name.length+sz;
+    });
+    const cstart=off;let csize=0;
+    cen.forEach(c=>{const h=new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c.crc),...u32(c.sz),...u32(c.sz),...u16(c.name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(c.off)]);parts.push(h,c.name);csize+=h.length+c.name.length;});
+    parts.push(new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(cen.length),...u16(cen.length),...u32(csize),...u32(cstart),0,0]));
+    return new Blob(parts,{type:'application/zip'});
+  }
+  function buildManifest(done){
+    const old=CAFAP_DB.has('ai_photos')?CAFAP_DB.rows('ai_photos','photos'):[];
+    const map=new Map(old.map(o=>[o.fixId,o]));
+    done.forEach(d=>map.set(d.fixId,{fixId:d.fixId,file:'assets/photos_ai/'+d.fixId+'.jpg',aspect:r4(d.w/d.h),geom:d.geom,note:d.note||''}));
+    const rows=[...map.values()].sort((a,b)=>a.fixId<b.fixId?-1:1);
+    const meta={name:'Фото, созданные ИИ',description:'Фотореалистичные снимки, подменяющие SVG-снимки записей фиксации',generatedBy:'photo-studio.html',seed:0,synthetic:true,generatedAt:new Date().toLocaleDateString('ru')};
+    return `/* Фотографии, подготовленные в photo-studio.html (сгенерированные нейросетью + вымышленный номер из базы).\n   Файл перезаписывается ZIP-архивом из студии. */\nCAFAP_DB.register("ai_photos", {\n  "meta": ${JSON.stringify(meta)},\n  "tables": { "photos": [\n${rows.map(r=>'    '+JSON.stringify(r)).join(',\n')}\n  ] }\n});\n`;
+  }
+  async function zipData(){
+    const done=Object.entries(items).filter(([k,v])=>v.done).map(([k,v])=>({fixId:k,w:v.done.w,h:v.done.h,geom:v.done.geom,note:v.note,blob:v.done.blob}));
+    const files=[];
+    for(const d of done)files.push({name:'assets/photos_ai/'+d.fixId+'.jpg',data:new Uint8Array(await d.blob.arrayBuffer())});
+    files.push({name:'data/ai_photos.js',data:new TextEncoder().encode(buildManifest(done))});
+    files.push({name:'assets/photos_ai/README.txt',data:new TextEncoder().encode('Фотографии созданы нейросетью по записям фиксации; номерные знаки на них вымышленные (нанесены photo-studio.html).\nРаспакуйте архив в корневую папку сайта с заменой data/ai_photos.js.\n')});
+    return makeZip(files);
+  }
+  async function downloadZip(){
+    const blob=await zipData();const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cafap-ai-photos.zip';a.click();
+  }
+
+  /* ───────── загрузка изображений ───────── */
+  function loadImage(fid,src){
+    return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const it=items[fid]||(items[fid]={});it.img=img;it.w=img.naturalWidth||img.width;it.h=img.naturalHeight||img.height;it.quad=null;it.blurs=null;it.done=null;res(it);};img.onerror=rej;img.src=src;});
+  }
+  async function handleFiles(list){
+    const files=[...list].filter(f=>/^image\//.test(f.type));
+    for(const f of files){
+      const m=f.name.match(/FIX-\d{5}/i);let fid=m?m[0].toUpperCase():cur;
+      if(!fid||!CAFAP_DB.fixations.get(fid)){alert('Выберите запись слева или назовите файл по номеру записи, например FIX-00047.jpg: '+f.name);continue;}
+      const url=URL.createObjectURL(f);await loadImage(fid,url);cur=fid;
+    }
+    if(cur){select(cur);}
+  }
+  $('file').addEventListener('change',e=>{handleFiles(e.target.files);e.target.value='';});
+  ['dragover','drop'].forEach(ev=>$('stage').addEventListener(ev,e=>{e.preventDefault();if(ev==='drop')handleFiles(e.dataTransfer.files);}));
+  $('pstyle').addEventListener('change',()=>{const r=rec(cur);if(r)$('prompt').value=promptEn(r,$('pstyle').value);});
+  $('q').addEventListener('input',renderList);$('onlyNo').addEventListener('change',renderList);
+  ['optCond','optBlur'].forEach(i=>$(i).addEventListener('change',()=>{if(items[cur]){items[cur].done=null;redraw();renderList();}}));
+
+  function exportPrompts(){
+    const rows=CAFAP_DB.fixations.all().filter(f=>!f.real&&!f.ai);
+    const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+    const csv='\ufeff'+'id;plate;vehicle;scene;prompt_en;description_ru\n'+rows.map(f=>{const r=rec(f.id);return[f.id,f.plate,vehTitle(r.v)+', '+r.v.color,f.scene.light+'/'+f.scene.weather+'/'+f.scene.road,promptEn(r,$('pstyle').value),promptRu(r)].map(q).join(';');}).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='cafap-prompts.csv';a.click();
+  }
+  function copyPrompt(l){const r=rec(cur);if(!r)return;const t=l==='ru'?promptRu(r):promptEn(r,$('pstyle').value);navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});$('prompt').value=t;$('prompt').select();}
+  function setMode(m){mode=m;pts=[];['rect','quad','blur'].forEach(x=>$('m-'+x).classList.toggle('on',m===x));if(items[cur]){if(m!=='blur'){items[cur].quad=null;items[cur].done=null;}redraw();renderList();}}
+  function resetQuad(){if(items[cur]){items[cur].quad=null;items[cur].blurs=null;items[cur].done=null;pts=[];redraw();renderList();}}
+
+  renderList();
+  if(location.hash){const id=location.hash.slice(1).toUpperCase();if(CAFAP_DB.fixations.get(id))select(id);}
+  return{select,loadImage,setMode,resetQuad,accept,downloadZip,zipData,exportPrompts,copyPrompt,items,promptEn,promptRu,
+    setQuadFor(fid,q){cur=fid;items[fid].quad=q;items[fid].done=null;show();},get cur(){return cur;},buildManifest};
+})();
+</script>
+</body>
+</html>

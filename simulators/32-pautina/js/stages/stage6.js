@@ -151,10 +151,10 @@ function s6_renderUsers(mc){
       </div>
     </div>
   </div>`;
-  s6_markQuest(0);
 }
 
 function s6_openUserModal(idx){
+  if(idx!==null&&idx!==undefined)s6_markQuest(0);   // шаг «Пользователи»: нажать ✏ у пользователя
   const u=idx!==null?USERS_DB[idx]:{id:'',login:'',name:'',role:'operator',region:'77',status:'active',ecp:false};
   const isNew=idx===null;
   document.getElementById('userModalContent').innerHTML=`
@@ -343,6 +343,7 @@ function s6_renderNSI(mc){
       <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px;"><i class="fas fa-book" style="color:var(--primary);"></i>НСИ — Нормативно-справочная информация</h2>
       <div style="display:flex;gap:6px;">
         <button class="btn btn-s btn-sm" onclick="s6_syncNSI()"><i class="fas fa-sync"></i> Синхр. с МВД</button>
+        <button class="btn btn-s btn-sm" onclick="s6_syncFBD()" title="Синхронизация справочников ФБД МВД (федеральная база данных)"><i class="fas fa-database"></i> Синхр. с ФБД МВД</button>
         <button class="btn btn-p btn-sm" onclick="toast('Добавление новой статьи КоАП...','info')"><i class="fas fa-plus"></i> Добавить</button>
       </div>
     </div>
@@ -392,6 +393,9 @@ function s6_renderNSI(mc){
 }
 function s6_editNSI(code){toast(`Редактирование ст. ${code} КоАП РФ (изменения фиксируются в аудите)`,'warning');}
 function s6_syncNSI(){s6_markQuest(4);toast('Синхронизация НСИ с центральным реестром МВД России выполнена','success');}
+/* Синхронизация с ФБД МВД (федеральная база данных). Кнопка отсутствовала в разделе НСИ —
+   задание «НСИ» нельзя было закрыть, поэтому здесь она дублирует шаг и с ФБД. */
+function s6_syncFBD(){s6_markQuest(4);toast('Синхронизация с ФБД МВД выполнена: 14 записей справочников обновлено','success');}
 
 /* ============================================================
    ЖУРНАЛ АУДИТА
@@ -472,7 +476,7 @@ function s6_renderSettings(mc){
       <div class="card">
         <div class="card-hdr"><div class="card-title"><i class="fas fa-ruble-sign"></i>Параметры штрафов</div></div>
         <div class="card-body">
-          <div class="form-group"><label class="form-label">Срок льготной оплаты 50% (суток)</label><input type="number" class="form-control" value="20" min="1" max="30"></div>
+          <div class="form-group"><label class="form-label">Срок льготной оплаты ${CAFAP_DISCOUNT.pct}% (суток)</label><input type="number" class="form-control" value="${CAFAP_DISCOUNT.days}" min="1" max="60"></div>
           <div class="form-group"><label class="form-label">Общий срок оплаты штрафа (суток)</label><input type="number" class="form-control" value="60" min="30" max="90"></div>
           <div class="form-group"><label class="form-label">Срок до передачи в ФССП (суток от срока)</label><input type="number" class="form-control" value="10" min="5" max="30"></div>
         </div>
@@ -848,7 +852,7 @@ const QSTEPS=[
   {n:2,title:'Создание пользователя',text:'Нажмите <strong>«Создать пользователя»</strong>, заполните форму и нажмите «Создать». Назначьте роль и регион.'},
   {n:3,title:'Матрица прав доступа',text:'Откройте <strong>«Роли и права доступа»</strong>. Изучите матрицу. Попробуйте изменить право доступа (нажав на ячейку).'},
   {n:4,title:'Управление регионами',text:'Откройте <strong>«Управление регионами»</strong>. Нажмите на карточку любого региона для просмотра настроек.'},
-  {n:5,title:'Работа с НСИ',text:'Откройте раздел <strong>«НСИ — Справочники»</strong>. Нажмите <strong>«Синхр. с МВД»</strong> для обновления данных.'},
+  {n:5,title:'Работа с НСИ',text:'Откройте раздел <strong>«НСИ — Справочники»</strong> (этап 6, левое меню). Нажмите <strong>«Синхр. с ФБД МВД»</strong> для обновления справочников.'},
   {n:6,title:'Журнал аудита',text:'Откройте <strong>«Полный журнал аудита»</strong>. Найдите записи с результатом «Отказано» (denied).'},
   {n:7,title:'Системные настройки',text:'Откройте <strong>«Параметры системы»</strong>. Измените порог OCR и нажмите <strong>«Сохранить настройки»</strong>.'},
   {n:8,title:'Резервное копирование',text:'Откройте <strong>«Резервное копирование»</strong> и нажмите <strong>«Запустить резервное копирование»</strong>.'},
@@ -877,8 +881,8 @@ const GLOSSARY=[
 ];
 
 function s6_initQuest(){S6T.quest.done=[];S6T.quest.step=0;s6_updateQuestUI();s6_renderInstContent();}
-function s6_markQuest(idx){if(!S6T.quest.done.includes(idx)){S6T.quest.done.push(idx);s6_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
-function s6_nextQuest(){if(S6T.quest.step<QSTEPS.length-1){s6_markQuest(S6T.quest.step);S6T.quest.step++;s6_updateQuestUI();}else{s6_markQuest(S6T.quest.step);toast('🏆 Поздравляем! Весь курс ЦАФАП пройден! Получите сертификат!','success');s6_setSection('cert',document.getElementById('nav-cert'));}}
+function s6_markQuest(idx){if(!S6T.quest.done.includes(idx)){S6T.quest.done.push(idx);syncQuestPointer(S6T.quest,QSTEPS.length);s6_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
+function s6_nextQuest(){if(S6T.quest.step<QSTEPS.length-1){s6_markQuest(S6T.quest.step);s6_updateQuestUI();}else{s6_markQuest(S6T.quest.step);toast('🏆 Поздравляем! Весь курс ЦАФАП пройден! Получите сертификат!','success');s6_setSection('cert',document.getElementById('nav-cert'));}}
 function s6_restartQuest(){S6T.quest.done=[];S6T.quest.step=0;s6_updateQuestUI();toast('Квест перезапущен','info');}
 function s6_updateQuestUI(){
   const pct=Math.round((S6T.quest.done.length/S6T.quest.total)*100);
@@ -957,6 +961,7 @@ const ROLES_DEF_COLORS={'operator':'var(--primary)','inspector':'var(--accent)',
   window.s6_renderNSI = (typeof s6_renderNSI!=="undefined") ? s6_renderNSI : window.s6_renderNSI;
   window.s6_editNSI = (typeof s6_editNSI!=="undefined") ? s6_editNSI : window.s6_editNSI;
   window.s6_syncNSI = (typeof s6_syncNSI!=="undefined") ? s6_syncNSI : window.s6_syncNSI;
+  window.s6_syncFBD = (typeof s6_syncFBD!=="undefined") ? s6_syncFBD : window.s6_syncFBD;
   window.s6_renderAudit = (typeof s6_renderAudit!=="undefined") ? s6_renderAudit : window.s6_renderAudit;
   window.s6_renderSettings = (typeof s6_renderSettings!=="undefined") ? s6_renderSettings : window.s6_renderSettings;
   window.s6_renderBackup = (typeof s6_renderBackup!=="undefined") ? s6_renderBackup : window.s6_renderBackup;
@@ -978,6 +983,7 @@ const ROLES_DEF_COLORS={'operator':'var(--primary)','inspector':'var(--accent)',
   window.s6_updateQuestUI = (typeof s6_updateQuestUI!=="undefined") ? s6_updateQuestUI : window.s6_updateQuestUI;
   window.s6_switchInstTab = (typeof s6_switchInstTab!=="undefined") ? s6_switchInstTab : window.s6_switchInstTab;
   window.s6_renderInstContent = (typeof s6_renderInstContent!=="undefined") ? s6_renderInstContent : window.s6_renderInstContent;
+  window.s6_questSteps=QSTEPS;
   window.s6_toggleInst = (typeof s6_toggleInst!=="undefined") ? s6_toggleInst : window.s6_toggleInst;
   if(typeof S6T!=="undefined") window.S6T = S6T;
   window.exportAudit=exportAudit; window.saveSettings=saveSettings; window.resetSettings=resetSettings;

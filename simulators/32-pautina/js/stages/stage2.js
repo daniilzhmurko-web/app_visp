@@ -30,10 +30,11 @@ function genViolations(n){
     const f=smp.fix, c=smp.cam||{};
     const vt=VTYPES.find(x=>x.code===f.article)||VTYPES[0];
     const cam={id:c.id,addr:c.addr,direction:c.direction,district:c.district,model:c.modelFull,idPoverkiNum:c.poverkaNo,idSTC:c.stc,limit:c.speedLimit,lat:c.lat,lon:c.lon,poverkaUntil:c.poverkaUntil};
-    const minAgo=Math.floor(Math.random()*480);
+    const isPhoto=!!(f.real||f.ai);
+    const minAgo=isPhoto?Math.floor(Math.random()*12):Math.floor(Math.random()*480);   // фотографии — в самом верху очереди
     const t=new Date(now-minAgo*60000);
     const statuses=['new','new','new','processing','done','error'];
-    const status=f.ocrPlate!==f.plate?(Math.random()<.5?'error':'new'):statuses[Math.floor(Math.random()*statuses.length)];
+    const status=f.ocrPlate!==f.plate?(Math.random()<.5?'error':'new'):(isPhoto?'new':statuses[Math.floor(Math.random()*statuses.length)]);
     return{
       id:`ДЕЛ-2026-${String(10000+i).padStart(5,'0')}`,
       caseNum:`КС-77-2026-${String(i+1).padStart(6,'0')}`,
@@ -41,23 +42,25 @@ function genViolations(n){
       date:t.toLocaleDateString('ru'),
       cam,plate:f.plate,ocrPlate:f.ocrPlate,ocrConf:f.ocrConf,ocrCorrect:f.ocrPlate===f.plate,
       vtype:vt,status,measSpeed:f.speed,limit:f.limit||vt.limit||0,ts:t,lane:f.lane,
-      image:f.file,fixId:f.id,scene:f.scene,vehicleId:f.vehicleId,geom:f.geom||null,aspect:f.aspect||1280/720,real:!!f.real
+      image:f.file,fixId:f.id,scene:f.scene,vehicleId:f.vehicleId,geom:f.geom||null,aspect:f.aspect||1280/720,real:!!f.real,ai:!!f.ai
     };
   }).sort((a,b)=>b.ts-a.ts);
 }
 
-/* Снимок фиксации из базы (assets/snapshots) + служебная плашка поверх изображения */
-function s2_photoHTML(v,h,id,live){
+/* Снимок фиксации из базы (assets/snapshots — SVG или JPG/PNG) + служебная плашка поверх изображения */
+function s2_photoHTML(v,h,id,live,mid){
   const lim=v.vtype.speed?` · ${v.measSpeed} км/ч (лим. ${v.limit||v.vtype.limit})`:'';
   const confCol=v.ocrConf>=85?'#4CAF50':v.ocrConf>=65?'#FF9800':'#f44336';
+  const pg=v.geom&&v.geom.plate?[v.geom.plate[0]+v.geom.plate[2]/2,v.geom.plate[1]+v.geom.plate[3]/2]:[.5,.65];
+  const objPos=`${Math.round(pg[0]*100)}% ${Math.round(Math.min(.95,pg[1]+.04)*100)}%`;
   return `<div class="ocr-photo snap-wrap" ${id?`id="${id}"`:''} style="height:${h}px;position:relative;overflow:hidden;background:#0b0e14;cursor:zoom-in;transition:height .25s;" onclick="s2_zoomPhoto(this,${h})" title="Нажмите, чтобы увеличить снимок">
-    <img class="snap-img" src="${v.image}" alt="Снимок фиксации ${v.fixId||''}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#9aa;font-size:12px;">Снимок недоступен: ${v.image||'—'}</div>
+    <img class="snap-img" ${CAFAP_SNAP.imgAttrs(v.image,'Снимок фиксации '+(v.fixId||''))} style="width:100%;height:100%;object-fit:cover;object-position:${objPos};display:block;">
+    <div data-snap-fallback style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#9aa;font-size:12px;">Снимок недоступен: ${v.image||'—'}</div>
     <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 10px 6px;background:linear-gradient(transparent,rgba(0,0,0,.82));font-family:'Courier New',monospace;font-size:10px;line-height:1.5;pointer-events:none;">
       <div style="color:#00FF41;">${v.id} · ${v.cam.id} · ${v.date} ${v.time}</div>
       <div style="color:#fff;">${v.cam.addr} · Полоса ${v.lane} · ст.КоАП ${v.vtype.code}${lim}</div>
     </div>
-    ${live?`<button class="btn btn-s btn-sm" style="position:absolute;top:6px;left:6px;z-index:3;font-size:11px;" onclick="event.stopPropagation();s2_openPhotoMaterial()"><i class="fas fa-images"></i> Фотоматериал (4 кадра)</button>`:''}
+    ${live?`<button class="btn btn-s btn-sm" style="position:absolute;top:6px;left:6px;z-index:3;font-size:11px;" onclick="event.stopPropagation();s2_openPhotoMaterial('${mid||''}')"><i class="fas fa-images"></i> Фотоматериал (4 кадра)</button>`:''}
     ${live?`<div style="position:absolute;top:0;right:0;background:rgba(0,0,0,.65);padding:4px 10px;text-align:center;font-family:'Courier New',monospace;pointer-events:none;"><div style="font-size:8px;color:#aaa;">OCR CONF</div><div style="font-size:12px;font-weight:700;color:${confCol};">${v.ocrConf}%</div></div><div class="scan-line" id="scanLine"></div>`:''}
   </div>`;
 }
@@ -73,43 +76,61 @@ function s2_fmtTs(v,addMs){
   const p=(n,w=2)=>String(n).padStart(w,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(total%1000,3)}`;
 }
-/* Панель-«окно» с кадрированием изображения вокруг (cx,cy) шириной rw (доли кадра); boxes — рамки в долях кадра */
-function s2_panel(v,cx,cy,rw,A,boxes,opt){
-  opt=opt||{};
-  const ASP=v.aspect||(1280/720);
+/* Расчёт кадрирования кадра: окно (cx,cy) шириной rw (доли кадра) в кадре с пропорциями ASP.
+   Возвращает и окно кадрирования, и координаты <img> (в процентах контейнера). */
+function s2_crop(cx,cy,rw,A,ASP){
   let rh=rw*ASP/A;
   if(rh>1){rh=1;rw=rh*A/ASP;}
   if(rw>1){rw=1;rh=rw*ASP/A;}
   cx=Math.min(Math.max(cx,rw/2),1-rw/2);cy=Math.min(Math.max(cy,rh/2),1-rh/2);
-  const px=rw<1?(cx-rw/2)/(1-rw)*100:0, py=rh<1?(cy-rh/2)/(1-rh)*100:0;
+  return {cx,cy,rw,rh,L:-(cx-rw/2)/rw*100,T:-(cy-rh/2)/rh*100,W:100/rw};
+}
+/* Панель-«окно» с кадрированием изображения вокруг (cx,cy) шириной rw (доли кадра); boxes — рамки в долях кадра */
+function s2_panel(v,cx,cy,rw,A,boxes,opt){
+  opt=opt||{};
+  const ASP=v.aspect||(1280/720);
+  const c=s2_crop(cx,cy,rw,A,ASP);
   const bx=(boxes||[]).map(b=>{
-    const l=(b[0]-(cx-rw/2))/rw*100,t=(b[1]-(cy-rh/2))/rh*100,w=b[2]/rw*100,h=b[3]/rh*100;
+    const l=(b[0]-(c.cx-c.rw/2))/c.rw*100,t=(b[1]-(c.cy-c.rh/2))/c.rh*100,w=b[2]/c.rw*100,h=b[3]/c.rh*100;
     if(l>100||t>100||l+w<0||t+h<0)return '';
     return `<div style="position:absolute;left:${l.toFixed(2)}%;top:${t.toFixed(2)}%;width:${w.toFixed(2)}%;height:${h.toFixed(2)}%;border:2px solid #00e676;box-sizing:border-box;"></div>`;
   }).join('');
   let extra='';
-  if(opt.line&&boxes&&boxes[0]){const b=boxes[0];const ex=((b[0]+b[2]/2)-(cx-rw/2))/rw*100,ey=((b[1]+b[3]/2)-(cy-rh/2))/rh*100;
+  if(opt.line&&boxes&&boxes[0]){const b=boxes[0];const ex=((b[0]+b[2]/2)-(c.cx-c.rw/2))/c.rw*100,ey=((b[1]+b[3]/2)-(c.cy-c.rh/2))/c.rh*100;
     extra=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;"><line x1="${Math.max(2,ex-34).toFixed(1)}" y1="${Math.max(2,ey-48).toFixed(1)}" x2="${Math.min(98,ex+10).toFixed(1)}" y2="${Math.min(98,ey+30).toFixed(1)}" stroke="#00e676" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>`;}
+  /* Кадр вписывается тегом <img>, а не CSS-фоном: одинаково работает SVG, JPG и PNG,
+     и если файла нет — срабатывает запасная цепочка CAFAP_SNAP (jpg → jpeg → png → webp → svg). */
+  const img=`<img class="ms-img" ${CAFAP_SNAP.imgAttrs(v.image,'')} style="position:absolute;left:${c.L.toFixed(3)}%;top:${c.T.toFixed(3)}%;width:${c.W.toFixed(3)}%;height:auto;max-width:none;display:block;">`;
   return `<div style="position:relative;overflow:hidden;background:#000;aspect-ratio:${A};">
-    <div class="ms-img" style="position:absolute;inset:0;background-image:url('${v.image}');background-repeat:no-repeat;background-size:${(100/rw).toFixed(2)}% auto;background-position:${px.toFixed(2)}% ${py.toFixed(2)}%;"></div>${extra}${bx}</div>`;
+    ${img}${extra}${bx}</div>`;
 }
-function s2_photoMaterialHTML(v){
+/* Описание четырёх кадров фотоматериала — используется и при отрисовке, и при выгрузке в PNG */
+function s2_frames(v){
   const g=v.geom||{car:[.25,.25,.5,.62],plate:[.43,.64,.14,.06],lights:[]};
   const car=g.car,pl=g.plate,cxC=car[0]+car[2]/2,cyC=car[1]+car[3]/2;
   const A=1.35;
-  const frame1=s2_panel(v,cxC,cyC-.04,.80,A,[car,pl,...g.lights],{line:true});
-  const frame2=s2_panel(v,cxC,cyC+.02,.56,A,[car,pl,...g.lights]);
-  const vehicle=s2_panel(v,cxC,cyC+.03,Math.min(1,car[2]*1.28),A,[...g.lights,pl]);
-  const plate=`<div style="background:#000;aspect-ratio:${A};display:flex;align-items:center;"><div style="width:100%;">${s2_panel(v,pl[0]+pl[2]/2,pl[1]+pl[3]/2,Math.min(1,pl[2]*1.5),4.0,[])}</div></div>`;
-  const cap=t=>`<div class="ms-cap">${t}</div>`;
+  return {geom:g,frames:[
+    {cx:cxC,cy:cyC-.04,rw:.80,A:A,boxes:[car,pl,...g.lights],line:true},
+    {cx:cxC,cy:cyC+.02,rw:.56,A:A,boxes:[car,pl,...g.lights]},
+    {cx:cxC,cy:cyC+.03,rw:Math.min(1,car[2]*1.28),A:A,boxes:[...g.lights,pl]},
+    {cx:pl[0]+pl[2]/2,cy:pl[1]+pl[3]/2,rw:Math.min(1,pl[2]*1.5),A:4.0,boxes:[]}
+  ]};
+}
+function s2_photoMaterialHTML(v){
+  const F=s2_frames(v);
+  const frame1=s2_panel(v,F.frames[0].cx,F.frames[0].cy,F.frames[0].rw,F.frames[0].A,F.frames[0].boxes,{line:true});
+  const frame2=s2_panel(v,F.frames[1].cx,F.frames[1].cy,F.frames[1].rw,F.frames[1].A,F.frames[1].boxes);
+  const vehicle=s2_panel(v,F.frames[2].cx,F.frames[2].cy,F.frames[2].rw,F.frames[2].A,F.frames[2].boxes);
+  const plate=`<div style="background:#000;aspect-ratio:${F.frames[3].A};display:flex;align-items:center;"><div style="width:100%;">${s2_panel(v,F.frames[3].cx,F.frames[3].cy,F.frames[3].rw,F.frames[3].A,[])}</div></div>`;
+  const cap=(t,i)=>`<div class="ms-cap" style="display:flex;align-items:center;gap:8px;"><span style="flex:1;">${t}</span><button class="btn btn-s btn-sm" style="padding:1px 8px;font-size:11px;line-height:1.5;" title="Скачать кадр в PNG" onclick="s2_exportFrame(${i},'${v.fixId||''}')"><i class="fas fa-download"></i> PNG</button></div>`;
   const vt=v.vtype, cam=v.cam;
   const viol=vt.speed?`${vt.code} ${vt.name}. Скорость ${v.measSpeed} км/ч при ограничении ${v.limit||vt.limit} км/ч`:`${vt.code} ${vt.name}`;
   return `<div class="ms ms-ir" id="msRoot">
     <div class="ms-grid">
-      <div>${frame1}${cap('Дата/Время: '+s2_fmtTs(v,0))}</div>
-      <div>${frame2}${cap('Дата/Время: '+s2_fmtTs(v,601))}</div>
-      <div>${vehicle}${cap('Фото ТС · полоса '+v.lane)}</div>
-      <div>${plate}${cap('Госномер (OCR): '+v.ocrPlate+' · уверенность '+v.ocrConf+'%')}</div>
+      <div>${frame1}${cap('Дата/Время: '+s2_fmtTs(v,0),0)}</div>
+      <div>${frame2}${cap('Дата/Время: '+s2_fmtTs(v,601),1)}</div>
+      <div>${vehicle}${cap('Фото ТС · полоса '+v.lane,2)}</div>
+      <div>${plate}${cap('Госномер (OCR): '+v.ocrPlate+' · уверенность '+v.ocrConf+'%',3)}</div>
     </div>
     <div class="ms-txt">
       <div>${viol}</div>
@@ -118,11 +139,13 @@ function s2_photoMaterialHTML(v){
       <div>Адрес установки: ${cam.addr}${cam.district?', '+cam.district:''}</div>
       <div class="ms-two"><div>Направление: ${cam.direction||'—'}.</div><div>Координаты: ${(cam.lat||0).toFixed(6)}, ${(cam.lon||0).toFixed(6)}</div></div>
     </div>
-    <div class="ms-tools"><label><input type="checkbox" checked onchange="document.getElementById('msRoot').classList.toggle('ms-ir',this.checked)"> ИК-режим (чёрно-белый, как у комплекса)</label>${v.real?'':'<span>Синтетический снимок: сцена нарисована по параметрам записи фиксации '+v.fixId+'</span>'}</div>
+    <div class="ms-tools"><label><input type="checkbox" checked onchange="document.getElementById('msRoot').classList.toggle('ms-ir',this.checked)"> ИК-режим (чёрно-белый, как у комплекса)</label>${v.real?'':(v.ai?'<span>Снимок создан нейросетью по записи фиксации '+v.fixId+'; номерной знак нанесён из базы ФИС</span>':'<span>Синтетический снимок: сцена нарисована по параметрам записи фиксации '+v.fixId+'</span>')}</div>
   </div>`;
 }
-function s2_openPhotoMaterial(){
-  const v=S2T.current;if(!v)return;
+function s2_openPhotoMaterial(mid){
+  /* mid — ID дела: фотоматериал открывается для любого дела, в том числе из просмотра очереди */
+  const v=(mid?(S2T.violations.find(x=>x.id===mid)||null):null)||S2T.current;
+  if(!v)return;
   let m=document.getElementById('msModal');
   if(!m){m=document.createElement('div');m.id='msModal';m.className='modal-bg';m.onclick=function(e){if(e.target===m)closeModal('msModal');};document.body.appendChild(m);}
   m.innerHTML=`<div class="modal-box" style="width:900px;max-width:96vw;">
@@ -137,10 +160,151 @@ function s2_zoomPhoto(el,h){
 }
 
 /* ============================================================
+   ВЫГРУЗКА ДОКАЗАТЕЛЬСТВ — кадры в PNG, исходный файл, печать
+   ============================================================ */
+/* Демонстрационный хеш: стабильный для одного и того же файла
+   (раньше суммы менялись при каждой перерисовке экрана) */
+function s2_fakeHash(seed){
+  let h=0x811c9dc5;const s=String(seed||'');
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  let out='';
+  for(let i=0;i<4;i++){h=Math.imul(h^(h>>>15),0x2545f491)>>>0;out+=('00000000'+h.toString(16)).slice(-8);}
+  return out;
+}
+/* Загружает снимок по цепочке файлов (jpg → jpeg → png → webp → svg) */
+function s2_loadSnapshotImage(file){
+  return new Promise((res,rej)=>{
+    const list=CAFAP_SNAP.candidates(file);
+    let i=0;
+    (function next(){
+      if(i>=list.length) return rej(new Error('Файл снимка не найден'));
+      const u=list[i++];
+      const im=new Image();
+      im.onload=()=>res({img:im,url:u});
+      im.onerror=()=>next();
+      im.src=u;
+    })();
+  });
+}
+function s2_saveBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+}
+/* Кадр фотоматериала → PNG (кадрирование такое же, как на экране) */
+async function s2_exportFrame(idx,fixId){
+  const v=(fixId&&S2T.violations.find(x=>x.fixId===fixId))||S2T.current;
+  if(!v){toast('Нарушение не выбрано','error');return;}
+  const F=s2_frames(v), f=F.frames[idx];
+  if(!f)return;
+  let loaded;
+  try{ loaded=await s2_loadSnapshotImage(v.image); }
+  catch(e){ toast('Файл снимка не найден: '+(v.image||'—'),'error'); return; }
+  try{
+    const img=loaded.img;
+    const c=s2_crop(f.cx,f.cy,f.rw,f.A,v.aspect||(1280/720));
+    const W=img.naturalWidth||1280, H=img.naturalHeight||720;
+    const sx=(c.cx-c.rw/2)*W, sy=(c.cy-c.rh/2)*H, sw=c.rw*W, sh=c.rh*H;
+    const cv=document.createElement('canvas');
+    cv.width=Math.max(1,Math.round(sw));cv.height=Math.max(1,Math.round(sh));
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,cv.width,cv.height);
+    cv.toBlob(blob=>{
+      if(!blob){toast('Не удалось сохранить кадр','error');return;}
+      s2_saveBlob(blob,(v.fixId||'FIX')+'_kadr'+(idx+1)+'.png');
+      toast(`Кадр ${idx+1} сохранён: ${(v.fixId||'FIX')}_kadr${idx+1}.png`,'success');
+    },'image/png');
+  }catch(e){
+    /* file:// — картинка считается «небезопасной» и попасть в PNG не может */
+    toast('Экспорт в PNG недоступен при открытии сайта через file://. Откройте сайт через локальный сервер (node tools/serve.js) или сохраните исходный файл снимка','error');
+  }
+}
+/* Все четыре кадра подряд */
+async function s2_exportAllFrames(){
+  const v=S2T.current;
+  if(!v){toast('Нарушение не выбрано','error');return;}
+  for(let i=0;i<4;i++){ await s2_exportFrame(i,v.fixId); await new Promise(r=>setTimeout(r,350)); }
+}
+/* Исходный файл снимка (SVG/JPG/PNG) — то, что лежит в assets/snapshots */
+async function s2_downloadSource(){
+  const v=S2T.current;
+  if(!v){toast('Нарушение не выбрано','error');return;}
+  let url;
+  try{ url=(await s2_loadSnapshotImage(v.image)).url; }
+  catch(e){ toast('Файл снимка не найден: '+(v.image||'—'),'error'); return; }
+  const a=document.createElement('a');
+  a.href=url;a.download=CAFAP_SNAP.downloadName(url);
+  document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1500);
+  toast('Файл снимка сохранён: '+CAFAP_SNAP.downloadName(url),'success');
+}
+/* Протокол осмотра доказательств (текстовая выгрузка) */
+function s2_downloadProtocol(){
+  const v=S2T.current;
+  if(!v){toast('Нарушение не выбрано','error');return;}
+  const txt=[
+    'ПРОТОКОЛ ОСМОТРА ФОТОМАТЕРИАЛА',
+    '================================',
+    'Дело:            '+(v.id||'—'),
+    'Дата/время:      '+v.date+' '+v.time,
+    'Комплекс:        '+(v.cam.id||'—')+' · '+(v.cam.model||'—'),
+    'Адрес:           '+(v.cam.addr||'—'),
+    'Полоса:          '+v.lane,
+    'Статья КоАП:     '+v.vtype.code+' — '+v.vtype.name,
+    v.vtype.speed?('Скорость:        '+v.measSpeed+' км/ч при ограничении '+(v.limit||v.vtype.limit)+' км/ч'):null,
+    'Штраф:           '+v.vtype.fine.toLocaleString('ru')+' ₽',
+    'Г/Н (OCR):       '+v.ocrPlate+' (уверенность '+v.ocrConf+'%)',
+    'Г/Н (проверено): '+v.plate,
+    'Запись фиксации: '+(v.fixId||'—'),
+    'Файл снимка:     '+(v.image||'—'),
+    S2T.owner?('Владелец:        '+S2T.owner.fam+' '+S2T.owner.im+' '+S2T.owner.ot):null,
+    S2T.vehicle?('ТС:              '+S2T.vehicle.brand+' '+S2T.vehicle.model+', '+(S2T.vehicle.vin||'')):null,
+    '',
+    'Тренажёр ЦАФАП — учебные данные.'
+  ].filter(x=>x!==null).join('\n');
+  s2_saveBlob(new Blob([txt],{type:'text/plain;charset=utf-8'}),(v.fixId||'FIX')+'_protokol.txt');
+  toast('Протокол осмотра сохранён','success');
+}
+/* Печать фотоматериала (отдельное окно с iframe — не мешает работе тренажёра) */
+function s2_printEvidence(){
+  const v=S2T.current;
+  if(!v){toast('Нарушение не выбрано','error');return;}
+  const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Фотоматериал ${v.id}</title>
+<script src="js/core/snapshot.js"></script>
+<style>
+  body{margin:0;background:#fff;font-family:'Segoe UI',system-ui,sans-serif;padding:8px}
+  .ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#fff}
+  .ms-grid>div{background:#000}
+  .ms-cap{background:#000;color:#fff;font-size:11px;padding:3px 6px;border-top:1px solid #fff}
+  .ms-txt>div{background:#000;color:#fff;border-top:1px solid #fff;padding:3px 6px;font-size:11px}
+  .ms-txt .ms-two{display:grid;grid-template-columns:1fr 1fr;padding:0}
+  .ms-txt .ms-two>div{padding:3px 6px}.ms-txt .ms-two>div+div{border-left:1px solid #fff}
+  .ms-tools{display:none}.btn{display:none}
+  @page{size:A4 landscape;margin:8mm}
+</style></head><body>${s2_photoMaterialHTML(v)}</body></html>`;
+  const f=document.createElement('iframe');
+  f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0';
+  document.body.appendChild(f);
+  const d=f.contentDocument||f.contentWindow.document;
+  d.open();d.write(html);d.close();
+  const go=()=>{ try{f.contentWindow.focus();f.contentWindow.print();}catch(e){window.print();}
+    setTimeout(()=>f.remove(),2000); };
+  setTimeout(go,600);
+}
+
+/* ============================================================
    СОСТОЯНИЕ
    ============================================================ */
 const S2T={
   violations:[],
+  queueLimit:0,
+  page:1,            /* текущая страница полной очереди */
+  pageSize:20,       /* записей на странице */
+  filter:'',         /* фильтр по статусу */
+  query:'',          /* поиск по г/н или ID */
+  searchMode:'plate',
   current:null,
   owner:null,
   vehicle:null,
@@ -166,12 +330,16 @@ const S2T={
    SECTIONS
    ============================================================ */
 function s2_setSection(sec,navEl){
-  if(!S2T.violations.length)S2T.violations=genViolations(247);
+  if(!S2T.violations.length){
+    S2T.violations=genViolations(247);
+    /* Размер очереди OCR каждый раз разный (5…12 записей) — обучающийся не запоминает список наизусть */
+    S2T.queueLimit=5+Math.floor(Math.random()*8);
+  }
   document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
   if(navEl)navEl.classList.add('active');
   const mc=document.getElementById('mainContent2');
   if(sec==='ocr')s2_renderOCR(mc);
-  else if(sec==='queue')s2_renderQueue(mc);
+  else if(sec==='queue'){s2_renderQueue(mc);s2_markQuest(9);}
   else if(sec==='owner')s2_renderOwnerSearch(mc);
   else if(sec==='case')s2_renderCaseForm(mc);
   else if(sec==='evidence')s2_renderEvidence(mc);
@@ -181,14 +349,16 @@ function s2_setSection(sec,navEl){
    OCR VERIFICATION PANEL
    ============================================================ */
 function s2_renderOCR(mc){
-  const newViolations=S2T.violations.filter(v=>v.status==='new'||v.status==='error').slice(0,8);
+  const pending=S2T.violations.filter(v=>v.status==='new'||v.status==='error');
+  const limit=S2T.queueLimit||8;
+  const newViolations=pending.slice(0,limit);
   mc.innerHTML=`
   <div style="display:flex;height:100%;overflow:hidden;">
     <!-- ЛЕВАЯ КОЛОНКА: очередь OCR -->
     <div style="width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;">
       <div style="padding:10px 12px;background:#FAFCFF;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;"><i class="fas fa-inbox" style="color:var(--primary);"></i>Очередь OCR <span class="live-ind" style="margin-left:4px;">LIVE</span></div>
-        <span class="sbadge sb-new" style="font-size:9.5px;">${newViolations.length} ожидают</span>
+        <span class="sbadge sb-new" style="font-size:9.5px;" title="В очереди ${pending.length} записей, в панель выведено ${newViolations.length}">${newViolations.length} ожидают</span>
       </div>
       <div style="flex:1;overflow-y:auto;" id="ocrQueue">
         ${newViolations.map((v,i)=>`
@@ -460,16 +630,69 @@ function s2_goFindOwner(){
 /* ============================================================
    QUEUE SECTION
    ============================================================ */
+/* Разметка постраничной навигации очереди */
+function s2_pagerHTML(pages,cur){
+  if(pages<=1)return '<span style="font-size:10.5px;color:var(--text3);padding:0 6px;">одна страница</span>';
+  const btn=(label,page,on,disabled)=>`<div class="pg-btn${on?' pg-on':''}" onclick="s2_setQueuePage(${page})" style="min-width:24px;height:24px;padding:0 6px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:${on?'var(--primary)':'#F0F4FA'};color:${on?'#fff':'var(--text2)'};border:1px solid ${on?'var(--primary)':'var(--border)'};cursor:${disabled?'default':'pointer'};font-size:11px;user-select:none;">${label}</div>`;
+  let h=btn('‹',cur-1,false,cur<=1);
+  const from=Math.max(1,Math.min(cur-2,pages-4)),to=Math.min(pages,Math.max(cur+2,5));
+  if(from>1)h+=btn('1',1,false)+btn('…',from,false,true);
+  for(let p=from;p<=to;p++)h+=btn(String(p),p,p===cur);
+  if(to<pages)h+=btn('…',to,false,true)+btn(String(pages),pages,false);
+  h+=btn('›',cur+1,false,cur>=pages);
+  return h;
+}
+/* Переход на страницу очереди */
+function s2_setQueuePage(p){
+  const pages=Math.max(1,Math.ceil(S2T.queueFiltered().length/S2T.pageSize));
+  S2T.page=Math.min(Math.max(1,p),pages);
+  const mc=document.getElementById('mainContent2');
+  if(mc)s2_renderQueue(mc);
+  const sc=mc&&mc.querySelector('div[style*="overflow-y:auto"]');
+  if(sc)sc.scrollTop=0;
+  toast('Страница '+S2T.page+' из '+pages,'info');
+}
+/* Отфильтрованный список очереди (статус + поиск) */
+S2T.queueFiltered=function(){
+  let list=S2T.violations;
+  if(S2T.filter)list=list.filter(v=>v.status===S2T.filter);
+  if(S2T.query){
+    const q=S2T.query.toLowerCase();
+    list=list.filter(v=>(v.plate||'').toLowerCase().indexOf(q)>=0||(v.id||'').toLowerCase().indexOf(q)>=0||(v.ocrPlate||'').toLowerCase().indexOf(q)>=0);
+  }
+  return list;
+};
+/* Фильтр по статусу — реально применяется к очереди */
+function s2_applyQueueFilter(status){
+  S2T.filter=status||'';
+  S2T.page=1;
+  const mc=document.getElementById('mainContent2');
+  if(mc)s2_renderQueue(mc);
+  const n=S2T.queueFiltered().length;
+  toast(`Фильтр: ${status||'все статусы'}. Показано нарушений: ${n}`,'info');
+}
+/* Поиск по г/н или ID */
+function s2_searchQueue(q){
+  S2T.query=(q||'').trim();
+  S2T.page=1;
+  const mc=document.getElementById('mainContent2');
+  if(mc)s2_renderQueue(mc);
+  const n=S2T.queueFiltered().length;
+  toast(n?`Найдено нарушений: ${n}`:'Ничего не найдено',n?'info':'warning');
+}
 function s2_renderQueue(mc){
-  const rows=S2T.violations.slice(0,20);
+  const filtered=S2T.queueFiltered();
+  const pages=Math.max(1,Math.ceil(filtered.length/S2T.pageSize));
+  if(S2T.page>pages)S2T.page=pages;
+  const rows=filtered.slice((S2T.page-1)*S2T.pageSize,S2T.page*S2T.pageSize);
   mc.innerHTML=`
   <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;padding:14px;gap:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px;"><i class="fas fa-inbox" style="color:var(--primary);"></i>Полная очередь нарушений <span class="live-ind" style="margin-left:4px;">LIVE</span></h2>
       <div style="display:flex;gap:6px;">
-        <input type="text" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:11.5px;width:180px;" placeholder="🔍 Поиск по г/н или ID...">
-        <select style="padding:5px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;" onchange="s2_filterQ(this.value)">
-          <option>Все статусы</option><option value="new">Новые</option><option value="processing">Обработка</option><option value="done">Готово</option><option value="error">Ошибка</option>
+        <input type="text" id="s2QueueSearch" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:11.5px;width:180px;" placeholder="🔍 Поиск по г/н или ID..." value="${S2T.query||''}" oninput="s2_searchQueue(this.value)">
+        <select style="padding:5px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;" onchange="s2_applyQueueFilter(this.value)">
+          <option value=""${S2T.filter?'':' selected'}>Все статусы</option><option value="new"${S2T.filter==='new'?' selected':''}>Новые</option><option value="processing"${S2T.filter==='processing'?' selected':''}>Обработка</option><option value="done"${S2T.filter==='done'?' selected':''}>Готово</option><option value="error">Ошибка</option>
         </select>
         <button class="btn btn-p btn-sm" onclick="s2_setSection('ocr',document.getElementById('nav-ocr'))"><i class="fas fa-camera"></i> OCR-верификация</button>
       </div>
@@ -496,33 +719,164 @@ function s2_renderQueue(mc){
                 <td><span class="sbadge ${sb}" style="font-size:9px;">${sbl}</span></td>
                 <td><div style="display:flex;gap:3px;">
                   <button class="btn btn-p btn-sm" onclick="s2_quickOpenOCR('${v.id}')" title="Верификация"><i class="fas fa-camera"></i></button>
-                  <button class="btn btn-s btn-sm" onclick="toast('Просмотр: ${v.id}','info')" title="Просмотр"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-s btn-sm" onclick="s2_openCaseView('${v.id}')" title="Просмотр дела"><i class="fas fa-eye"></i></button>
                 </div></td>
               </tr>`;
             }).join('')}
           </tbody>
         </table>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:#FAFCFF;border-top:1px solid var(--border2);font-size:11px;color:var(--text2);">
-        <div>Всего: <strong>${S2T.violations.length}</strong> нарушений · Новых: <strong>${S2T.violations.filter(v=>v.status==='new').length}</strong></div>
-        <div style="display:flex;gap:3px;">
-          <div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:var(--primary);color:#fff;font-size:11px;">1</div>
-          <div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:#F0F4FA;border:1px solid var(--border);cursor:pointer;font-size:11px;">2</div>
-          <div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:#F0F4FA;border:1px solid var(--border);cursor:pointer;font-size:11px;">3</div>
-        </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:#FAFCFF;border-top:1px solid var(--border2);font-size:11px;color:var(--text2);flex-shrink:0;gap:10px;">
+        <div>Всего: <strong>${S2T.violations.length}</strong> нарушений · Новых: <strong>${S2T.violations.filter(v=>v.status==='new').length}</strong>${(S2T.filter||S2T.query)?` · Показано: <strong>${filtered.length}</strong>`:''} · Стр. <strong>${S2T.page}</strong> из <strong>${pages}</strong></div>
+        <div style="display:flex;gap:3px;align-items:center;">${s2_pagerHTML(pages,S2T.page)}</div>
       </div>
     </div>
   </div>`;
 }
-function s2_filterQ(status){toast(`Фильтр: ${status||'Все'}. Найдено: ${S2T.violations.filter(v=>!status||v.status===status).length} записей`,'info');}
+function s2_filterQ(status){s2_applyQueueFilter(status);}
+/* ============================================================
+   ПРОСМОТР ДЕЛА (кнопка 👁 в очереди нарушений)
+   Полная карточка: снимок, OCR-результат со сверкой с ФИС,
+   данные нарушения, метаданные комплекса, доказательная база.
+   ============================================================ */
+function s2_openCaseView(id){
+  const v=S2T.violations.find(x=>x.id===id);
+  if(!v){toast('Дело '+id+' не найдено в очереди','warning');return;}
+  const confColor=v.ocrConf>=85?'var(--success)':v.ocrConf>=65?'var(--accent)':'var(--accent-red)';
+  const confClass=v.ocrConf>=85?'conf-high':v.ocrConf>=65?'conf-med':'conf-low';
+  const sb={new:'sb-new',processing:'sb-proc',done:'sb-done',error:'sb-err',rejected:'sb-err'}[v.status]||'sb-new';
+  const sbl={new:'Новое',processing:'Обработка',done:'Готово',error:'Ошибка OCR',rejected:'Отклонено'}[v.status]||'Новое';
+  const lim=v.limit||v.vtype.limit||0;
+  const row=(l,val,attr)=>`<div class="owner-field"><span class="owner-label">${l}</span><span class="owner-val" ${attr||''}>${val}</span></div>`;
+  const el=document.getElementById('caseViewContent');
+  if(!el)return;
+  el.innerHTML=`
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--border2);margin-bottom:12px;">
+    <div>
+      <div class="mono" style="font-size:17px;font-weight:800;color:var(--primary);">${v.id}</div>
+      <div style="font-size:11.5px;color:var(--text2);margin-top:3px;">${v.date} ${v.time} · ${v.cam.id} · ${v.cam.addr}</div>
+      <div class="mono" style="font-size:10px;color:var(--text3);margin-top:3px;">Запись фиксации: ${v.fixId||'—'} · № КС: ${v.caseNum||'—'}${v.real?' · фотореалистичный снимок':''}${v.ai?' · снимок ИИ':''}</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+      <span class="sbadge ${sb}" style="font-size:10px;">${sbl}</span>
+      ${v.ocrCorrect?'':'<span class="sbadge sb-err" style="font-size:10px;">г/н не совпадает с ФИС</span>'}
+      <span class="sbadge sb-new" style="font-size:10px;">ст. ${v.vtype.code} КоАП</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <!-- Снимок с камеры -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><i class="fas fa-camera"></i>Фотоматериал с камеры ФВФ</div>
+          <div style="display:flex;gap:6px;"><span class="sbadge sb-new">${v.cam.model||'—'}</span><span class="sbadge sb-done mono" style="font-size:9px;">${v.date} ${v.time}</span></div>
+        </div>
+        <div class="card-body" style="padding:0;">${s2_photoHTML(v,240,'caseViewPhoto',true,v.id)}</div>
+      </div>
+
+      <!-- OCR-результат и сверка с ФИС -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><i class="fas fa-brain"></i>OCR-результат и сверка с ФИС ГИБДД-М</div>
+          <div style="font-size:11px;color:var(--text2);">Погрешность измерения: ±1.0 км/ч</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Распознано системой OCR:</div>
+              <div style="font-size:24px;font-weight:800;letter-spacing:3px;font-family:'Courier New',monospace;text-align:center;padding:9px;background:#1a1a2e;color:#00FF41;border-radius:8px;">${v.ocrPlate}</div>
+              <div style="margin-top:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Уверенность OCR:</span><span style="font-weight:700;color:${confColor};">${v.ocrConf}%</span></div>
+                <div class="ocr-confidence"><div class="${confClass}" style="width:${v.ocrConf}%;"></div></div>
+              </div>
+              ${!v.ocrCorrect?`<div style="background:#FFEBEE;border:1px solid #FFCDD2;border-radius:6px;padding:7px 10px;font-size:11px;color:var(--accent-red);margin-top:8px;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Расхождение с ФИС.</strong> По данным ГИБДД-М зафиксирован номер ${v.plate} — требуется ручная проверка номера.
+              </div>`:''}
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">По данным ФИС ГИБДД-М:</div>
+              <div style="font-size:24px;font-weight:800;letter-spacing:3px;font-family:'Courier New',monospace;text-align:center;padding:9px;background:#F8FAFF;border:1px solid var(--border2);border-radius:8px;color:var(--text);">${v.plate}</div>
+              ${v.vtype.speed?`<div style="background:#FFF3E0;border:1px solid #FFE0B2;border-radius:6px;padding:7px 10px;font-size:11px;color:var(--accent);margin-top:8px;">
+                <div style="font-weight:700;">📏 Измеренная скорость: ${v.measSpeed} км/ч</div>
+                <div>Ограничение: ${lim} км/ч · Превышение: ${Math.max(0,v.measSpeed-lim)} км/ч</div>
+              </div>`:''}
+              <div style="font-size:10.5px;color:var(--text3);margin-top:8px;">Уверенность ${v.ocrConf}% — ${v.ocrConf>=85?'достаточна для автоматического подтверждения':(v.ocrConf>=65?'требуется проверка оператором':'низкая — ручной ввод номера обязателен')}.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><i class="fas fa-file-alt"></i>Данные нарушения</div></div>
+        <div class="card-body" style="padding:10px 12px;font-size:10.5px;">
+          ${row('Дата/Время',`<span class="mono">${v.date} ${v.time}</span>`)}
+          ${row('Адрес',v.cam.addr)}
+          ${row('Полоса',v.lane)}
+          ${row('Статья',`ст.${v.vtype.code} КоАП`)}
+          <div style="font-size:10px;color:var(--text2);margin:2px 0 4px;">${v.vtype.name}</div>
+          ${v.vtype.speed?row('Скорость',`${v.measSpeed} км/ч`,'style="color:var(--accent-red);"'):''}
+          ${row('Штраф',v.vtype.fine.toLocaleString('ru')+' ₽','style="color:var(--success);"')}
+          ${row('Срок оплаты',getPayDeadline()+' (60 суток)')}
+          ${row('OCR уверенность',v.ocrConf+'%',`style="color:${confColor};"`)}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><i class="fas fa-video"></i>Метаданные комплекса</div></div>
+        <div class="card-body" style="padding:10px 12px;font-size:10.5px;">
+          ${row('ID комплекса',v.cam.id,'mono')}
+          ${row('Модель',v.cam.model||'—')}
+          ${row('Поверка',v.cam.idPoverkiNum||'—')}
+          ${row('Свид. о поверке','до '+(v.cam.poverkaUntil||'15.12.2026'))}
+          ${row('Погрешность','±1.0 км/ч','mono')}
+          ${row('СТС',v.cam.idSTC||'—','mono')}
+          ${row('Координаты',`<span class="mono">${(v.cam.lat||55.7558).toFixed(4)}, ${(v.cam.lon||37.6176).toFixed(4)}</span>`)}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:9px 12px;background:#E8F5E9;border-radius:8px;font-size:10.5px;color:var(--success);">
+          <i class="fas fa-shield-alt"></i> <strong>Доказательная база:</strong><br>
+          • Фото нарушения<br>
+          • Видеозапись<br>
+          • Данные радара<br>
+          • Сертификат ФВФ
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;">
+    <button class="btn btn-s" onclick="closeModal('caseViewModal')">Закрыть</button>
+    ${v.status==='error'?`<button class="btn btn-d" onclick="closeModal('caseViewModal');s2_quickOpenOCR('${v.id}')"><i class="fas fa-user-edit"></i> Исправить госномер вручную</button>`:''}
+    <button class="btn btn-p" onclick="closeModal('caseViewModal');s2_quickOpenOCR('${v.id}')"><i class="fas fa-camera"></i> Открыть в OCR-верификации</button>
+  </div>`;
+  document.getElementById('caseViewModal').style.display='flex';
+  logEvent('case_view',{caseId:v.id,fixId:v.fixId,status:v.status});
+}
 function s2_quickOpenOCR(id){
   const v=S2T.violations.find(x=>x.id===id);
   if(v){
-    window._ocrList=S2T.violations.filter(x=>x.status==='new'||x.status==='error');
-    const idx=window._ocrList.findIndex(x=>x.id===id);
     s2_setSection('ocr',document.getElementById('nav-ocr'));
-    setTimeout(()=>s2_selectViolation(idx>=0?idx:0),100);
+    /* Дело с ошибкой OCR открыто для ручного ввода номера — засчитываем шаг «Обработка дела с ошибкой OCR» */
+    if(v.status==='error')s2_markQuest(10);
+    /* Выбираем запись по ID: список в панели OCR короче общего списка,
+       поэтому индекс из полной очереди вёл бы к чужому нарушению */
+    setTimeout(()=>s2_selectViolationById(id),100);
   }
+}
+/* Выбор записи очереди по ID (запись добавляется в список панели, если её там не было) */
+function s2_selectViolationById(id){
+  const list=window._ocrList||[];
+  let idx=list.findIndex(x=>x.id===id);
+  if(idx<0){
+    const v=S2T.violations.find(x=>x.id===id);
+    if(!v)return;
+    list.push(v);window._ocrList=list;idx=list.length-1;
+  }
+  s2_selectViolation(idx);
 }
 
 /* ============================================================
@@ -530,6 +884,7 @@ function s2_quickOpenOCR(id){
    ============================================================ */
 function s2_renderOwnerSearch(mc){
   const plate=S2T.current?.plate||'';
+  const mode=S2T.searchMode||'plate';
   mc.innerHTML=`
   <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -538,15 +893,17 @@ function s2_renderOwnerSearch(mc){
 
     <!-- ФОРМА ПОИСКА -->
     <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fas fa-database"></i>Запрос к ФИС ГИБДД-М / РЭО</div></div>
+      <div class="card-hdr">
+        <div class="card-title"><i class="fas fa-database"></i>Запрос к ФИС ГИБДД-М / РЭО</div>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm ${mode==='plate'?'btn-p':'btn-s'}" id="mode_plate" onclick="s2_setSearchMode('plate')"><i class="fas fa-hashtag"></i> По госномеру</button>
+          <button class="btn btn-sm ${mode==='vin'?'btn-p':'btn-s'}" id="mode_vin" onclick="s2_setSearchMode('vin')"><i class="fas fa-barcode"></i> По VIN</button>
+          <button class="btn btn-sm ${mode==='chassis'?'btn-p':'btn-s'}" id="mode_chassis" onclick="s2_setSearchMode('chassis')"><i class="fas fa-cogs"></i> По кузову/двигателю</button>
+        </div>
+      </div>
       <div class="card-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-          <div>
-            <div class="form-group">
-              <label class="form-label">Государственный номер ТС</label>
-              <input type="text" class="form-control plate-input" id="searchPlate" value="${plate}" style="font-size:18px;letter-spacing:3px;text-align:center;" placeholder="А000АА77">
-            </div>
-          </div>
+        <div id="searchFields">${s2_searchFieldsHTML(mode)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
           <div>
             <div class="form-group">
               <label class="form-label">Источник данных</label>
@@ -561,16 +918,17 @@ function s2_renderOwnerSearch(mc){
           <div>
             <div class="form-group">
               <label class="form-label">Дополнительно</label>
-              <select class="form-select">
-                <option>Проверить ограничения</option>
-                <option>Проверить розыск</option>
-                <option>История нарушений</option>
+              <select class="form-select" id="searchExtra">
+                <option value="">Без доп. проверки</option>
+                <option value="restrictions">Проверить ограничения</option>
+                <option value="wanted">Проверить розыск</option>
+                <option value="history">История нарушений</option>
               </select>
             </div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="btn btn-p" onclick="s2_doOwnerSearch()"><i class="fas fa-search"></i> Найти владельца</button>
+        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+          <button class="btn btn-p" id="btnSearch" onclick="s2_doOwnerSearch()"><i class="fas fa-search"></i> ${s2_searchButtonLabel(mode)}</button>
           <button class="btn btn-s" onclick="s2_searchByVIN()"><i class="fas fa-barcode"></i> По VIN</button>
           <button class="btn btn-s" onclick="s2_searchByChassis()"><i class="fas fa-cogs"></i> По кузову/двигателю</button>
         </div>
@@ -586,52 +944,146 @@ function s2_renderOwnerSearch(mc){
   // Если уже есть результат
   if(S2T.ownerFound&&S2T.owner) s2_displayOwnerResult(S2T.owner,S2T.vehicle);
 }
+/* Поля формы в зависимости от режима поиска */
+function s2_searchFieldsHTML(mode){
+  if(mode==='vin')return `
+    <div class="form-group">
+      <label class="form-label">VIN-номер транспортного средства</label>
+      <input type="text" class="form-control mono" id="searchVin" maxlength="17" placeholder="XW8ZZZ5E1FS123456"
+        style="font-size:16px;letter-spacing:1px;font-family:'Courier New',monospace;text-transform:uppercase;">
+    </div>
+    <div style="font-size:10.5px;color:var(--text3);">VIN — 17 знаков без пробелов. Запрос выполняется по базе ТС (АИПС «Автомобиль»); при нескольких совпадениях выводится список.</div>`;
+  if(mode==='chassis'){
+    const bodies=CAFAP_DB.nsi.table('body_types');
+    return `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label">Марка / модель</label>
+        <input type="text" class="form-control" id="searchModel" placeholder="Ford Focus"></div>
+      <div class="form-group"><label class="form-label">Тип кузова</label>
+        <select class="form-select" id="searchBody"><option value="">— любой —</option>${bodies.map(b=>`<option value="${b.code}">${b.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Номер двигателя</label>
+        <input type="text" class="form-control mono" id="searchEngine" placeholder="XW1234567" style="text-transform:uppercase;"></div>
+    </div>
+    <div style="font-size:10.5px;color:var(--text3);">Заполните хотя бы одно поле. Запрос выполняется по базе ТС (АИПС «Автомобиль»); при нескольких совпадениях выводится список.</div>`;
+  }
+  return `<div class="form-group">
+      <label class="form-label">Государственный номер ТС</label>
+      <input type="text" class="form-control plate-input" id="searchPlate" value="${S2T.current?.plate||''}" style="font-size:18px;letter-spacing:3px;text-align:center;" placeholder="А000АА77">
+    </div>`;
+}
+function s2_searchButtonLabel(mode){
+  return mode==='vin'?'Найти по VIN':mode==='chassis'?'Найти по кузову/двигателю':'Найти владельца';
+}
+/* Переключение режима поиска */
+function s2_setSearchMode(mode){
+  S2T.searchMode=mode;
+  const box=document.getElementById('searchFields');
+  if(box)box.innerHTML=s2_searchFieldsHTML(mode);
+  ['plate','vin','chassis'].forEach(m=>{
+    const b=document.getElementById('mode_'+m);
+    if(b)b.className='btn btn-sm '+(m===mode?'btn-p':'btn-s');
+  });
+  const btn=document.getElementById('btnSearch');
+  if(btn)btn.innerHTML='<i class="fas fa-search"></i> '+s2_searchButtonLabel(mode);
+  const res=document.getElementById('ownerResult');
+  if(res)res.innerHTML='';
+  const hist=document.getElementById('violHistory');
+  if(hist)hist.innerHTML='';
+}
 
 function s2_doOwnerSearch(){
-  const plate=document.getElementById('searchPlate').value.trim().toUpperCase();
+  const mode=S2T.searchMode||'plate';
+  if(mode==='vin')return s2_searchByVIN(true);
+  if(mode==='chassis')return s2_searchByChassis(true);
+  const inp=document.getElementById('searchPlate');
+  const plate=inp?inp.value.trim().toUpperCase():'';
   if(!plate){toast('Введите госномер ТС','error');return;}
+  s2_searchAnim('Запрос к РЭО ГИБДД...','Подключение к ФИС ГИБДД-М...',()=>{
+    const card=CAFAP_DB.fis.lookup(plate);
+    if(!card||!card.owner){
+      s2_showSearchEmpty(`ТС с госномером <span class="plate" style="font-size:11px;">${plate}</span> в ФИС ГИБДД-М не найдено`,
+        'Проверьте написание номера (буквы кириллицей, регион) и повторите запрос. Возможно, номер распознан неверно — вернитесь к OCR-верификации.');
+      return;
+    }
+    s2_showOwnerCard(card);
+  });
+}
+/* Имитация запроса к внешней базе + выполнение поиска */
+function s2_searchAnim(title,log0,cb){
   const res=document.getElementById('ownerResult');
-  res.innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:24px;">
+  if(res)res.innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:24px;">
     <i class="fas fa-circle-notch fa-spin" style="font-size:32px;color:var(--primary);margin-bottom:10px;"></i>
-    <div style="font-size:13px;font-weight:600;">Запрос к РЭО ГИБДД...</div>
-    <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="searchLog">Подключение к ФИС ГИБДД-М...</div>
+    <div style="font-size:13px;font-weight:600;">${title}</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="searchLog">${log0}</div>
   </div></div>`;
-  const logs=['Подключение к ФИС ГИБДД-М...','Запрос к РЭО региона 77...','Поиск по базе ТС...','Получение данных владельца...','Проверка ограничений...','Формирование ответа...'];
+  const logs=[log0,'Запрос к РЭО региона 77...','Поиск по базе ТС...','Получение данных владельца...','Проверка ограничений...','Формирование ответа...'];
   let i=0;
   const int=setInterval(()=>{
     const logEl=document.getElementById('searchLog');
     if(logEl&&i<logs.length)logEl.textContent=logs[i++];
   },300);
-  setTimeout(()=>{
-    clearInterval(int);
-    // Запрос к базе ФИС ГИБДД-М (data/fis_gibdd_m.js)
-    const card=CAFAP_DB.fis.lookup(plate);
-    if(!card||!card.owner){
-      S2T.ownerFound=false;S2T.fisCard=null;
-      res.innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:22px;">
-        <i class="fas fa-search-minus" style="font-size:30px;color:var(--accent-red);margin-bottom:8px;"></i>
-        <div style="font-size:13px;font-weight:700;">ТС с госномером <span class="plate" style="font-size:11px;">${plate}</span> в ФИС ГИБДД-М не найдено</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:6px;">Проверьте написание номера (буквы кириллицей, регион) и повторите запрос. Возможно, номер распознан неверно — вернитесь к OCR-верификации.</div>
-      </div></div>`;
-      toast('ТС не найдено в ФИС ГИБДД-М — проверьте госномер','error');
-      return;
-    }
-    const owner=CAFAP_DB.fis.simOwner(card.owner), vehicle=CAFAP_DB.fis.simVehicle(card.vehicle);
-    S2T.fisCard=card;
-    S2T.owner=owner;S2T.vehicle=vehicle;S2T.ownerFound=true;
-    S2T.current&&(S2T.current.ownerData={owner,vehicle});
-    setEl('ctxOwner','textContent',CAFAP_DB.fis.shortName(card.owner));
-    s2_displayOwnerResult(owner,vehicle);
-    s2_updateStageProgress(2);
-    s2_markQuest(4);
-    toast(`Владелец найден: ${owner.fam} ${owner.im} ${owner.ot}`,'success');
-  },2000);
+  setTimeout(()=>{clearInterval(int);try{cb();}catch(e){toast('Ошибка запроса: '+e.message,'error');}},2000);
+}
+/* Пустой результат запроса */
+function s2_showSearchEmpty(title,hint){
+  const res=document.getElementById('ownerResult');
+  if(!res)return;
+  res.innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:22px;">
+    <i class="fas fa-search-minus" style="font-size:30px;color:var(--accent-red);margin-bottom:8px;"></i>
+    <div style="font-size:13px;font-weight:700;">${title}</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;">${hint}</div>
+  </div></div>`;
+  toast('Совпадений не найдено','error');
+}
+/* Карточка ТС и владельца */
+function s2_showOwnerCard(card){
+  if(!card||!card.owner)return;
+  const owner=CAFAP_DB.fis.simOwner(card.owner), vehicle=CAFAP_DB.fis.simVehicle(card.vehicle);
+  S2T.fisCard=card;
+  S2T.owner=owner;S2T.vehicle=vehicle;S2T.ownerFound=true;
+  S2T.current&&(S2T.current.ownerData={owner,vehicle});
+  setEl('ctxOwner','textContent',CAFAP_DB.fis.shortName(card.owner));
+  s2_displayOwnerResult(owner,vehicle);
+  s2_updateStageProgress(2);
+  s2_markQuest(4);
+  toast(`Владелец найден: ${owner.fam} ${owner.im} ${owner.ot}`,'success');
+}
+/* Список найденных ТС (несколько совпадений) */
+function s2_showVehicleList(cards,caption){
+  const res=document.getElementById('ownerResult');
+  if(!res)return;
+  const bodyName=code=>{const b=CAFAP_DB.nsi.table('body_types').find(x=>x.code===code);return b?b.name:code;};
+  res.innerHTML=`
+  <div class="card">
+    <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Результаты запроса${caption?' — '+caption:''}</div><span class="sbadge sb-new">${cards.length} совпадений</span></div>
+    <div class="card-body" style="padding:0;overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr><th>Г/Н</th><th>Марка/модель</th><th>Кузов</th><th>VIN</th><th>Двигатель</th><th>Владелец</th><th>Действия</th></tr></thead>
+        <tbody>${cards.map(c=>{const v=c.vehicle,o=c.owner;return `<tr>
+          <td><span class="plate" style="font-size:10.5px;">${v.plate}</span></td>
+          <td style="font-size:11px;">${v.make} ${v.model}</td>
+          <td style="font-size:11px;">${bodyName(v.body)}</td>
+          <td class="mono" style="font-size:10px;">${v.vin}</td>
+          <td class="mono" style="font-size:10px;">${v.engine||'—'}</td>
+          <td style="font-size:11px;">${o?CAFAP_DB.fis.shortName(o):'—'}</td>
+          <td><button class="btn btn-p btn-sm" onclick="s2_openVehicleCard('${v.id}')"><i class="fas fa-user"></i> Карточка</button></td>
+        </tr>`;}).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function s2_openVehicleCard(vehId){
+  const v=CAFAP_DB.fis.table('vehicles').find(x=>x.id===vehId);
+  if(!v){toast('ТС не найдено','error');return;}
+  s2_showOwnerCard(CAFAP_DB.fis.card(v));
 }
 
 function s2_displayOwnerResult(owner,vehicle){
   const res=document.getElementById('ownerResult');
   const fc=S2T.fisCard||null;
-  const plate=S2T.current?.plate||document.getElementById('searchPlate')?.value||'';
+  /* Госномер берём у найденного ТС — при поиске по VIN/кузову он может отличаться
+     от номера текущего нарушения */
+  const plate=vehicle.plate||S2T.current?.plate||document.getElementById('searchPlate')?.value||'';
   if(!res)return; /* пользователь уже ушёл из раздела */
   res.innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -662,6 +1114,8 @@ function s2_displayOwnerResult(owner,vehicle){
             <div class="owner-field"><span class="owner-label">Госномер</span><span class="owner-val"><span class="plate" style="font-size:11px;">${plate}</span></span></div>
             <div class="owner-field"><span class="owner-label">Год выпуска</span><span class="owner-val">${vehicle.year}</span></div>
             <div class="owner-field"><span class="owner-label">VIN</span><span class="owner-val mono" style="font-size:11px;">${vehicle.vin}</span></div>
+            <div class="owner-field"><span class="owner-label">Номер двигателя</span><span class="owner-val mono" style="font-size:11px;">${vehicle.engine||'—'}</span></div>
+            <div class="owner-field"><span class="owner-label">Кузов</span><span class="owner-val">${(()=>{const b=CAFAP_DB.nsi.table('body_types').find(x=>x.code===vehicle.body);return b?b.name:(vehicle.body||'—');})()}</span></div>
             <div class="owner-field"><span class="owner-label">Марка/Модель</span><span class="owner-val">${vehicle.brand} ${vehicle.model}</span></div>
             <div class="owner-field"><span class="owner-label">Цвет</span><span class="owner-val">${vehicle.color}</span></div>
             <div class="owner-field"><span class="owner-label">В розыске</span><span class="owner-val" style="color:${fc&&fc.wanted?'var(--accent-red)':'var(--success)'};font-weight:${fc&&fc.wanted?800:600};">${fc&&fc.wanted?'ДА ⚠ '+fc.wanted.reason+' ('+fc.wanted.id+')':'НЕТ ✓'}</span></div>
@@ -690,8 +1144,52 @@ function s2_displayOwnerResult(owner,vehicle){
   }
 }
 
-function s2_searchByVIN(){toast('Поиск по VIN-номеру... Введите VIN для запроса к АИПС','info');}
-function s2_searchByChassis(){toast('Поиск по номеру кузова/двигателя...','info');}
+/* Поиск по VIN: переключает форму на режим VIN (run=true — выполнить запрос) */
+function s2_searchByVIN(run){
+  if(!run){
+    s2_setSearchMode('vin');
+    toast('Укажите VIN в поле выше и нажмите «Найти по VIN»','info');
+    return;
+  }
+  const el=document.getElementById('searchVin');
+  const vin=(el?el.value:'').toUpperCase().replace(/[\s-]/g,'');
+  if(vin.length<8){toast('Введите VIN (17 знаков)','error');return;}
+  s2_searchAnim('Запрос к АИПС «Автомобиль» по VIN...','Подключение к базе ТС...',()=>{
+    const cards=CAFAP_DB.fis.search({vin});
+    if(!cards.length){
+      s2_showSearchEmpty(`ТС с VIN <span class="mono">${vin}</span> в базе не найдено`,
+        'Проверьте VIN: 17 знаков, латиницей, без пробелов и кириллицы.');
+      return;
+    }
+    if(cards.length===1){s2_showOwnerCard(cards[0]);return;}
+    s2_showVehicleList(cards,'VIN: '+vin);
+  });
+}
+/* Поиск по кузову / номеру двигателя: переключает форму на режим «кузов» (run=true — выполнить запрос) */
+function s2_searchByChassis(run){
+  if(!run){
+    s2_setSearchMode('chassis');
+    toast('Заполните марку/модель, тип кузова или номер двигателя','info');
+    return;
+  }
+  const model=(document.getElementById('searchModel')?.value||'').trim();
+  const body=document.getElementById('searchBody')?.value||'';
+  const engine=(document.getElementById('searchEngine')?.value||'').trim().toUpperCase();
+  if(!model&&!body&&!engine){
+    toast('Заполните марку/модель, тип кузова или номер двигателя','error');return;
+  }
+  s2_searchAnim('Запрос к АИПС «Автомобиль» по кузову/двигателю...','Подключение к базе ТС...',()=>{
+    const cards=CAFAP_DB.fis.search({model,body,engine});
+    if(!cards.length){
+      s2_showSearchEmpty('ТС по заданным условиям не найдено',
+        'Измените условия запроса: марка/модель, тип кузова или номер двигателя.');
+      return;
+    }
+    if(cards.length===1){s2_showOwnerCard(cards[0]);return;}
+    const caption=[model&&('марка/модель: '+model),body&&('кузов: '+body),engine&&('двигатель: '+engine)].filter(Boolean).join(' · ');
+    s2_showVehicleList(cards,caption);
+  });
+}
 
 function s2_openLVOK(){
   if(!S2T.owner)return;
@@ -915,10 +1413,12 @@ function s2_renderEvidence(mc){
     `<div style="display:grid;grid-template-columns:1fr 280px;gap:12px;">
       <!-- Главное фото -->
       <div class="card">
-        <div class="card-hdr"><div class="card-title"><i class="fas fa-camera"></i>Фотоматериал (кадр ${1}/4)</div>
+        <div class="card-hdr"><div class="card-title"><i class="fas fa-camera"></i>Фотоматериал (кадр 1/4)</div>
           <div style="display:flex;gap:4px;">
-            <button class="btn btn-s btn-sm" onclick="toast('Скачать доказательство...','info')"><i class="fas fa-download"></i></button>
-            <button class="btn btn-s btn-sm" onclick="toast('Печать доказательств...','info')"><i class="fas fa-print"></i></button>
+            <button class="btn btn-s btn-sm" title="Скачать исходный файл снимка" onclick="s2_downloadSource()"><i class="fas fa-download"></i></button>
+            <button class="btn btn-s btn-sm" title="Скачать все 4 кадра в PNG" onclick="s2_exportAllFrames()"><i class="fas fa-images"></i></button>
+            <button class="btn btn-s btn-sm" title="Скачать протокол осмотра (TXT)" onclick="s2_downloadProtocol()"><i class="fas fa-file-alt"></i></button>
+            <button class="btn btn-s btn-sm" title="Печать фотоматериала" onclick="s2_printEvidence()"><i class="fas fa-print"></i></button>
           </div>
         </div>
         ${s2_photoMaterialHTML(v)}
@@ -954,9 +1454,13 @@ function s2_renderEvidence(mc){
         <div class="card">
           <div class="card-hdr"><div class="card-title"><i class="fas fa-hashtag"></i>Хеш-суммы файлов</div></div>
           <div class="card-body" style="padding:8px 12px;font-size:10px;">
+            <div style="margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid var(--border2);">
+              <div style="font-weight:600;">${CAFAP_SNAP.baseName(v.image||'снимок')}</div>
+              <div class="mono" style="color:var(--text3);font-size:9.5px;word-break:break-all;">MD5: ${s2_fakeHash(v.fixId+'src')}</div>
+            </div>
             ${[1,2,3,4].map(n=>`<div style="margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid var(--border2);">
-              <div style="font-weight:600;">Кадр ${n}.jpg</div>
-              <div class="mono" style="color:var(--text3);font-size:9.5px;word-break:break-all;">MD5: ${Array.from({length:32},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('')}</div>
+              <div style="font-weight:600;">Кадр ${n}.png</div>
+              <div class="mono" style="color:var(--text3);font-size:9.5px;word-break:break-all;">MD5: ${s2_fakeHash((v.fixId||'')+'kadr'+n)}</div>
             </div>`).join('')}
           </div>
         </div>
@@ -1017,13 +1521,14 @@ function s2_markQuest(idx){
   if(!S2T.quest.done.includes(idx)){
     S2T.quest.done.push(idx);
     QSTEPS[idx]&&(QSTEPS[idx].done=true);
+    syncQuestPointer(S2T.quest,QSTEPS.length);
     s2_updateQuestUI();
     logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});
     toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');
   }
 }
 function s2_nextQuest(){
-  if(S2T.quest.step<QSTEPS.length-1){s2_markQuest(S2T.quest.step);S2T.quest.step++;s2_updateQuestUI();}
+  if(S2T.quest.step<QSTEPS.length-1){s2_markQuest(S2T.quest.step);s2_updateQuestUI();}
   else{toast('🎓 Этап 2 пройден! Переходите к Этапу 3.','success');s2_markQuest(S2T.quest.step);}
 }
 function s2_restartQuest(){S2T.quest.done=[];S2T.quest.step=0;QSTEPS.forEach(s=>s.done=false);s2_updateQuestUI();toast('Квест перезапущен','info');}
@@ -1109,8 +1614,31 @@ function toast(msg,type='info'){
 
 /* ------ Stage 2 exports ------ */
   window.s2_setSection = (typeof s2_setSection!=="undefined") ? s2_setSection : window.s2_setSection;
+  window.s2_setQueuePage = (typeof s2_setQueuePage!=="undefined") ? s2_setQueuePage : window.s2_setQueuePage;
+  window.s2_applyQueueFilter = (typeof s2_applyQueueFilter!=="undefined") ? s2_applyQueueFilter : window.s2_applyQueueFilter;
+  window.s2_searchQueue = (typeof s2_searchQueue!=="undefined") ? s2_searchQueue : window.s2_searchQueue;
+  window.s2_pagerHTML = (typeof s2_pagerHTML!=="undefined") ? s2_pagerHTML : window.s2_pagerHTML;
   window.s2_renderOCR = (typeof s2_renderOCR!=="undefined") ? s2_renderOCR : window.s2_renderOCR;
   window.s2_selectViolation = (typeof s2_selectViolation!=="undefined") ? s2_selectViolation : window.s2_selectViolation;
+  window.s2_selectViolationById = (typeof s2_selectViolationById!=="undefined") ? s2_selectViolationById : window.s2_selectViolationById;
+  window.s2_setSearchMode = (typeof s2_setSearchMode!=="undefined") ? s2_setSearchMode : window.s2_setSearchMode;
+  window.s2_searchFieldsHTML = (typeof s2_searchFieldsHTML!=="undefined") ? s2_searchFieldsHTML : window.s2_searchFieldsHTML;
+  window.s2_showOwnerCard = (typeof s2_showOwnerCard!=="undefined") ? s2_showOwnerCard : window.s2_showOwnerCard;
+  window.s2_showVehicleList = (typeof s2_showVehicleList!=="undefined") ? s2_showVehicleList : window.s2_showVehicleList;
+  window.s2_openVehicleCard = (typeof s2_openVehicleCard!=="undefined") ? s2_openVehicleCard : window.s2_openVehicleCard;
+  window.s2_exportFrame = (typeof s2_exportFrame!=="undefined") ? s2_exportFrame : window.s2_exportFrame;
+  window.s2_loadSnapshotImage = (typeof s2_loadSnapshotImage!=="undefined") ? s2_loadSnapshotImage : window.s2_loadSnapshotImage;
+  window.s2_saveBlob = (typeof s2_saveBlob!=="undefined") ? s2_saveBlob : window.s2_saveBlob;
+  window.s2_crop = (typeof s2_crop!=="undefined") ? s2_crop : window.s2_crop;
+  window.s2_frames = (typeof s2_frames!=="undefined") ? s2_frames : window.s2_frames;
+  window.s2_fakeHash = (typeof s2_fakeHash!=="undefined") ? s2_fakeHash : window.s2_fakeHash;
+  window.s2_searchAnim = (typeof s2_searchAnim!=="undefined") ? s2_searchAnim : window.s2_searchAnim;
+  window.s2_showSearchEmpty = (typeof s2_showSearchEmpty!=="undefined") ? s2_showSearchEmpty : window.s2_showSearchEmpty;
+  window.s2_exportAllFrames = (typeof s2_exportAllFrames!=="undefined") ? s2_exportAllFrames : window.s2_exportAllFrames;
+  window.s2_downloadSource = (typeof s2_downloadSource!=="undefined") ? s2_downloadSource : window.s2_downloadSource;
+  window.s2_downloadProtocol = (typeof s2_downloadProtocol!=="undefined") ? s2_downloadProtocol : window.s2_downloadProtocol;
+  window.s2_printEvidence = (typeof s2_printEvidence!=="undefined") ? s2_printEvidence : window.s2_printEvidence;
+  window.s2_photoMaterialHTML = (typeof s2_photoMaterialHTML!=="undefined") ? s2_photoMaterialHTML : window.s2_photoMaterialHTML;
   window.s2_renderOCRCenter = (typeof s2_renderOCRCenter!=="undefined") ? s2_renderOCRCenter : window.s2_renderOCRCenter;
   window.s2_renderOCRMeta = (typeof s2_renderOCRMeta!=="undefined") ? s2_renderOCRMeta : window.s2_renderOCRMeta;
   window.s2_confirmPlate = (typeof s2_confirmPlate!=="undefined") ? s2_confirmPlate : window.s2_confirmPlate;
@@ -1133,6 +1661,7 @@ function toast(msg,type='info'){
   window.s2_saveDraft = (typeof s2_saveDraft!=="undefined") ? s2_saveDraft : window.s2_saveDraft;
   window.s2_submitCase = (typeof s2_submitCase!=="undefined") ? s2_submitCase : window.s2_submitCase;
   window.s2_showCaseModal = (typeof s2_showCaseModal!=="undefined") ? s2_showCaseModal : window.s2_showCaseModal;
+  window.s2_openCaseView = (typeof s2_openCaseView!=="undefined") ? s2_openCaseView : window.s2_openCaseView;
   window.s2_renderEvidence = (typeof s2_renderEvidence!=="undefined") ? s2_renderEvidence : window.s2_renderEvidence;
   window.s2_updateStageProgress = (typeof s2_updateStageProgress!=="undefined") ? s2_updateStageProgress : window.s2_updateStageProgress;
   window.s2_initQuest = (typeof s2_initQuest!=="undefined") ? s2_initQuest : window.s2_initQuest;
@@ -1142,6 +1671,7 @@ function toast(msg,type='info'){
   window.s2_updateQuestUI = (typeof s2_updateQuestUI!=="undefined") ? s2_updateQuestUI : window.s2_updateQuestUI;
   window.s2_switchInstTab = (typeof s2_switchInstTab!=="undefined") ? s2_switchInstTab : window.s2_switchInstTab;
   window.s2_renderInstContent = (typeof s2_renderInstContent!=="undefined") ? s2_renderInstContent : window.s2_renderInstContent;
+  window.s2_questSteps=QSTEPS;
   window.s2_toggleInst = (typeof s2_toggleInst!=="undefined") ? s2_toggleInst : window.s2_toggleInst;
   if(typeof S2T!=="undefined") window.S2T = S2T;
   window.onPlateInput=onPlateInput; window.s2_zoomPhoto=s2_zoomPhoto; window.s2_openPhotoMaterial=s2_openPhotoMaterial;

@@ -187,6 +187,19 @@ function build(seed = 20261027) {
   const vehId = () => 'VEH-' + pad(++vehSeq, 6);
   const modelWeights = P.MODELS.map(m => [m, m[7]]);
   const regByOwner = o => o.region;
+  /* Номер двигателя (для поиска по кузову/двигателю в АИПС).
+     Считается из ID, а не из ГСЧ: добавление поля не должно сдвигать всю
+     последовательность генерации (номера, фамилии, снимки остаются прежними). */
+  const ENG_PREFIX = ['XW', 'XU', 'KM', 'Z', '1', '4', 'J', 'W', 'UD', 'HB', 'N3', 'B6'];
+  function engineNo(id) {
+    let h = 0x811c9dc5;
+    const mix = x => { h = Math.imul(x ^ (h >>> 15), 0x2545f491) >>> 0; return h; };
+    for (let i = 0; i < id.length; i++) mix(id.charCodeAt(i));
+    const pre = ENG_PREFIX[h % ENG_PREFIX.length];
+    let d = '';
+    for (let i = 0; i < 7; i++) { h = mix(h + 1); d += String(h % 10); }
+    return pre + d;
+  }
 
   function mkVehicle(o, spec = {}) {
     const m = spec.model || rng.weighted(modelWeights);
@@ -202,8 +215,10 @@ function build(seed = 20261027) {
     const regDate = new Date(year + (rng.chance(0.7) ? 0 : rng.int(0, 3)), rng.int(0, 11), rng.int(1, 28));
     if (regDate > NOW) regDate.setFullYear(NOW.getFullYear() - 1);
     const osagoStatus = rng.weighted([['valid', 84], ['expired', 11], ['none', 5]]);
+    const vid = vehId();
     const v = {
-      id: vehId(), plate, region, vin, make, model, body, category: m[3], year, color: colorName,
+      id: vid, plate, region, vin, make, model, body, category: m[3], year, color: colorName,
+      engine: spec.engine || engineNo(vid),
       power: spec.power || rng.pick([82, 90, 106, 110, 122, 136, 150, 170, 190, 249, 300]),
       sts: `${reg2(region)} ${pad(rng.int(10, 99), 2)} ${rng.digits(6)}`, pts: `${reg2(region)} ${rng.pick(P.PLATE_LETTERS)}${rng.pick(P.PLATE_LETTERS)} ${rng.digits(6)}`,
       regDate: fmt(regDate), regStatus: rng.weighted([['registered', 96], ['suspended', 2], ['removed', 2]]), ownerId: o.id,

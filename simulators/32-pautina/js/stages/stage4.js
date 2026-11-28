@@ -146,7 +146,7 @@ function s4_renderMail(mc){
     </div>
 
     <!-- Таблица почтовой очереди -->
-    <div class="card" style="flex:1;">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:220px;">
       <div class="card-hdr">
         <div class="card-title"><i class="fas fa-inbox"></i>Реестр почтовых отправлений <span class="live-ind" style="margin-left:5px;">LIVE</span></div>
         <div style="display:flex;gap:6px;">
@@ -160,7 +160,7 @@ function s4_renderMail(mc){
           </select>
         </div>
       </div>
-      <div style="overflow-y:auto;max-height:340px;">
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr>
             <th><input type="checkbox" onchange="s4_selectAll(this)" style="cursor:pointer;"></th>
@@ -179,7 +179,6 @@ function s4_renderMail(mc){
       </div>
     </div>
   </div>`;
-  s4_markQuest(0);
 }
 
 function mailRow(m,i){
@@ -252,7 +251,7 @@ function s4_showLetter(idx){
       ${m.status==='pending'?`<button class="btn btn-post" onclick="s4_sendSingle(${idx});closeModal('letterModal')"><i class="fas fa-paper-plane"></i> Отправить</button>`:''}
     </div>`;
   document.getElementById('letterModal').style.display='flex';
-  s4_markQuest(1);
+  s4_markQuest(0); s4_markQuest(1);
 }
 
 function s4_sendSingle(idx){
@@ -356,9 +355,10 @@ function s4_renderPrint(mc){
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Задания на печать</div></div>
-      <div style="overflow-x:auto;">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:190px;">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Задания на печать</div>
+        <span style="font-size:11px;color:var(--text3);">${items.length} заданий · таблица прокручивается</span></div>
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr><th>№</th><th>Постановление</th><th>Получатель</th><th>Г/Н</th><th>Штраф</th><th>Страниц</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody>${items.map((m,i)=>`<tr id="prow-${i}">
@@ -403,14 +403,150 @@ function s4_startPrintAll(){
       if(btn){btn.disabled=false;btn.innerHTML=`<i class="fas fa-check"></i> Напечатано ${total} документов`;}
       s4_markQuest(5);
       toast(`Печать завершена: ${total} постановлений`,'success');
+      /* открываем диалог печати — там можно выбрать «Сохранить как PDF» */
+      setTimeout(()=>s4_printAllDocs(),400);
     }
   },120);
 }
 
+/* ============================================================
+   ПЕЧАТЬ ПОСТАНОВЛЕНИЙ (диалог печати браузера → «Сохранить как PDF»)
+   ============================================================ */
+/* Псевдо-подпись должностного лица: плавная кривая по детерминированной seed-строке */
+function s4_signaturePath(seed){
+  let h=2166136261;
+  for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
+  const rnd=()=>{h=(Math.imul(h,1664525)+1013904223)>>>0;return h/4294967296;};
+  const n=11, base=36;
+  const pts=[];
+  let x=58;
+  for(let i=0;i<n;i++){
+    const w=16+rnd()*24;
+    pts.push([x, base+(rnd()<.62?-(6+rnd()*20):(2+rnd()*7))]);
+    x+=w;
+  }
+  let d=`M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for(let i=1;i<pts.length;i++){
+    const[x0,y0]=pts[i-1],[x1,y1]=pts[i];
+    const w=x1-x0, amp=(rnd()<.5?-1:1)*(8+rnd()*16);
+    d+=` C ${(x0+w*.28).toFixed(1)} ${(y0+amp).toFixed(1)} ${(x0+w*.70).toFixed(1)} ${(y1-amp*.9).toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+  /* завершающий росчерк */
+  const lx=pts[n-1][0], ly=pts[n-1][1];
+  d+=` C ${(lx+26).toFixed(1)} ${(ly-26).toFixed(1)} ${(lx+70).toFixed(1)} ${(ly+16).toFixed(1)} ${(lx+124).toFixed(1)} ${(ly-10).toFixed(1)}`;
+  d+=` C ${(lx+150).toFixed(1)} ${(ly-20).toFixed(1)} ${(lx+168).toFixed(1)} ${(ly-4).toFixed(1)} ${(lx+186).toFixed(1)} ${(ly-14).toFixed(1)}`;
+  return d;
+}
+/* Блок электронной подписи должностного лица, вынесшего постановление */
+function s4_signBlockHTML(m){
+  const ses=(window.SPA_STATE&&SPA_STATE.cadet)||{};
+  const fio=(ses.fio||'Иванов Иван Иванович').trim();
+  const post='Инспектор ЦАФАП ОДД ГИБДД ГУ МВД России по г. Москве';
+  const seed=(m.id||'')+'|'+(m.plate||'')+'|'+(m.uin||'')+'|'+(fio||'');
+  let h=2166136261;
+  for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
+  const hex=h.toString(16).toUpperCase().padStart(8,'0');
+  const cert=hex.slice(0,4)+'-'+hex.slice(4,6)+'-'+hex.slice(6,8)+'-'+hex.slice(0,4);
+  const sha=(hex+hex.split('').reverse().join('')+hex+hex.slice(2,8).toUpperCase()).toLowerCase();
+  /* матрица кода проверки подписи (учебная, не QR) */
+  let bits=0; for(let i=0;i<seed.length;i++)bits=(bits*31+seed.charCodeAt(i))>>>0;
+  let cells='';
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    bits=(Math.imul(bits,1103515245)+12345)>>>0;
+    if((bits>>>16)&1)cells+=`<rect x="${c*4}" y="${r*4}" width="4" height="4" fill="#111"/>`;
+  }
+  const dt=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const dstr=pad(dt.getDate())+'.'+pad(dt.getMonth()+1)+'.'+dt.getFullYear()+' '+pad(dt.getHours())+':'+pad(dt.getMinutes());
+  return `<div class="sign-block">
+  <div class="sign-title">Электронная подпись (ЭП) должностного лица</div>
+  <table class="sign-table">
+    <tr><th>Должностное лицо</th><td>${post}</td></tr>
+    <tr><th>ФИО</th><td>${fio}</td></tr>
+    <tr><th>Сертификат ЭП</th><td>№ ${cert} (учебный УЦ)</td></tr>
+    <tr><th>Срок действия</th><td>до ${pad(dt.getDate())}.${pad(dt.getMonth()+1)}.${dt.getFullYear()+1}</td></tr>
+    <tr><th>Хэш подписи (SHA-256)</th><td class="mono" style="font-size:8.5pt;">${sha.slice(0,40)}…</td></tr>
+  </table>
+  <div class="sign-row">
+    <div class="sign-img"><svg viewBox="0 0 420 60" width="300" height="43"><path d="${s4_signaturePath(seed)}" fill="none" stroke="#12306e" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <div class="sign-cap">${fio}</div></div>
+    <div class="sign-qr"><svg viewBox="0 0 28 28" width="46" height="46" shape-rendering="crispEdges">${cells}</svg>
+      <div class="sign-cap">код проверки</div></div>
+    <div class="sign-stamp">
+      <div class="sign-stamp-t">Подписано ЭП</div>
+      <div class="sign-stamp-d">${dstr}</div>
+      <div class="sign-stamp-s">сертификат действителен</div>
+    </div>
+  </div>
+</div>`;
+}
+/* Печатная форма постановления */
+function s4_decisionDocHTML(m){
+  const pay=new Date();pay.setDate(pay.getDate()+60);
+  const pf=d=>d.toLocaleDateString('ru');
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Постановление ${m.decId}</title>
+<style>
+  @page{size:A4;margin:16mm}
+  body{font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000;margin:0;background:#fff}
+  .doc{max-width:170mm;margin:0 auto}
+  h1{font-size:14pt;text-align:center;margin:0 0 2px;letter-spacing:1px}
+  .sub{text-align:center;font-size:11pt;margin-bottom:12px}
+  .num{text-align:right;font-size:11pt;margin-bottom:14px}
+  p{margin:0 0 10px;text-align:justify;line-height:1.55}
+  table{width:100%;border-collapse:collapse;margin:10px 0}
+  th,td{border:1px solid #000;padding:5px 8px;font-size:11pt;text-align:left;vertical-align:top}
+  th{background:#eee;width:32%}
+  .fine{text-align:center;font-weight:bold;font-size:13pt;margin:10px 0}
+  .sign{margin-top:30px;display:flex;justify-content:space-between;font-size:11pt;gap:20px}
+  .foot{margin-top:28px;font-size:9.5pt;color:#333;line-height:1.5;border-top:1px solid #999;padding-top:6px}
+  .sign-block{margin-top:16px;border:1px solid #12306e;border-radius:5px;padding:10px 12px 8px;background:#fafbfe}
+  .sign-title{font-size:9pt;font-weight:700;color:#12306e;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+  .sign-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+  .sign-table th{border:none;border-bottom:1px dotted #b9c2d6;padding:3px 8px 3px 0;font-size:9pt;color:#444;text-align:left;width:38%;vertical-align:top}
+  .sign-table td{border:none;border-bottom:1px dotted #b9c2d6;padding:3px 0;font-size:9.5pt}
+  .sign-row{display:flex;align-items:flex-end;gap:18px;margin-top:4px}
+  .sign-img{border-bottom:1px solid #444;padding-bottom:2px}
+  .sign-cap{font-size:7.5pt;color:#555;text-align:center;margin-top:2px}
+  .sign-qr{text-align:center}
+  .sign-stamp{margin-left:auto;border:2px solid #12306e;border-radius:6px;padding:7px 11px;text-align:center;transform:rotate(-4deg);opacity:.82}
+  .sign-stamp-t{font-size:9.5pt;font-weight:700;color:#12306e}
+  .sign-stamp-d{font-size:8.5pt;color:#12306e;font-family:'Courier New',monospace}
+  .sign-stamp-s{font-size:7pt;color:#4a5a80}
+</style></head><body><div class="doc">
+  <h1>ПОСТАНОВЛЕНИЕ</h1>
+  <div class="sub">по делу об административном правонарушении</div>
+  <div class="num">№ ${m.decId}</div>
+  <p>ЦАФАП ОДД ГИБДД ГУ МВД России по г. Москве, рассмотрев материалы дела об административном правонарушении, зафиксированном в автоматическом режиме специальным техническим средством, установил:</p>
+  <p><b>${pf(new Date())} в г. Москве</b> транспортное средство <b>${m.plate}</b>, государственный регистрационный знак <b>${m.plate}</b>, зафиксировано нарушение <b>ст. ${m.vt.code} КоАП РФ</b> — ${m.vt.name}.</p>
+  <table>
+    <tr><th>Постановление</th><td>${m.decId}</td></tr>
+    <tr><th>УИН</th><td>${m.uin||'—'}</td></tr>
+    <tr><th>Нарушитель</th><td>${m.owner.fam} ${m.owner.im} ${m.owner.ot}, ${m.owner.born||'—'} г. р.</td></tr>
+    <tr><th>Адрес</th><td>${m.owner.addr||'—'}<br>индекс ${m.owner.zip||'—'}</td></tr>
+    <tr><th>Статья КоАП РФ</th><td>${m.vt.code} — ${m.vt.name}</td></tr>
+    <tr><th>Сумма штрафа</th><td>${m.fine.toLocaleString('ru')} рублей</td></tr>
+    <tr><th>Срок уплаты</th><td>${pf(pay)} (60 суток с момента вручения копии)</td></tr>
+  </table>
+  <p>На основании изложенного, руководствуясь ст. ${m.vt.code} КоАП РФ,</p>
+  <div class="fine">НАЗНАЧИТЬ административный штраф в размере<br>${m.fine.toLocaleString('ru')} рублей</div>
+  <p>Лицо, привлекаемое к ответственности: <b>${m.owner.fam} ${m.owner.im} ${m.owner.ot}</b>.</p>
+  <div class="sign"><div>Постановление подписано электронной подписью<br>должностного лица (блок ЭП — внизу документа)</div><div>Постановление направлено почтовым отправлением<br>Трек-номер: ${m.trackNum||'—'}</div></div>
+  <div class="foot">Постановление может быть обжаловано в течение 10 суток со дня вручения или получения его копии. Штраф подлежит уплате в течение 60 суток.<br>Учебный тренажёр ЦАФАП — все персональные данные, номера и документы вымышлены.</div>
+  ${s4_signBlockHTML(m)}
+</div></body></html>`;
+}
+/* Печать одного постановления и отметка в очереди печати */
 function s4_printSingle(i){
+  const items=window._printItems||[];const m=items[i];if(!m)return;
+  printHtml(s4_decisionDocHTML(m),'Постановление '+m.decId);
   const el=document.getElementById(`pst-${i}`);
   if(el){el.className='sbadge sb-done';el.innerHTML='✓ Напечатано';}
-  toast(`Задание ${i+1} напечатано`,'success');
+  toast(`Постановление ${m.decId} отправлено на печать (в диалоге печати можно выбрать «Сохранить как PDF»)`,'success');
+}
+/* Печать всех заданий из очереди одним job'ом */
+function s4_printAllDocs(){
+  const items=window._printItems||[];if(!items.length)return;
+  printHtml(items.map(m=>s4_decisionDocHTML(m)).join('<div style="page-break-after:always"></div>'),'Постановления');
 }
 
 /* ============================================================
@@ -570,7 +706,7 @@ function s4_renderPayment(mc){
     </div>
 
     <!-- Таблица контроля -->
-    <div class="card" style="flex:1;">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:200px;">
       <div class="card-hdr">
         <div class="card-title"><i class="fas fa-list"></i>Детальный контроль оплаты</div>
         <div style="display:flex;gap:6px;">
@@ -580,7 +716,7 @@ function s4_renderPayment(mc){
           <button class="btn btn-d btn-sm" onclick="s4_generateAll2025()"><i class="fas fa-exclamation-triangle"></i> 20.25 по всем просрочен.</button>
         </div>
       </div>
-      <div style="overflow-y:auto;max-height:360px;">
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr><th>Постановление</th><th>Нарушитель</th><th>Г/Н</th><th>Штраф</th><th>Срок (осталось)</th><th>Льготный ${CAFAP_DISCOUNT.pct}%</th><th>Статус оплаты</th><th>Действия</th></tr></thead>
           <tbody>${MAIL_DATA.slice(0,25).map(m=>{
@@ -655,11 +791,11 @@ function s4_renderArt2025(mc){
     </div>
 
     <!-- Таблица просроченных -->
-    <div class="card">
+    <div class="card tbl-card" style="flex:1 1 auto;min-height:220px;">
       <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Просроченные штрафы — требуют протокола ст.20.25</div>
         <span class="sbadge sb-overdue">${OVERDUE_DATA.length} нарушителей</span>
       </div>
-      <div style="overflow-x:auto;">
+      <div class="tbl-scroll">
         <table class="data-table">
           <thead><tr><th><input type="checkbox" style="cursor:pointer;" onchange="selectAll2025(this)"></th><th>Постановление</th><th>Нарушитель</th><th>Г/Н</th><th>Исходный штраф</th><th>Просрочено (дн.)</th><th>Новый штраф ×2</th><th>Статус 20.25</th><th>Действия</th></tr></thead>
           <tbody id="art2025Body">
@@ -824,11 +960,12 @@ function s4_renderFSSP(mc){
     </div>
 
     <!-- Очередь ФССП -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Очередь передачи в ФССП</div></div>
-      <div style="overflow-x:auto;">
+    <div class="card tbl-card" style="flex:1 1 46%;min-height:210px;">
+      <div class="card-hdr"><div class="card-title"><i class="fas fa-list"></i>Очередь передачи в ФССП</div>
+        <span style="font-size:11px;color:var(--text3);">${FSSP_QUEUE.length} дел · таблица прокручивается</span></div>
+      <div class="tbl-scroll">
         <table class="data-table">
-          <thead><tr><th><input type="checkbox" style="cursor:pointer;" onchange="s4_selFSSP(this)"></th><th>Постановление</th><th>Нарушитель</th><th>Г/Н</th><th>Долг (₽)</th><th>Просрочено</th><th>Основание</th><th>Статус</th><th>Действия</th></tr></thead>
+          <thead><tr><th><input type="checkbox" style="cursor:pointer;" onchange="s4_selFSSP(this)"></th><th>Постановление</th><th>Нарушитель</th><th>Г/Н</th><th>Долг (₽)</th><th>Просрочено</th><th>Основание</th><th>Статус</th><th class="fssp-act">Действия</th></tr></thead>
           <tbody>${FSSP_QUEUE.map((m,i)=>{
             const debt=m.fine+Math.max(m.fine*2,1000);
             const overdueDays=Math.abs(Math.min(m.payDaysLeft,0));
@@ -841,7 +978,7 @@ function s4_renderFSSP(mc){
               <td><span style="background:#FFEBEE;color:#B71C1C;border:1px solid #FFCDD2;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;">${overdueDays} дн.</span></td>
               <td style="font-size:10.5px;">Ст.20.25 КоАП</td>
               <td><span class="sbadge sb-fssp" id="fst-${i}" style="font-size:9px;">К передаче</span></td>
-              <td><div style="display:flex;gap:3px;">
+              <td class="fssp-act"><div style="display:flex;gap:3px;">
                 <button class="btn btn-purple btn-sm" style="background:var(--purple);color:#fff;" onclick="s4_showFSSPModal(${i})"><i class="fas fa-university"></i> Передать</button>
                 <button class="btn btn-s btn-sm" onclick="toast('Исполнительный лист сформирован','info')"><i class="fas fa-file"></i></button>
               </div></td>
@@ -851,13 +988,24 @@ function s4_renderFSSP(mc){
       </div>
     </div>
     <!-- Производства в ФССП АС (база data/fssp.js) -->
-    <div class="card">
+    <div class="card tbl-card" style="flex:1 1 40%;min-height:170px;">
       <div class="card-hdr"><div class="card-title"><i class="fas fa-gavel"></i>Исполнительные производства в ФССП АС</div><span style="font-size:11px;color:var(--text3);">последние 10 из ${_PROC.length}</span></div>
-      <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>№ ИП</th><th>Должник</th><th>Г/Н</th><th>Долг (₽)</th><th>Стадия</th><th>Пристав</th><th>Возбуждено</th></tr></thead>
+      <div class="tbl-scroll" id="fsspProc"><table class="data-table"><thead><tr><th>№ ИП</th><th>Должник</th><th>Г/Н</th><th>Долг (₽)</th><th>Стадия</th><th>Пристав</th><th>Возбуждено</th></tr></thead>
         <tbody>${_PROC.slice(0,10).map(p=>{const o=_OWN.get(p.ownerId);return`<tr><td class="mono" style="font-size:10.5px;color:var(--primary);">${p.ipNo}</td><td style="font-size:11px;">${o?o.fam+' '+o.im[0]+'.'+(o.ot?o.ot[0]+'.':''):'—'}</td><td><span class="plate" style="font-size:10px;">${p.plate}</span></td><td class="mono" style="font-weight:700;">${p.debt.toLocaleString('ru')}</td><td><span class="sbadge sb-fssp" style="font-size:9px;">${p.stage}</span></td><td style="font-size:11px;">${p.bailiff}</td><td style="font-size:11px;">${p.started}</td></tr>`}).join('')}</tbody></table></div>
+      <div style="display:flex;justify-content:flex-end;padding:6px 10px;background:#FAFCFF;border-top:1px solid var(--border2);">
+        <button class="btn btn-s btn-sm" id="btnProc" onclick="s4_toggleProc()"><i class="fas fa-chevron-up"></i> Скрыть производства</button>
+      </div>
     </div>
   </div>`;
   s4_markQuest(11);
+}
+/* Свернуть/развернуть таблицу исполнительных производств (кнопка справа внизу карточки) */
+function s4_toggleProc(){
+  const el=document.getElementById('fsspProc'), btn=document.getElementById('btnProc');
+  if(!el)return;
+  const hidden=el.style.display==='none';
+  el.style.display=hidden?'':'none';
+  if(btn)btn.innerHTML=hidden?'<i class="fas fa-chevron-up"></i> Скрыть производства':'<i class="fas fa-chevron-down"></i> Показать производства';
 }
 
 function s4_selFSSP(cb){document.querySelectorAll('.cbfssp').forEach(el=>el.checked=cb.checked);}
@@ -1004,8 +1152,8 @@ const GLOSSARY=[
 
 const Q4ST=SPA_STATE.quest[4];
 function s4_initQuest(){Q4ST.done=[];Q4ST.step=0;s4_updateQuestUI();s4_renderInstContent();}
-function s4_markQuest(idx){if(!Q4ST.done.includes(idx)){Q4ST.done.push(idx);s4_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
-function s4_nextQuest(){if(Q4ST.step<QSTEPS.length-1){s4_markQuest(Q4ST.step);Q4ST.step++;s4_updateQuestUI();}else{toast('🎓 Этап 4 пройден! Переходите к Этапу 5.','success');s4_markQuest(Q4ST.step);}}
+function s4_markQuest(idx){if(!Q4ST.done.includes(idx)){Q4ST.done.push(idx);syncQuestPointer(Q4ST,QSTEPS.length);s4_updateQuestUI();logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});toast(`✅ Шаг ${idx+1}: ${QSTEPS[idx]?.title||''}!`,'success');}}
+function s4_nextQuest(){if(Q4ST.step<QSTEPS.length-1){s4_markQuest(Q4ST.step);s4_updateQuestUI();}else{toast('🎓 Этап 4 пройден! Переходите к Этапу 5.','success');s4_markQuest(Q4ST.step);}}
 function s4_restartQuest(){Q4ST.done=[];Q4ST.step=0;s4_updateQuestUI();toast('Квест перезапущен','info');}
 function s4_updateQuestUI(){
   const pct=Math.round((Q4ST.done.length/Q4ST.total)*100);
@@ -1083,6 +1231,10 @@ function toast(msg,type='info'){
   window.s4_renderPrint = (typeof s4_renderPrint!=="undefined") ? s4_renderPrint : window.s4_renderPrint;
   window.s4_startPrintAll = (typeof s4_startPrintAll!=="undefined") ? s4_startPrintAll : window.s4_startPrintAll;
   window.s4_printSingle = (typeof s4_printSingle!=="undefined") ? s4_printSingle : window.s4_printSingle;
+  window.s4_printAllDocs = (typeof s4_printAllDocs!=="undefined") ? s4_printAllDocs : window.s4_printAllDocs;
+  window.s4_decisionDocHTML = (typeof s4_decisionDocHTML!=="undefined") ? s4_decisionDocHTML : window.s4_decisionDocHTML;
+  window.s4_signBlockHTML = (typeof s4_signBlockHTML!=="undefined") ? s4_signBlockHTML : window.s4_signBlockHTML;
+  window.s4_printSingle = (typeof s4_printSingle!=="undefined") ? s4_printSingle : window.s4_printSingle;
   window.s4_renderTracking = (typeof s4_renderTracking!=="undefined") ? s4_renderTracking : window.s4_renderTracking;
   window.s4_trackLetter = (typeof s4_trackLetter!=="undefined") ? s4_trackLetter : window.s4_trackLetter;
   window.s4_renderReturned = (typeof s4_renderReturned!=="undefined") ? s4_renderReturned : window.s4_renderReturned;
@@ -1102,6 +1254,7 @@ function toast(msg,type='info'){
   window.s4_renderTreasury = (typeof s4_renderTreasury!=="undefined") ? s4_renderTreasury : window.s4_renderTreasury;
   window.s4_renderFSSP = (typeof s4_renderFSSP!=="undefined") ? s4_renderFSSP : window.s4_renderFSSP;
   window.s4_selFSSP = (typeof s4_selFSSP!=="undefined") ? s4_selFSSP : window.s4_selFSSP;
+  window.s4_toggleProc = (typeof s4_toggleProc!=="undefined") ? s4_toggleProc : window.s4_toggleProc;
   window.s4_showFSSPModal = (typeof s4_showFSSPModal!=="undefined") ? s4_showFSSPModal : window.s4_showFSSPModal;
   window.s4_confirmFSSP = (typeof s4_confirmFSSP!=="undefined") ? s4_confirmFSSP : window.s4_confirmFSSP;
   window.s4_transferAllFSSP = (typeof s4_transferAllFSSP!=="undefined") ? s4_transferAllFSSP : window.s4_transferAllFSSP;
@@ -1113,6 +1266,7 @@ function toast(msg,type='info'){
   window.s4_updateQuestUI = (typeof s4_updateQuestUI!=="undefined") ? s4_updateQuestUI : window.s4_updateQuestUI;
   window.s4_switchInstTab = (typeof s4_switchInstTab!=="undefined") ? s4_switchInstTab : window.s4_switchInstTab;
   window.s4_renderInstContent = (typeof s4_renderInstContent!=="undefined") ? s4_renderInstContent : window.s4_renderInstContent;
+  window.s4_questSteps=QSTEPS;
   window.s4_toggleInst = (typeof s4_toggleInst!=="undefined") ? s4_toggleInst : window.s4_toggleInst;
   if(typeof S4T!=="undefined") window.S4T = S4T;
   if(typeof Q4ST!=="undefined") window.Q4ST = Q4ST;

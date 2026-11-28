@@ -115,6 +115,7 @@
     <button class="btn-login" onclick="doLogin()">
       <i class="fas fa-sign-in-alt"></i> Войти в систему
     </button>
+    <div style="text-align:center;margin-top:10px;font-size:11.5px;"><a href="manual.html" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none;"><i class="fas fa-book-open"></i> Руководство пользователя</a></div>
   </div>
 
   <div class="login-footer">
@@ -155,11 +156,12 @@
 <div id="hdrAvatar" style="width:28px;height:28px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">КУ</div>
 <div><div style="font-size:12px;font-weight:700;" id="hdrName">Курсант</div><div class="role-chip role-op" id="hdrRole">Оператор</div></div>
 </div>
+<a href="manual.html" target="_blank" rel="noopener" style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;color:#fff;text-decoration:none;" title="Руководство пользователя"><i class="fas fa-book-open"></i></a>
 <a href="databases.html" target="_blank" rel="noopener" style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;color:#fff;text-decoration:none;" title="Просмотр учебных баз данных (ФИС ГИБДД-М, ГИС ГМП, ФССП, НСИ, ФВФ)"><i class="fas fa-database"></i> Базы</a>
 <div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="downloadReport()" title="Скачать отчёт о прохождении тренажёра (JSON)"><i class="fas fa-file-download"></i> Отчёт</div>
 <div style="padding:7px 10px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;" onclick="doLogout()" title="Выход"><i class="fas fa-sign-out-alt"></i></div>
 </div>
-<div style="display:flex;flex:1;overflow:hidden;">
+<div class="app-body" style="display:flex;flex:1;overflow:hidden;min-height:0;">
 <div id="unifiedSidebar" class="sidebar" style="width:215px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;"></div>
 <div style="flex:1;position:relative;overflow:hidden;display:flex;">
 <div class="stage-sec active" id="stage-1" style="flex:1;overflow:hidden;">
@@ -250,6 +252,12 @@
 <button class="btn btn-s" onclick="closeModal('searchModal')">Отмена</button>
 <button class="btn btn-p" onclick="if(window.s1_doSearch)s1_doSearch()"><i class="fas fa-search"></i> Найти</button></div>
 <div id="srchResult" style="margin-top:12px;"></div></div></div></div>
+<div id="notifModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-bell" style="color:var(--primary);"></i> Уведомление</div>
+<span onclick="closeModal('notifModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="notifModalContent"></div></div></div>
 <div id="userModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
 <div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -292,6 +300,12 @@
 <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-folder-open" style="color:var(--primary);"></i> Карточка дела</div>
 <span onclick="closeModal('caseModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
 <div id="caseModalContent"></div></div></div>
+<div id="caseViewModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.55);z-index:520;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:12px;padding:20px;width:1040px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+<div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><i class="fas fa-folder-open" style="color:var(--primary);"></i> Просмотр дела</div>
+<span onclick="closeModal('caseViewModal')" style="cursor:pointer;font-size:20px;color:var(--text3);">✕</span></div>
+<div id="caseViewContent"></div></div></div>
 <div id="lvokModal" style="display:none;position:fixed;inset:0;background:rgba(26,35,50,.5);z-index:500;align-items:center;justify-content:center;">
 <div style="background:#fff;border-radius:12px;padding:22px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -301,7 +315,10 @@
 
 <script src="vendor/chart.min.js"></script>
 <script src="vendor/leaflet/leaflet.js"></script>
+<script src="assets/map/tiles.js"></script>
+<script src="js/core/maptiles.js"></script>
 <script src="js/db/db.js"></script>
+<script src="js/core/snapshot.js"></script>
 <script src="data/nsi.js"></script>
 <script src="data/fvf_complexes.js"></script>
 <script src="data/fis_gibdd_m.js"></script>
@@ -309,6 +326,7 @@
 <script src="data/fssp.js"></script>
 <script src="data/fixations.js"></script>
 <script src="data/photos.js"></script>
+<script src="data/ai_photos.js"></script>
 <script src="js/core/token.js"></script>
 <script src="js/core/app.js"></script>
 <script src="js/stages/stage1.js"></script>

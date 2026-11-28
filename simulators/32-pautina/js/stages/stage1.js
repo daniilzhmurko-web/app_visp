@@ -378,10 +378,12 @@ function s1_renderCameras(){
   },350);
 }
 
+/* Клик по камере: показываем сведения и сразу переходим на карту (этап 5) с этой камерой */
 function s1_camDetail(id){
   const c=CAMERAS.find(x=>x.id===id);if(!c)return;
   const t=c.st==='online'?'success':c.st==='warning'?'warning':'error';
   toast(`${c.id} · ${c.addr} · ${c.type} · ${c.st==='online'?'ONLINE':c.st==='warning'?'ПРЕДУПРЕЖДЕНИЕ':'OFFLINE'}`,t);
+  if(typeof gotoCameraOnMap==='function')gotoCameraOnMap(id);
 }
 
 function s1_renderAudit(){
@@ -441,20 +443,59 @@ function s1_renderQueue(){
 /* ============================================================
    MODALS & SEARCH
    ============================================================ */
+/* ---- ПОИСК ДЕЛА: примеры и подсказки, чтобы поиск всегда давал результат ---- */
+function s1_searchSamples(){
+  const out=[];const seen=new Set();
+  for(const x of (allViolations||[])){
+    if(!seen.has(x.plate)){seen.add(x.plate);out.push(x);}
+    if(out.length>=4)break;
+  }
+  return out;
+}
+function s1_fillSearch(kind,val){
+  const map={case:'srchCase',plate:'srchPlate',name:'srchName'};
+  const el=document.getElementById(map[kind]);if(el)el.value=val;
+  s1_doSearch();
+}
+function s1_searchSamplesHTML(title){
+  const s=s1_searchSamples();
+  if(!s.length)return '';
+  return`<div style="margin-top:10px;padding:9px 11px;background:var(--primary-xs);border:1px solid var(--border2);border-radius:8px;font-size:11px;">
+    <div style="font-weight:700;color:var(--primary);margin-bottom:5px;"><i class="fas fa-lightbulb"></i> ${title||'Примеры дел из очереди (нажмите, чтобы найти)'}</div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      ${s.map(x=>`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-s btn-sm" onclick="s1_fillSearch('case','${x.id}')"><i class="fas fa-hashtag"></i> ${x.id}</button>
+        <button class="btn btn-s btn-sm" onclick="s1_fillSearch('plate','${x.plate}')"><i class="fas fa-car"></i> ${x.plate}</button>
+        <span style="color:var(--text2);">${x.owner} · ${x.vtype.code} · ${x.cam}</span>
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:6px;color:var(--text3);font-size:10px;">Формат номера дела: ДЕЛ-2026-XXXXX · номер ТС: А000АА77 · поиск по ФИО владельца.</div>
+  </div>`;
+}
 function s1_openSearchModal(){
   document.getElementById('searchModal').style.display='flex';
-  document.getElementById('srchResult').innerHTML='';
+  const res=document.getElementById('srchResult');
+  const s=s1_searchSamples();
+  /* Подставляем реальный номер ТС из очереди — поиск сразу находит дело */
+  const pf=document.getElementById('srchPlate');
+  if(pf&&!pf.value&&s.length)pf.value=s[0].plate;
+  if(res)res.innerHTML=s1_searchSamplesHTML('Дела из входящей очереди — нажмите, чтобы найти');
 }
 function closeModal(id){document.getElementById(id).style.display='none';}
 
 function s1_doSearch(){
-  const c=document.getElementById('srchCase').value;
-  const p=document.getElementById('srchPlate').value;
-  const n=document.getElementById('srchName').value;
-  if(!c&&!p&&!n){document.getElementById('srchResult').innerHTML='<div style="color:var(--accent-red);font-size:12px;">Введите параметры поиска</div>';return;}
-  const v=allViolations.find(x=>(c&&x.id===c)||(p&&CAFAP_DB.normPlate(x.plate)===CAFAP_DB.normPlate(p))||(n&&x.owner.toLowerCase().includes(n.toLowerCase())));
+  const c=(document.getElementById('srchCase').value||'').trim().toUpperCase();
+  const p=(document.getElementById('srchPlate').value||'').trim();
+  const n=(document.getElementById('srchName').value||'').trim();
+  const res=document.getElementById('srchResult');
+  if(!c&&!p&&!n){res.innerHTML='<div style="color:var(--accent-red);font-size:12px;">Введите параметры поиска</div>'+s1_searchSamplesHTML();return;}
+  const cNorm=c.replace(/[^А-ЯA-Z0-9]/g,'');
+  const v=allViolations.find(x=>
+    (c&&(x.id.toUpperCase()===c||x.id.toUpperCase().replace(/[^А-ЯA-Z0-9]/g,'')===cNorm))||
+    (p&&CAFAP_DB.normPlate(x.plate)===CAFAP_DB.normPlate(p))||
+    (n&&x.owner.toLowerCase().includes(n.toLowerCase())));
   if(v){
-    document.getElementById('srchResult').innerHTML=`<div style="background:var(--primary-xs);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:12px;">
+    res.innerHTML=`<div style="background:var(--primary-xs);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:12px;">
       <div style="font-weight:700;color:var(--primary);margin-bottom:6px;">✓ Найдено: ${v.id}</div>
       <div>Г/Н: <span class="plate" style="font-size:10px;">${v.plate}</span>&nbsp;&nbsp;Владелец: <b>${v.owner}</b></div>
       <div style="margin-top:4px;">Нарушение: ${v.vtype.name}</div>
@@ -464,8 +505,74 @@ function s1_doSearch(){
     </div>`;
     s1_markQuest(5);
   } else {
-    document.getElementById('srchResult').innerHTML=`<div style="color:var(--accent-red);font-size:12px;">⚠ Записей не найдено по заданным критериям</div>`;
+    res.innerHTML=`<div style="color:var(--accent-red);font-size:12px;">⚠ Записей не найдено по заданным критериям</div>`+s1_searchSamplesHTML('Подходящих записей нет — выберите любое дело из списка:');
   }
+}
+
+/* ---- СИСТЕМНЫЕ УВЕДОМЛЕНИЯ (кликабельны: открывают карточку) ---- */
+const NOTIFICATIONS=[
+  {id:'N-01',level:'crit',ico:'fa-times-circle',color:'var(--accent-red)',title:'Камера САМ-077-015 OFFLINE',short:'Ленинградское ш., 45 — нет связи 14 мин.',
+   text:'Комплекс ФВФ CAM-077-015 не передаёт данные более 14 минут. Нарушения с этой камеры не поступают в обработку.',
+   action:'Открыть статус камер',steps:['Проверить канал связи комплекса','Перезапустить комплекс','Открыть инцидент в журнале аудита'],ts:'26.11.2026 08:41'},
+  {id:'N-02',level:'warn',ico:'fa-exclamation-triangle',color:'var(--accent)',title:'Очередь ЭЦП переполнена',short:'Требуется проверка подписей',
+   text:'В очереди на подписание более 88 постановлений. Часть сроков оплаты сокращается — необходимо подписание.',
+   action:'Перейти к очереди ЭЦП',steps:['Открыть этап 3 — «Подписание ЭЦП»','Подписать постановления','Проверить сроки оплаты'],ts:'26.11.2026 08:37'},
+  {id:'N-03',level:'info',ico:'fa-info-circle',color:'var(--primary)',title:'Обновление НСИ завершено',short:'Справочники синхронизированы',
+   text:'Справочники нормативно-справочной информации синхронизированы с центральным реестром МВД России.',
+   action:'Открыть раздел НСИ',steps:['Открыть этап 6 — «НСИ»','Проверить дату синхронизации','Запустить синхронизацию при необходимости'],ts:'26.11.2026 07:55'}
+];
+const S1_READ_NOTIF={};
+function s1_openNotification(i){
+  const n=NOTIFICATIONS[i];if(!n)return;
+  const c=document.getElementById('notifModalContent');
+  if(c)c.innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--border2);">
+      <i class="fas ${n.ico}" style="color:${n.color};font-size:18px;margin-top:2px;"></i>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;">${n.title}</div>
+        <div style="font-size:11.5px;color:var(--text2);margin-top:2px;">${n.short}</div>
+        <div class="mono" style="font-size:10px;color:var(--text3);margin-top:4px;">${n.id} · ${n.ts}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;line-height:1.5;margin:12px 0;">${n.text}</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;">Что требуется сделать:</div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+      ${n.steps.map((s,k)=>`<div style="display:flex;gap:7px;align-items:center;font-size:11.5px;">
+        <span style="width:18px;height:18px;border-radius:50%;background:var(--primary-lighter);color:var(--primary);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${k+1}</span>${s}</div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-s" onclick="closeModal('notifModal')">Закрыть</button>
+      <button class="btn btn-p" onclick="closeModal('notifModal');s1_notificationAction(${i})"><i class="fas fa-check-circle"></i> ${n.action}</button>
+    </div>`;
+  const m=document.getElementById('notifModal');if(m)m.style.display='flex';
+  S1_READ_NOTIF[i]=true;
+  s1_markQuest(7);            /* шаг «Изучение системных уведомлений» */
+}
+function s1_notificationAction(i){
+  const n=NOTIFICATIONS[i];if(!n)return;
+  if(i===0){s1_setSection('cameras',null);toast('Открыт статус камер ФВФ','info');}
+  else if(i===1){switchStage(3);toast('Открыта очередь ЭЦП — этап 3','info');}
+  else{switchStage(6);if(typeof s6_setSection==='function')s6_setSection('nsi',document.getElementById('nav-nsi'));toast('Открыт раздел НСИ','info');}
+}
+function s1_openAllNotifications(){
+  const c=document.getElementById('notifModalContent');
+  if(c)c.innerHTML=`
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Активные уведомления (${NOTIFICATIONS.length})</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${NOTIFICATIONS.map((n,k)=>`<div style="display:flex;gap:9px;align-items:flex-start;border:1px solid var(--border2);border-radius:8px;padding:9px 11px;cursor:pointer;background:${S1_READ_NOTIF[k]?'#F8FAFF':'#fff'};" onclick="s1_openNotification(${k})">
+        <i class="fas ${n.ico}" style="color:${n.color};font-size:15px;margin-top:2px;"></i>
+        <div style="flex:1;">
+          <div style="font-size:12.5px;font-weight:700;">${n.title}</div>
+          <div style="font-size:11px;color:var(--text2);">${n.short}</div>
+          <div class="mono" style="font-size:9.5px;color:var(--text3);margin-top:3px;">${n.id} · ${n.ts}</div>
+        </div>
+        ${S1_READ_NOTIF[k]?'<span style="font-size:10px;color:var(--success);font-weight:700;">Прочитано</span>':''}
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+      <button class="btn btn-s" onclick="closeModal('notifModal')">Закрыть</button>
+    </div>`;
+  const m=document.getElementById('notifModal');if(m)m.style.display='flex';
 }
 
 /* ============================================================
@@ -638,6 +745,7 @@ function s1_markQuest(idx){
   if(!SQ.done.includes(idx)){
     SQ.done.push(idx);
     if(QSTEPS[idx])QSTEPS[idx].done=true;
+    syncQuestPointer(SQ,QSTEPS.length);
     s1_updateQuestUI();
     logEvent('quest_step',{step:idx,title:QSTEPS[idx]?.title||'',total:QSTEPS.length});
     toast(`✅ Задание ${idx+1} выполнено: ${QSTEPS[idx]?.title||''}!`,'success');
@@ -646,7 +754,6 @@ function s1_markQuest(idx){
 function s1_nextQuest(){
   if(SQ.step<QSTEPS.length-1){
     s1_markQuest(SQ.step);
-    SQ.step++;
     s1_updateQuestUI();
   } else {
     toast('🎓 Этап 1 пройден! Переходите к Этапу 2 — Обработка нарушений.','success');
@@ -804,11 +911,11 @@ function s1_setSection(view, navEl) {
         <div class="col-center" id="colCenter" style="flex:1;display:flex;flex-direction:column;gap:13px;min-width:0;"></div>
         <div class="col-right" style="width:275px;flex-shrink:0;display:flex;flex-direction:column;gap:13px;">
           <div class="card">
-            <div class="card-hdr"><div class="card-title"><i class="fas fa-bell"></i>Уведомления</div><span style="font-size:11px;color:var(--primary);cursor:pointer;">Все →</span></div>
+            <div class="card-hdr"><div class="card-title"><i class="fas fa-bell"></i>Уведомления</div><span style="font-size:11px;color:var(--primary);cursor:pointer;" onclick="s1_openAllNotifications()" title="Показать все уведомления">Все →</span></div>
             <div class="card-body" style="padding:8px 12px;">
-              <div class="alert-item ai-crit"><i class="fas fa-times-circle" style="color:var(--accent-red);flex-shrink:0;"></i><div><div class="ai-title">Камера САМ-077-015 OFFLINE</div><div style="font-size:10.5px;color:var(--text2);">Ленинградское ш., 45 — нет связи 14 мин.</div></div></div>
-              <div class="alert-item ai-warn"><i class="fas fa-exclamation-triangle" style="color:var(--accent);flex-shrink:0;"></i><div><div class="ai-title">Очередь ЭЦП переполнена</div><div style="font-size:10.5px;color:var(--text2);">Требуется проверка подписей</div></div></div>
-              <div class="alert-item ai-info"><i class="fas fa-info-circle" style="color:var(--primary);flex-shrink:0;"></i><div><div class="ai-title">Обновление НСИ завершено</div><div style="font-size:10.5px;color:var(--text2);">Справочники синхронизированы</div></div></div>
+              <div class="alert-item ai-crit" style="cursor:pointer;" title="Открыть уведомление" onclick="s1_openNotification(0)"><i class="fas fa-times-circle" style="color:var(--accent-red);flex-shrink:0;"></i><div><div class="ai-title">Камера САМ-077-015 OFFLINE</div><div style="font-size:10.5px;color:var(--text2);">Ленинградское ш., 45 — нет связи 14 мин.</div></div></div>
+              <div class="alert-item ai-warn" style="cursor:pointer;" title="Открыть уведомление" onclick="s1_openNotification(1)"><i class="fas fa-exclamation-triangle" style="color:var(--accent);flex-shrink:0;"></i><div><div class="ai-title">Очередь ЭЦП переполнена</div><div style="font-size:10.5px;color:var(--text2);">Требуется проверка подписей</div></div></div>
+              <div class="alert-item ai-info" style="cursor:pointer;" title="Открыть уведомление" onclick="s1_openNotification(2)"><i class="fas fa-info-circle" style="color:var(--primary);flex-shrink:0;"></i><div><div class="ai-title">Обновление НСИ завершено</div><div style="font-size:10.5px;color:var(--text2);">Справочники синхронизированы</div></div></div>
             </div>
           </div>
           <div class="card">
@@ -821,9 +928,9 @@ function s1_setSection(view, navEl) {
               </div>`).join('')}
             </div>
           </div>
-          <div class="card" style="flex:1;min-height:0;">
+          <div class="card" style="flex:1;min-height:0;display:flex;flex-direction:column;">
             <div class="card-hdr"><div class="card-title"><i class="fas fa-stream"></i>Лента активности<span class="live-ind" style="margin-left:6px;">LIVE</span></div></div>
-            <div class="card-body" style="padding:6px 10px;overflow-y:auto;max-height:300px;" id="feedBody"></div>
+            <div class="card-body" style="padding:6px 10px;overflow-y:auto;max-height:300px;flex:1 1 auto;min-height:0;" id="feedBody"></div>
           </div>
         </div>
       </div>`;
@@ -863,6 +970,11 @@ window.s1_setSection = s1_setSection;
   window.s1_renderQueue = (typeof s1_renderQueue!=="undefined") ? s1_renderQueue : window.s1_renderQueue;
   window.s1_openSearchModal = (typeof s1_openSearchModal!=="undefined") ? s1_openSearchModal : window.s1_openSearchModal;
   window.s1_doSearch = (typeof s1_doSearch!=="undefined") ? s1_doSearch : window.s1_doSearch;
+  window.s1_fillSearch = (typeof s1_fillSearch!=="undefined") ? s1_fillSearch : window.s1_fillSearch;
+  window.s1_searchSamples = (typeof s1_searchSamples!=="undefined") ? s1_searchSamples : window.s1_searchSamples;
+  window.s1_searchSamplesHTML = (typeof s1_searchSamplesHTML!=="undefined") ? s1_searchSamplesHTML : window.s1_searchSamplesHTML;
+  window.s1_openNotification = (typeof s1_openNotification!=="undefined") ? s1_openNotification : window.s1_openNotification;
+  window.s1_openAllNotifications = (typeof s1_openAllNotifications!=="undefined") ? s1_openAllNotifications : window.s1_openAllNotifications;
   window.s1_queryFIS = (typeof s1_queryFIS!=="undefined") ? s1_queryFIS : window.s1_queryFIS;
   window.s1_fisSearch=s1_fisSearch; window.s1_fisDetail=s1_fisDetail; window.s1_fisExample=s1_fisExample;
   window.s1_goToStage2 = (typeof s1_goToStage2!=="undefined") ? s1_goToStage2 : window.s1_goToStage2;
@@ -878,6 +990,7 @@ window.s1_setSection = s1_setSection;
   window.s1_updateQuestUI = (typeof s1_updateQuestUI!=="undefined") ? s1_updateQuestUI : window.s1_updateQuestUI;
   window.s1_switchInstTab = (typeof s1_switchInstTab!=="undefined") ? s1_switchInstTab : window.s1_switchInstTab;
   window.s1_renderInstContent = (typeof s1_renderInstContent!=="undefined") ? s1_renderInstContent : window.s1_renderInstContent;
+  window.s1_questSteps=QSTEPS;
   window.s1_toggleInst = (typeof s1_toggleInst!=="undefined") ? s1_toggleInst : window.s1_toggleInst;
 })(); /* end Stage 1 IIFE */
 /* initStage1 */
